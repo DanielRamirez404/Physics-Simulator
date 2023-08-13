@@ -1,15 +1,9 @@
-#include "timed functions.h"
-#include <iostream>
-
-void testFunction() {
-  static int testNumber{0};
-  ++testNumber;
-  std::cout << testNumber << '\n';
-}
+#include "simulator.h"
+#include "menu.h"
 
 int main() {
-  constexpr float seconds{2.5f};
-  TimedFunction test(seconds, &testFunction);
-  test.run();
+  mainMenu simulator{"PHYSICS SIMULATOR", getSimulatorFunctions()};
+  simulator.run();
+  //exitMessage();
   return 0;
 }

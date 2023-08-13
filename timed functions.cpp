@@ -2,9 +2,17 @@
 #include "functional"
 #include "ctime"
 
-void TimedFunction::run() {
-  float totalTime{secondsToRun * CLOCKS_PER_SEC};
-  clock_t startingTime { clock() };
-  while ((clock() - startingTime) < totalTime)
+void TimedFunction::runWithTimer() {
+  auto totalTime{timerSeconds * CLOCKS_PER_SEC};
+  auto startingTime { clock() };
+  while ((clock() - startingTime) < totalTime) {
     function();
+  }
+}
+
+void TimedFunction::runAfterTimer() {
+  auto totalTime{timerSeconds * CLOCKS_PER_SEC};
+  auto startingTime { clock() };
+  while ((clock() - startingTime) < totalTime);
+  function();
 }
