@@ -1,41 +1,41 @@
 #pragma once
 #include <cstddef>
 #include <functional>
-#include <string>
+#include <string_view>
 #include <vector>
 
-struct menuFunction {
-  std::string name;
+struct MenuFunction {
+  std::string_view name;
   std::function<void()> function;
 };
 
-class menu {
+class Menu {
 protected:
-  std::string exitMessage{"GO BACK"};
-  std::string title{};
+  std::string_view title{};
+  std::string_view exitMessage{"GO BACK"};
   size_t totalOptions{};
-  std::vector<menuFunction> functions{};
+  std::vector<MenuFunction> functions{};
   bool isUserQuitting(size_t selectedOption) { return (selectedOption == totalOptions + 1); };
   bool isQuittingConfirmed();
   void printTitle();
 public:
-  menu (const menu&) = delete;
-  menu& operator=(const menu&) = delete; 
-  menu(std::string menuTitle, std::vector<menuFunction> menuFunctions);
+  Menu (const Menu&) = delete;
+  Menu& operator=(const Menu&) = delete; 
+  Menu(const char* menuTitle, std::vector<MenuFunction> menufunctions) : title{menuTitle}, functions{menufunctions} { totalOptions = functions.size(); };
   void run();
   void print();
 };
 
-class mainMenu : public menu {
+class MainMenu : public Menu {
 public:
-  mainMenu(std::string menuTitle, std::vector<menuFunction> menuFunctions) : menu (menuTitle, menuFunctions) { menu::exitMessage = "EXIT"; };
+  MainMenu(const char* title, std::vector<MenuFunction> functions) : Menu (title, functions) { Menu::exitMessage = "EXIT"; };
 };
 
-class runOnceMenu : public menu {
+class RunOnceMenu : public Menu {
 private:
   bool didUserQuit{false};
+  bool didUserExit() { return didUserQuit; };
 public:
-  using menu::menu;
+  using Menu::Menu;
   void run();
-  bool didUserExit() { return didUserQuit; } ;
 };

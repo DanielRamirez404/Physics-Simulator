@@ -2,6 +2,6 @@
 #include "menu.h"
 #include <vector>
 
-std::vector<menuFunction> getSimulatorFunctions();
+std::vector<MenuFunction> getSimulatorFunctions();
 void chooseVerticalMovement();
 void chooseHorizontalMovement();

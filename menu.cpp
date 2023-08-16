@@ -5,16 +5,9 @@
 #include <cstddef>
 #include <iostream>
 #include <functional>
-#include <string>
 #include <vector>
 
-menu::menu(std::string menuTitle, std::vector<menuFunction> menuFunctions) {
-  title = menuTitle;
-  functions = menuFunctions;
-  totalOptions = menuFunctions.size();
-}
-
-void menu::run() {
+void Menu::run() {
   while (true) {
     clearConsole();
     print();
@@ -27,17 +20,18 @@ void menu::run() {
         continue;
       }
     }
-    functions[static_cast<size_t>(selectedOption - 1)].function();
+    --selectedOption;
+    functions[selectedOption].function();
     pressAnyToContinue();
   }
 }
 
-bool menu::isQuittingConfirmed() {
+bool Menu::isQuittingConfirmed() {
   std::cout << "ARE YOU SURE YOU WANT TO " << exitMessage << "? (y/n)\n";
   return ynInput();
 }
 
-void menu::print() {
+void Menu::print() {
   printTitle();
   for (size_t i{0}; i < totalOptions; ++i) {
     std::cout << i + 1 << ") " << functions[i].name << '\n'; 
@@ -45,7 +39,7 @@ void menu::print() {
   std::cout << totalOptions + 1 << ") " << exitMessage << '\n';
 }
 
-void menu::printTitle() {
+void Menu::printTitle() {
   constexpr int menuWidth{46};
   constexpr int halfWidth{menuWidth / 2};
   const int titleSize { static_cast<int>(title.size()) };
@@ -61,7 +55,7 @@ void menu::printTitle() {
   std::cout << "----------------------------------------------\n";
 }
 
-void runOnceMenu::run() {
+void RunOnceMenu::run() {
   print();
   size_t selectedOption{ getUserInput<size_t>() };
   assert((selectedOption > 0) && (selectedOption <= totalOptions + 1) && "Nonvalid option");
@@ -72,6 +66,7 @@ void runOnceMenu::run() {
       run();
     }
   } else {
-    functions[static_cast<size_t>(selectedOption - 1)].function();
+    --selectedOption;
+    functions[selectedOption].function();
   }
 }
