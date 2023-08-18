@@ -5,3 +5,5 @@
 std::vector<MenuFunction> getSimulatorFunctions();
 void chooseVerticalMovement();
 void chooseHorizontalMovement();
+void countdown();
+void doSomething();

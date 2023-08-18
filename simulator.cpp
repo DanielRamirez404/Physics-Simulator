@@ -12,9 +12,20 @@ std::vector<MenuFunction> getSimulatorFunctions() {
 }
 
 void chooseVerticalMovement() {
-
+  countdown();
 }
 
 void chooseHorizontalMovement() {
+  countdown();
+}
+
+void countdown() {
+  constexpr float seconds{3.0f};
+  TimedFunction countdown{seconds, &doSomething};
+  countdown.willTimeBePrinted(true);
+  countdown.runWithTimer();
+}
+
+void doSomething() {
   
 }
