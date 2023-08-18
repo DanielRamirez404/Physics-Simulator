@@ -2,12 +2,22 @@
 #include <iostream>
 #include <string>
 
+void ignoreExceedingInput();
+void handleFailedInput();
+
 template <typename T> T getUserInput() {
-  std::cout << "----------------------------------------------\n";
-  std::cout << "INPUT: ";
   T userInput{};
-  std::cin >> userInput;
+  while (true) {
+    std::cout << "----------------------------------------------\n";
+    std::cout << "INPUT: ";
+    std::cin >> userInput;
+    if (std::cin.fail())
+      handleFailedInput();
+    else
+      break;
+  }
   std::cout << "----------------------------------------------\n";
+  ignoreExceedingInput();
   return userInput;
 }
 

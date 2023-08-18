@@ -1,7 +1,23 @@
 #include "userinput.h"
-#include <iostream>
 #include <conio.h>
+#include <iostream>
+#include <limits>
 #include <string>
+
+void ignoreExceedingInput() {
+  std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+}
+
+void handleFailedInput() {
+  if (std::cin.eof()) {
+    std::cout << "Error: Input operation cannot be fixed\n";
+    std::cout << "Closing the program...\n";
+    exit(1);
+  }
+  std::cin.clear();
+  ignoreExceedingInput();
+  printBadInputError();
+}
 
 std::string getUserInputLine() {
   std::cout << "----------------------------------------------\n";
@@ -14,19 +30,19 @@ std::string getUserInputLine() {
 
 bool ynInput() {
   bool choice{};
-  char userInput{ getUserInput<char>() };
-  switch (tolower(userInput)) {
-    case 'y':
-      choice = true;
-      break;
-    case 'n':
-      choice = false;
-      break;
-    default:
-      printBadInputError();
-      pressAnyToContinue();
-      ynInput();
-      break;
+  while (true) {
+    char userInput{ getUserInput<char>() };
+    switch (tolower(userInput)) {
+      case 'y':
+        choice = true;
+        break;
+      case 'n':
+        choice = false;
+        break;
+      default:
+        printBadInputError();
+        break;
+    }
   }
   return choice;
 }
