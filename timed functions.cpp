@@ -1,12 +1,11 @@
 #include "timed functions.h"
-#include "functional"
-#include "ctime"
+#include <functional>
+#include <ctime>
 #include <iostream>
-#include <cmath>
 
 void TimedFunction::printTime(float remainingTime) {
   std::cout << "----------------------------------------------\n";
-  std::cout << "TIME LEFT: " << remainingTime << '\n';
+  std::cout << "TIME LEFT: " << remainingTime << " SECONDS\n";
   std::cout << "----------------------------------------------\n";
 }
 

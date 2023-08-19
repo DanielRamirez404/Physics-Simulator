@@ -29,22 +29,16 @@ std::string getUserInputLine() {
 }
 
 bool ynInput() {
-  bool choice{};
+  char choice{};
   while (true) {
-    char userInput{ getUserInput<char>() };
-    switch (tolower(userInput)) {
-      case 'y':
-        choice = true;
-        break;
-      case 'n':
-        choice = false;
-        break;
-      default:
-        printBadInputError();
-        break;
+    choice = { getUserInput<char>() };
+    choice = tolower(choice);
+    if (choice == 'y' || choice == 'n') {
+      break;
     }
+    printBadInputError();
   }
-  return choice;
+  return (choice == 'y');
 }
 
 void printBadInputError() {
