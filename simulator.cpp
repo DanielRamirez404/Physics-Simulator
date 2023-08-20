@@ -22,7 +22,7 @@ void countdown() {
   constexpr float seconds{3.0f};
   TimedFunction countdown{seconds, &clearConsole};
   countdown.willTimeBePrinted(true);
-  countdown.runWithTimer();
+  countdown.run();
 }
 
 void chooseHorizontalMotion() {

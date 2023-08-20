@@ -34,7 +34,7 @@ bool Menu::isQuittingConfirmed() {
 void Menu::print() {
   printTitle();
   for (size_t i{0}; i < totalOptions; ++i) {
-    std::cout << i + 1 << ") " << functions[i].name << '\n'; 
+    std::cout << i + 1 << ") " << functions[i].name << '\n';
   }
   std::cout << totalOptions + 1 << ") " << exitMessage << '\n';
 }

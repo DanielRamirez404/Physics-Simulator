@@ -22,6 +22,7 @@ public:
   bool areAllVariablesSet() { return setVariables == totalVariables; }
   bool canDetermineRemainingVariables() { return (setVariables >= 2) && !areAllVariablesSet(); };
   void determineRemainingVariables();
+  
   void setAcceleration(float myAcceleration);
   void setVelocity(float myVelocity);
   void setDistance(float myDistance);

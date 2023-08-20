@@ -26,7 +26,7 @@ template <typename T> T getPositiveNumberInput() {
   T inputNumber{};
   while (true) {
     inputNumber = getUserInput<T>();
-    if (inputNumber >= 0) {
+    if (inputNumber > 0) {
       break;
     }
     printBadInputError();
