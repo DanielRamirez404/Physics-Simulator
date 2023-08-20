@@ -56,6 +56,7 @@ void Menu::printTitle() {
 }
 
 void RunOnceMenu::run() {
+  clearConsole();
   print();
   size_t selectedOption{ getUserInput<size_t>() };
   assert((selectedOption > 0) && (selectedOption <= totalOptions + 1) && "Nonvalid option");

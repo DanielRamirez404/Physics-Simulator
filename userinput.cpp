@@ -55,5 +55,5 @@ void pressAnyToContinue() {
 }
 
 void clearConsole() {
-  std::cout << std::string( 100, '\n' );
+  system("cls");
 }

@@ -3,7 +3,8 @@
 #include <vector>
 
 std::vector<MenuFunction> getSimulatorFunctions();
-void chooseVerticalMovement();
-void chooseHorizontalMovement();
+void printNotEnoughVariablesMesssage();
 void countdown();
-void doSomething();
+void chooseHorizontalMotion();
+void doUniformLinearMotion();
+void chooseVerticalMotion();

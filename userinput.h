@@ -4,6 +4,7 @@
 
 void ignoreExceedingInput();
 void handleFailedInput();
+void printBadInputError();
 
 template <typename T> T getUserInput() {
   T userInput{};
@@ -21,8 +22,19 @@ template <typename T> T getUserInput() {
   return userInput;
 }
 
+template <typename T> T getPositiveNumberInput() {
+  T inputNumber{};
+  while (true) {
+    inputNumber = getUserInput<T>();
+    if (inputNumber >= 0) {
+      break;
+    }
+    printBadInputError();
+  }
+  return inputNumber;
+}
+
 std::string getUserInputLine();
 bool ynInput();
-void printBadInputError();
 void pressAnyToContinue();
 void clearConsole();
