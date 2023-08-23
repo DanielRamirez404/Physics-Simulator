@@ -14,7 +14,7 @@ public:
   void setIsTimePrinted(bool option) { isTimePrinted = option; };
 };
 
-class TimedFunction : Timer {
+class TimedFunction : public Timer {
 protected:
   std::function<void()> function{};
 public:
@@ -22,7 +22,7 @@ public:
   void run();
 };
 
-class TimeUsableFunction : Timer {
+class TimeUsableFunction : public Timer {
 private:
   std::function<void(float)> function{};
 public:

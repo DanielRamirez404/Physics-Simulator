@@ -1,6 +1,7 @@
 #include "motion.h"
 #include "timed functions.h"
 #include "userinput.h"
+#include "math.h"
 #include <cmath>
 #include <functional>
 #include <cassert>
@@ -82,18 +83,29 @@ void Motion::determineTime() {
   ++setVariables;
 }
 
-void Motion::printCurrentState(float time) {
-  std::cout << "TESTING\n";
-  std::cout << "TIME: " << time << '\n';
+void Motion::printCurrentState(float currentTime) {
+  float currentDistance { getCurrentDistance(currentTime) };
+  int relativeDistance { percentage(currentDistance, distance.value) };
+  constexpr int maxPrintableWidth { 100 };
+  for (int i{0}; i < maxPrintableWidth - 1; ++i) {
+    if (relativeDistance == i) {
+      std::cout << '*';
+      break;
+    }
+    std::cout << ' ';
+  }
   clearConsole();
+}
+
+float Motion::getCurrentDistance(float currentTime) {
+  return ((velocity.value * currentTime) / 2);   //this needs rework
 }
 
 void Motion::simulate() {
   std::function<void(float)> printFunction { std::bind(&Motion::printCurrentState, this, std::placeholders::_1) };
   TimeUsableFunction simulation{time.value, printFunction};
+  simulation.setIsTimePrinted(true);
   simulation.run();
-  // TimeUsableFunction simulation{time.value, myFunction};
-  // simulation.run();
 }
 
 void Motion::setAcceleration(float myAcceleration) {

@@ -8,6 +8,7 @@ struct Variable {
 class Motion {
 private:
   void printCurrentState(float time);
+  float getCurrentDistance(float currentTime);
   void determineAcceleration();
   void determineVelocity();
   void determineDistance();
