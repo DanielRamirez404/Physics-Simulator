@@ -7,6 +7,7 @@ struct Variable {
 
 class Motion {
 private:
+  void printCurrentState(float time);
   void determineAcceleration();
   void determineVelocity();
   void determineDistance();
@@ -22,7 +23,7 @@ public:
   bool areAllVariablesSet() { return setVariables == totalVariables; }
   bool canDetermineRemainingVariables() { return (setVariables >= 2) && !areAllVariablesSet(); };
   void determineRemainingVariables();
-  
+  void simulate();
   void setAcceleration(float myAcceleration);
   void setVelocity(float myVelocity);
   void setDistance(float myDistance);

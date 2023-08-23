@@ -3,28 +3,29 @@
 
 void doNothing();
 
-class TimedFunction {
+class Timer {
 protected:
-  float timerSeconds{};
-  std::function<void()> function{};
-  bool willTimePrint{false};
+  float seconds{};
+  bool isTimePrinted{false};
   void printTime(float remainingTime);
 public:
-  TimedFunction(float seconds, std::function<void()> myFunction) : timerSeconds(seconds), function(myFunction) {};
-  void willTimeBePrinted(bool option) { willTimePrint = option; };
+  Timer(float mySeconds) : seconds(mySeconds) {};
   void run();
+  void setIsTimePrinted(bool option) { isTimePrinted = option; };
 };
 
-class DelayedFunction : TimedFunction {
+class TimedFunction : Timer {
+protected:
+  std::function<void()> function{};
 public:
-  using TimedFunction::TimedFunction;
+  TimedFunction(float mySeconds, std::function<void()> myFunction) : Timer(mySeconds), function(myFunction) {};
   void run();
 };
 
-class TimeUsableFunction : TimedFunction {
+class TimeUsableFunction : Timer {
 private:
-  std::function<void(float)> timeUsableFunction{};
+  std::function<void(float)> function{};
 public:
-  TimeUsableFunction(float seconds, std::function<void(float)> myfunction) : TimedFunction(seconds, &doNothing) { timeUsableFunction = myfunction; };
+  TimeUsableFunction(float mySeconds, std::function<void(float)> myFunction) : Timer(mySeconds), function(myFunction) {};
   void run();
 };

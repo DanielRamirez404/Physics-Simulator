@@ -1,41 +1,55 @@
 #include "timed functions.h"
+#include "userinput.h"
 #include <functional>
 #include <ctime>
 #include <iostream>
 
 void doNothing() { }
 
-void TimedFunction::printTime(float remainingTime) {
+void Timer::printTime(float remainingTime) {
   std::cout << "----------------------------------------------\n";
   std::cout << "TIME LEFT: " << remainingTime << " SECONDS\n";
   std::cout << "----------------------------------------------\n";
 }
 
+void Timer::run() {
+  const auto totalTime{seconds * CLOCKS_PER_SEC};
+  const auto startingTime { clock() };
+  auto elapsedTime { clock() - startingTime };
+  while (elapsedTime < totalTime) {
+    if (isTimePrinted) {
+      auto remainingTime { (totalTime - elapsedTime) / CLOCKS_PER_SEC };
+      printTime(remainingTime);
+      clearConsole();
+    }
+    elapsedTime = clock() - startingTime;
+  }
+}
+
 void TimedFunction::run() {
-  auto totalTime {timerSeconds * CLOCKS_PER_SEC};
-  auto startingTime { clock() };
+  const auto totalTime {seconds * CLOCKS_PER_SEC};
+  const auto startingTime { clock() };
   auto elapsedTime {clock() - startingTime};
   while (elapsedTime < totalTime) {
-    if (willTimePrint) printTime((totalTime - elapsedTime) / CLOCKS_PER_SEC);
+    if (isTimePrinted) {
+      auto remainingTime { (totalTime - elapsedTime) / CLOCKS_PER_SEC };
+      printTime(remainingTime);
+    }
     function();
     elapsedTime = clock() - startingTime;
   }
 }
 
-void DelayedFunction::run() {
-  auto totalTime{timerSeconds * CLOCKS_PER_SEC};
-  auto startingTime { clock() };
-  while ((clock() - startingTime) < totalTime);
-  function();
-}
-
 void TimeUsableFunction::run() {
-  auto totalTime {timerSeconds * CLOCKS_PER_SEC};
-  auto startingTime { clock() };
+  const auto totalTime {seconds * CLOCKS_PER_SEC};
+  const auto startingTime { clock() };
   auto elapsedTime {clock() - startingTime};
   while (elapsedTime < totalTime) {
-    if (willTimePrint) printTime((totalTime - elapsedTime) / CLOCKS_PER_SEC);
-    timeUsableFunction(elapsedTime);
+    if (isTimePrinted) {
+      auto remainingTime { (totalTime - elapsedTime) / CLOCKS_PER_SEC };
+      printTime(remainingTime);
+    }
+    function( static_cast<float>(elapsedTime) / CLOCKS_PER_SEC );
     elapsedTime = clock() - startingTime;
   }
 }

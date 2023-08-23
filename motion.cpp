@@ -1,6 +1,10 @@
 #include "motion.h"
+#include "timed functions.h"
+#include "userinput.h"
 #include <cmath>
+#include <functional>
 #include <cassert>
+#include <iostream>
 
 void Motion::determineRemainingVariables() {
   assert (canDetermineRemainingVariables() && "CAN\'T DETERMINE REMAINING VALUES");
@@ -76,6 +80,20 @@ void Motion::determineTime() {
   }
   time.hasBeenSet = true;
   ++setVariables;
+}
+
+void Motion::printCurrentState(float time) {
+  std::cout << "TESTING\n";
+  std::cout << "TIME: " << time << '\n';
+  clearConsole();
+}
+
+void Motion::simulate() {
+  std::function<void(float)> printFunction { std::bind(&Motion::printCurrentState, this, std::placeholders::_1) };
+  TimeUsableFunction simulation{time.value, printFunction};
+  simulation.run();
+  // TimeUsableFunction simulation{time.value, myFunction};
+  // simulation.run();
 }
 
 void Motion::setAcceleration(float myAcceleration) {

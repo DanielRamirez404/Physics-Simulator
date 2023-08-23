@@ -20,8 +20,8 @@ void printNotEnoughVariablesMesssage() {
 
 void countdown() {
   constexpr float seconds{3.0f};
-  TimedFunction countdown{seconds, &clearConsole};
-  countdown.willTimeBePrinted(true);
+  Timer countdown{seconds};
+  countdown.setIsTimePrinted(true);
   countdown.run();
 }
 
@@ -75,10 +75,13 @@ void doUniformLinearMotion() {
     }
   }
   countdown();
-  printValues(uniformLinearMotion);
-  //uniformLinearMotion.simulate();
+  printValues(uniformLinearMotion); //testing
+  pressAnyToContinue();             //testing
+  uniformLinearMotion.simulate();
 }
 
 void chooseVerticalMotion() {
   countdown();
+  Motion myMotion{};
+  myMotion.simulate();
 }
