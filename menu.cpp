@@ -46,12 +46,10 @@ void Menu::printTitle() {
   const int halfTitleSize{titleSize / 2};
   assert((titleSize <= menuWidth) && "THE TITLE CAN\'T BE TOO LONG");
   std::cout << "----------------------------------------------\n";
-  std::string centeredTitle{""};
   for (int i{0}; i < halfWidth - halfTitleSize; i++) {
-    centeredTitle.append(" ");
+    std::cout << ' ';
   }
-  centeredTitle.append(title);
-  std::cout << centeredTitle << '\n';
+  std::cout << title << '\n';
   std::cout << "----------------------------------------------\n";
 }
 
@@ -62,12 +60,11 @@ void RunOnceMenu::run() {
   assert((selectedOption > 0) && (selectedOption <= totalOptions + 1) && "Nonvalid option");
   if (isUserQuitting(selectedOption)) {
     if (isQuittingConfirmed()) {
-      didUserQuit = true;
+      return;
     } else {
       run();
     }
-  } else {
-    --selectedOption;
-    functions[selectedOption].function();
+  --selectedOption;
+  functions[selectedOption].function();
   }
 }

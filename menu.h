@@ -18,12 +18,12 @@ protected:
   bool isUserQuitting(size_t selectedOption) { return (selectedOption == totalOptions + 1); };
   bool isQuittingConfirmed();
   void printTitle();
+  void print();
 public:
   Menu (const Menu&) = delete;
   Menu& operator=(const Menu&) = delete; 
   Menu(const char* menuTitle, std::vector<MenuFunction> menufunctions) : title{menuTitle}, functions{menufunctions} { totalOptions = functions.size(); };
   void run();
-  void print();
 };
 
 class MainMenu : public Menu {
