@@ -2,7 +2,6 @@
 #include "timed functions.h"
 #include "userinput.h"
 #include "math.h"
-#include <cmath>
 #include <functional>
 #include <cassert>
 #include <iostream>
@@ -29,9 +28,9 @@ void Motion::determineRemainingVariables() {
 
 void Motion::determineAcceleration() {
   if (setVariables == 3) {
-    acceleration.value = (-2 * (distance.value - (velocity.value * time.value))) / pow(time.value, 2); 
+    acceleration.value = (-2 * (distance.value - (velocity.value * time.value))) / Math::squareOf(time.value); 
   } else if (!velocity.hasBeenSet) {
-    acceleration.value = (2 * distance.value) / pow(time.value, 2);
+    acceleration.value = (2 * distance.value) / Math::squareOf(time.value);
   } else if (!distance.hasBeenSet) {
     acceleration.value = velocity.value / time.value;
   } else {
@@ -43,7 +42,7 @@ void Motion::determineAcceleration() {
 
 void Motion::determineVelocity() {
   if (setVariables == 3) {
-    velocity.value = (distance.value + ((acceleration.value * pow(time.value, 2)) / 2)) / time.value;
+    velocity.value = (distance.value + ((acceleration.value * Math::squareOf(time.value)) / 2)) / time.value;
   } else if (!acceleration.hasBeenSet) {
     velocity.value = (2 * distance.value) / time.value;
   } else if (!distance.hasBeenSet) {
@@ -57,11 +56,11 @@ void Motion::determineVelocity() {
 
 void Motion::determineDistance() {
   if (setVariables == 3) {
-    distance.value = (velocity.value * time.value) - ((acceleration.value * pow(time.value, 2)) / 2);
+    distance.value = (velocity.value * time.value) - ((acceleration.value * Math::squareOf(time.value)) / 2);
   } else if (!acceleration.hasBeenSet) {
     distance.value = (velocity.value * time.value) / 2;
   } else if (!velocity.hasBeenSet) {
-    distance.value = (acceleration.value * pow(time.value, 2)) / 2;
+    distance.value = (acceleration.value * Math::squareOf(time.value)) / 2;
   } else {
     distance.value = pow(velocity.value, 2) /  (2 * acceleration.value);
   }
@@ -85,7 +84,7 @@ void Motion::determineTime() {
 
 void Motion::printCurrentState(float currentTime) {
   float currentDistance { getCurrentDistance(currentTime) };
-  int relativeDistance { percentage(currentDistance, distance.value) };
+  int relativeDistance { Math::percentage(currentDistance, distance.value) };
   constexpr int maxPrintableWidth { 100 };
   for (int i{0}; i < maxPrintableWidth - 1; ++i) {
     if (relativeDistance == i) {
