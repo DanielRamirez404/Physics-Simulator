@@ -1,5 +1,6 @@
 #pragma once
-#include "math.h"
+#include "operation.h"
+#include "usermath.h"
 #include <string>
 #include <string_view>
 
@@ -8,18 +9,6 @@ namespace Math {
     char identifier{};
     T value{};
   };
-
-  template <typename T> class Operation {
-  private:
-    std::string formula{};
-  public:
-    Operation(const char* myFormula) : formula(myFormula) {};
-    T solve();
-  };
-
-  template <typename T> T Ecuation<T>::solveFor(char identifier) {
-    //todo: make algorithm to solve operations
-  }
 
   template <typename T> class Ecuation {
   private:

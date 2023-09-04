@@ -1,7 +1,7 @@
 #include "motion.h"
 #include "timed functions.h"
 #include "userinput.h"
-#include "math.h"
+#include "usermath.h"
 #include <functional>
 #include <cassert>
 #include <iostream>
