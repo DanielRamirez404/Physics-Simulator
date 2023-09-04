@@ -1,8 +1,8 @@
 #pragma once
 #include "usermath.h"
+#include "userstring.h"
 #include <cstddef>
 #include <cassert>
-#include <cctype>
 #include <string>
 #include <string_view>
 
@@ -16,7 +16,6 @@ namespace Math {
     char operation{};
     void parseFormula();
     bool areStringCharactersValid();
-    void ignoreWhitespaces();
     T getNextNumberFromIterator();
     char getOperationFromIterator();
     bool isNumberPositive();
@@ -24,31 +23,27 @@ namespace Math {
     void addIntegersToNumber(T& number);
     void addDecimalsToNumber(T& number);
   public:
-    Operation(const char* myFormula) : formula(myFormula) { parseFormula(); };
+    Operation(const char* myFormula) : formula(myFormula) {
+      String::eraseWhitespaces(formula);
+      parseFormula(); 
+    };
     T solve();
   };
 
   template <typename T> void Operation<T>::parseFormula() {
-    assert( areStringCharactersValid() && "THERE SEEMS TO BE A NON-VALID CHARACTER AS INPUT");
-    ignoreWhitespaces();
+    assert(areStringCharactersValid() && "THERE SEEMS TO BE A NON-VALID CHARACTER AS INPUT");
     firstValue = getNextNumberFromIterator();
-    ignoreWhitespaces();
     operation = getOperationFromIterator();
-    ignoreWhitespaces();
     secondValue = getNextNumberFromIterator();
   }
 
   template <typename T> bool Operation<T>::areStringCharactersValid() {
     for (size_t i{0}; i < formula.size(); ++i) {
-      if (!isMathSymbol(formula[iterator]) && !isdigit(formula[iterator])) {
+      if (!isMathRelated(formula[iterator])) {
         return false;
       }
     }
     return true;
-  }
-
-  template <typename T> void Operation<T>::ignoreWhitespaces() {
-    while (formula[iterator] == ' ') ++iterator;
   }
 
   template <typename T> T Operation<T>::getNextNumberFromIterator() {
@@ -63,7 +58,7 @@ namespace Math {
 
   template <typename T> char Operation<T>::getOperationFromIterator() {
     char operation{formula[iterator]};
-    assert(operation != '(' && operation != ')' && operation != '.' && !isdigit(operation));
+    assert(operation != '(' && operation != ')' && operation != '.' && !isNumber(operation));
     ++iterator;
     return operation;
   }
@@ -78,7 +73,7 @@ namespace Math {
 
   template <typename T> bool Operation<T>::isNumberDecimal() {
     if (formula[iterator] == '.') {
-      assert(isdigit(formula[iterator + 1]) && "THERE MUST BE A NUMBER AFTER THE DECIMAL POINT");
+      assert(isNumber(formula[iterator + 1]) && "THERE MUST BE A NUMBER AFTER THE DECIMAL POINT");
       ++iterator;
       return true;
     }
@@ -86,14 +81,14 @@ namespace Math {
   }
 
   template <typename T> void Operation<T>::addIntegersToNumber(T& number) {
-    for (; isdigit(formula[iterator]); ++iterator) {
+    for (; isNumber(formula[iterator]); ++iterator) {
       number *= 10;
       number += static_cast<T>(formula[iterator] - '0');
     }
   }
 
   template <typename T> void Operation<T>::addDecimalsToNumber(T& number) {
-    for (int decimalCounter{1}; isdigit(formula[iterator]); ++decimalCounter, ++iterator) {
+    for (int decimalCounter{1}; isNumber(formula[iterator]); ++decimalCounter, ++iterator) {
       T digit { static_cast<T>(formula[iterator] - '0') };
       T decimalCoefficient {1 / toThePower<T>(10, decimalCounter)};
       number += digit * decimalCoefficient;

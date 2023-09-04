@@ -1,10 +1,11 @@
 #pragma once
 #include <cmath>
-#include <cctype>
 #include <cassert>
 
 namespace Math {
   bool isMathSymbol(char myChar);
+  bool isNumber(char myChar);
+  bool isMathRelated(char myChar);
 
   template <typename T> T squareOf(T number) {
     return number * number;
