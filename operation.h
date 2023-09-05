@@ -15,13 +15,14 @@ namespace Math {
     T secondValue{};
     char operation{};
     void parseFormula();
+    void iterate();
     bool areStringCharactersValid();
-    T getNextNumberFromIterator();
-    char getOperationFromIterator();
+    T getNumberFromIterator();
+    char getOperatorFromIterator();
     bool isNumberPositive();
     bool isNumberDecimal();
-    void addIntegersToNumber(T& number);
-    void addDecimalsToNumber(T& number);
+    void addDigits(T& number);
+    void addDecimals(T& number);
   public:
     Operation(const char* myFormula) : formula(myFormula) {
       String::eraseWhitespaces(formula);
@@ -32,9 +33,16 @@ namespace Math {
 
   template <typename T> void Operation<T>::parseFormula() {
     assert(areStringCharactersValid() && "THERE SEEMS TO BE A NON-VALID CHARACTER AS INPUT");
-    firstValue = getNextNumberFromIterator();
-    operation = getOperationFromIterator();
-    secondValue = getNextNumberFromIterator();
+    firstValue = getNumberFromIterator();
+    iterate();
+    operation = getOperatorFromIterator();
+    iterate();
+    secondValue = getNumberFromIterator();
+  }
+
+  template <typename T> void Operation<T>::iterate() {
+    assert(((iterator + 1) < formula.size()) && "CAN\'T KEEP ITERATING");
+    ++iterator;
   }
 
   template <typename T> bool Operation<T>::areStringCharactersValid() {
@@ -46,53 +54,58 @@ namespace Math {
     return true;
   }
 
-  template <typename T> T Operation<T>::getNextNumberFromIterator() {
+  template <typename T> T Operation<T>::getNumberFromIterator() {
     bool isPositive{isNumberPositive()};
     T number{0};
-    addIntegersToNumber(number);
+    addDigits(number);
     if (isNumberDecimal()) {
-      addDecimalsToNumber(number);
+      addDecimals(number);
     }
     return (isPositive) ? number : -number;
   }
 
-  template <typename T> char Operation<T>::getOperationFromIterator() {
+  template <typename T> char Operation<T>::getOperatorFromIterator() {
     char operation{formula[iterator]};
     assert(operation != '(' && operation != ')' && operation != '.' && !isNumber(operation));
-    ++iterator;
     return operation;
   }
 
   template <typename T> bool Operation<T>::isNumberPositive() {
     if (formula[iterator] == '-') {
-      ++iterator;
+      assert(isNumber(formula[iterator + 1]) && "THERE MUST BE A NUMBER AFTER THE MINUS SIGN");
+      iterate();
       return false;
     }
     return true;
   }
 
   template <typename T> bool Operation<T>::isNumberDecimal() {
-    if (formula[iterator] == '.') {
+    if (formula[iterator + 1] == '.') {
+      iterate();
       assert(isNumber(formula[iterator + 1]) && "THERE MUST BE A NUMBER AFTER THE DECIMAL POINT");
-      ++iterator;
+      iterate();
       return true;
     }
     return false;
   }
 
-  template <typename T> void Operation<T>::addIntegersToNumber(T& number) {
-    for (; isNumber(formula[iterator]); ++iterator) {
-      number *= 10;
-      number += static_cast<T>(formula[iterator] - '0');
+  template <typename T> void Operation<T>::addDigits(T& number) {
+    number *= 10;
+    number += static_cast<T>(formula[iterator] - '0');
+    if (isNumber(formula[iterator + 1])) {
+      iterate();
+      addDigits(number);
     }
   }
 
-  template <typename T> void Operation<T>::addDecimalsToNumber(T& number) {
-    for (int decimalCounter{1}; isNumber(formula[iterator]); ++decimalCounter, ++iterator) {
-      T digit { static_cast<T>(formula[iterator] - '0') };
-      T decimalCoefficient {1 / toThePower<T>(10, decimalCounter)};
-      number += digit * decimalCoefficient;
-    }
+  template <typename T> void Operation<T>::addDecimals(T& number) {
+    const int firstDecimalPosition{ static_cast<int>(iterator) };
+    T decimals {0};
+    addDigits(decimals);
+    const int lastDecimalPosition{ static_cast<int>(iterator) };
+    const int decimalCounter { 1 + lastDecimalPosition - firstDecimalPosition };
+    decimals /= (toThePower<T>(10, (decimalCounter)));
+    number += decimals;
   }
 
   template <typename T> T Operation<T>::solve() {
