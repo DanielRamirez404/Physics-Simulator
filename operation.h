@@ -4,7 +4,6 @@
 #include <cstddef>
 #include <cassert>
 #include <string>
-#include <string_view>
 
 namespace Math {
   template <typename T> class Operation {
@@ -13,31 +12,58 @@ namespace Math {
     size_t iterator{0};
     T firstValue{};
     T secondValue{};
+    T result{};
     char operation{};
-    void parseFormula();
+    void parse();
+    void solve();
     void iterate();
-    bool areStringCharactersValid();
-    T getNumberFromIterator();
-    char getOperatorFromIterator();
+    void getData();
+    T getNumber();
+    char getOperator();
     bool isNumberPositive();
     bool isNumberDecimal();
     void addDigits(T& number);
     void addDecimals(T& number);
+    bool areStringCharactersValid();
   public:
-    Operation(const char* myFormula) : formula(myFormula) {
-      String::eraseWhitespaces(formula);
-      parseFormula(); 
-    };
-    T solve();
+    Operation(const char* myFormula) : formula(myFormula) { parse(); };
+    Operation(std::string& myFormula) : formula(myFormula) { parse(); };
+    T getResult() { return result; };
   };
 
-  template <typename T> void Operation<T>::parseFormula() {
+  template <typename T> void Operation<T>::parse() {
+    String::eraseWhitespaces(formula);
+    getData();
+    solve();
+  }
+
+  template <typename T> void Operation<T>::solve() {
+    switch (operation) {
+      case '+':
+        result = firstValue + secondValue;
+        break;
+      case '-':
+        result = firstValue - secondValue;
+        break;
+      case '*':
+        result = firstValue * secondValue;
+        break;
+      case '/':
+        result = firstValue / secondValue;
+        break;
+      case '^':
+        result = toThePower<T>(firstValue, static_cast<int>(secondValue));
+        break;
+    }
+  }
+
+  template <typename T> void Operation<T>::getData() {
     assert(areStringCharactersValid() && "THERE SEEMS TO BE A NON-VALID CHARACTER AS INPUT");
-    firstValue = getNumberFromIterator();
+    firstValue = getNumber();
     iterate();
-    operation = getOperatorFromIterator();
+    operation = getOperator();
     iterate();
-    secondValue = getNumberFromIterator();
+    secondValue = getNumber();
   }
 
   template <typename T> void Operation<T>::iterate() {
@@ -54,7 +80,7 @@ namespace Math {
     return true;
   }
 
-  template <typename T> T Operation<T>::getNumberFromIterator() {
+  template <typename T> T Operation<T>::getNumber() {
     bool isPositive{isNumberPositive()};
     T number{0};
     addDigits(number);
@@ -64,7 +90,7 @@ namespace Math {
     return (isPositive) ? number : -number;
   }
 
-  template <typename T> char Operation<T>::getOperatorFromIterator() {
+  template <typename T> char Operation<T>::getOperator() {
     char operation{formula[iterator]};
     assert(operation != '(' && operation != ')' && operation != '.' && !isNumber(operation));
     return operation;
@@ -107,26 +133,5 @@ namespace Math {
     decimals /= (toThePower<T>(10, (decimalCounter)));
     number += decimals;
   }
-
-  template <typename T> T Operation<T>::solve() {
-    T result{};
-    switch (operation) {
-      case '+':
-        result = firstValue + secondValue;
-        break;
-      case '-':
-        result = firstValue - secondValue;
-        break;
-      case '*':
-        result = firstValue * secondValue;
-        break;
-      case '/':
-        result = firstValue / secondValue;
-        break;
-      case '^':
-        result = toThePower<T>(firstValue, static_cast<int>(secondValue));
-        break;
-    }
-    return result;
-  }
 }
+  
