@@ -21,9 +21,6 @@ namespace Math {
     T getNumber();
     char getOperator();
     bool isNumberPositive();
-    bool isNumberDecimal();
-    void addDigits(T& number);
-    void addDecimals(T& number);
     bool areStringCharactersValid();
   public:
     Operation(const char* myFormula) : formula(myFormula) { parse(); };
@@ -82,10 +79,25 @@ namespace Math {
 
   template <typename T> T Operation<T>::getNumber() {
     bool isPositive{isNumberPositive()};
-    T number{0};
-    addDigits(number);
-    if (isNumberDecimal()) {
-      addDecimals(number);
+    assert(isNumber(formula[iterator]) && "OPERATIONS MUST START BY A NUMBER");
+    const size_t firstDigitPosition { iterator };
+    int decimalPointsCounter{0};
+    while (isNumeric(formula[iterator + 1])) {
+      iterate();
+      if (formula[iterator] == '.') {
+        assert(isNumber(formula[iterator + 1]) && "THERE MUST BE A NUMBER AFTER A DECIMAL POINT");
+        ++decimalPointsCounter;
+      }
+    }
+    assert((decimalPointsCounter <= 1) && "NUMBERS CAN\'T HAVE MORE THAN ONE DECIMAL POINT");
+    const size_t lastDigitPosition { iterator };
+    const size_t totalDigits { 1 + lastDigitPosition - firstDigitPosition };
+    std::string numberString{ formula.substr(firstDigitPosition, totalDigits) };
+    T number{};
+    if (decimalPointsCounter == 1) {
+      number = static_cast<T>(std::stod(numberString));
+    } else {
+      number = static_cast<T>(std::stoi(numberString));
     }
     return (isPositive) ? number : -number;
   }
@@ -103,34 +115,4 @@ namespace Math {
     }
     return true;
   }
-
-  template <typename T> bool Operation<T>::isNumberDecimal() {
-    if (formula[iterator + 1] == '.') {
-      iterate();
-      assert(isNumber(formula[iterator + 1]) && "THERE MUST BE A NUMBER AFTER THE DECIMAL POINT");
-      iterate();
-      return true;
-    }
-    return false;
-  }
-
-  template <typename T> void Operation<T>::addDigits(T& number) {
-    number *= 10;
-    number += static_cast<T>(formula[iterator] - '0');
-    if (isNumber(formula[iterator + 1])) {
-      iterate();
-      addDigits(number);
-    }
-  }
-
-  template <typename T> void Operation<T>::addDecimals(T& number) {
-    const int firstDecimalPosition{ static_cast<int>(iterator) };
-    T decimals {0};
-    addDigits(decimals);
-    const int lastDecimalPosition{ static_cast<int>(iterator) };
-    const int decimalCounter { 1 + lastDecimalPosition - firstDecimalPosition };
-    decimals /= (toThePower<T>(10, (decimalCounter)));
-    number += decimals;
-  }
 }
-  
