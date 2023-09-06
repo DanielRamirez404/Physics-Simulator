@@ -1,20 +1,5 @@
 #include "usermath.h"
 
-bool Math::isMathSymbol(char myChar) {
-  switch (myChar) {
-    case '(':
-    case ')':
-    case '+':
-    case '-':
-    case '*':
-    case '/':
-    case '^':
-    case '.':
-      return true;
-  }
-  return false;
-}
-
 bool Math::isNumber(char myChar) {
   switch (myChar) {
     case '0':
@@ -30,6 +15,30 @@ bool Math::isNumber(char myChar) {
       return true;
   }
   return false;
+}
+
+bool Math::isNumeric(char myChar) {
+  return (isNumber(myChar) || (myChar == '.'));
+}
+
+bool Math::isOperator(char myChar) {
+  switch (myChar) {
+    case '+':
+    case '-':
+    case '*':
+    case '/':
+    case '^':
+      return true;
+  }
+  return false;
+}
+
+bool Math::isParenthesis(char myChar) {
+  return ((myChar == '(') || (myChar == ')'));
+}
+
+bool Math::isMathSymbol(char myChar) {
+  return (isOperator(myChar) || isParenthesis(myChar) || (myChar == '.'));
 }
 
 bool Math::isMathRelated(char myChar) {

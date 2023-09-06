@@ -91,9 +91,8 @@ namespace Math {
   }
 
   template <typename T> char Operation<T>::getOperator() {
-    char operation{formula[iterator]};
-    assert(operation != '(' && operation != ')' && operation != '.' && !isNumber(operation));
-    return operation;
+    assert(isOperator(formula[iterator]));
+    return formula[iterator];
   }
 
   template <typename T> bool Operation<T>::isNumberPositive() {
