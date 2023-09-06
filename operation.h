@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <cassert>
 #include <string>
+#include <string_view>
 
 namespace Math {
   template <typename T> class Operation {
@@ -15,14 +16,15 @@ namespace Math {
     T result{};
     char operation{};
     void parse();
+    bool areStringCharactersValid();
+    void getData();
     void solve();
     void iterate();
-    void getData();
     T getNumber();
-    void assertValidNumberStart();
-    void iterateAndCheckThroughNumber(bool& isDecimal);
     char getOperator();
-    bool areStringCharactersValid();
+    void assertValidNumberStart();
+    void iterateThroughNumber() { while (isNumeric(formula[iterator + 1])) iterate(); };
+    bool isNumberDecimal(std::string_view numberString);
   public:
     Operation(const char* myFormula) : formula(myFormula) { parse(); };
     Operation(std::string& myFormula) : formula(myFormula) { parse(); };
@@ -71,23 +73,20 @@ namespace Math {
 
   template <typename T> bool Operation<T>::areStringCharactersValid() {
     for (size_t i{0}; i < formula.size(); ++i) {
-      if (!isMathRelated(formula[iterator])) {
-        return false;
-      }
+      if (!isMathRelated(formula[i])) return false;
     }
     return true;
   }
 
   template <typename T> T Operation<T>::getNumber() {
     assertValidNumberStart();
-    const size_t firstDigitPosition { iterator };
-    bool isDecimal{};
-    iterateAndCheckThroughNumber(isDecimal);
-    const size_t lastDigitPosition { iterator };
-    const size_t totalDigits { 1 + lastDigitPosition - firstDigitPosition };
-    std::string numberString{ formula.substr(firstDigitPosition, totalDigits) };
-    T number{ (isDecimal) ? static_cast<T>(std::stod(numberString)) : static_cast<T>(std::stoi(numberString)) };
-    return number;
+    const size_t firstDigit { iterator };
+    iterateThroughNumber();
+    const size_t firstNonDigit { iterator + 1};
+    const size_t totalDigits { firstNonDigit - firstDigit };
+    std::string numberString{ formula.substr(firstDigit, totalDigits) };
+    bool isDecimal { isNumberDecimal(numberString) };
+    return static_cast<T>( (isDecimal) ? std::stod(numberString) : std::stoi(numberString) );
   }
 
   template <typename T> char Operation<T>::getOperator() {
@@ -96,22 +95,20 @@ namespace Math {
   }
 
   template <typename T> void Operation<T>::assertValidNumberStart() {
-    bool isStartValid { isNumber(formula[iterator]) || formula[iterator] == '-' };
-    assert( isStartValid && "OPERATIONS MUST START BY A NUMBER OR MINUS SIGN");
-    if (formula[iterator] == '-') {
-      assert(isNumber(formula[iterator + 1]) && "THERE MUST BE A NUMBER AFTER THE MINUS SIGN");
-    }
+    (formula[iterator] == '-') 
+      ? assert(isNumber(formula[iterator + 1]) && "THERE MUST BE A NUMBER AFTER THE MINUS SIGN") 
+      : assert(isNumber(formula[iterator]) && "OPERATIONS MUST START BY A NUMBER OR MINUS SIGN");
   }
 
-  template <typename T> void Operation<T>::iterateAndCheckThroughNumber(bool& isDecimal) {
-    isDecimal = false;
-    for (int pointCounter{0}; isNumeric(formula[iterator + 1]); iterate()) {
-      if (formula[iterator] == '.') {
-        assert((pointCounter <= 1) && "NUMBERS CAN\'T HAVE MORE THAN ONE DECIMAL POINT");
-        assert(isNumber(formula[iterator + 1]) && "THERE MUST BE A NUMBER AFTER A DECIMAL POINT");
-        isDecimal = true;
-        ++pointCounter;
+  template <typename T> bool Operation<T>::isNumberDecimal(std::string_view numberString) {
+    int pointCounter{0};
+    for (size_t i{0}; i < numberString.size(); ++i) {
+      if (numberString[i] == '.') {
+      assert((pointCounter <= 1) && "NUMBERS CAN\'T HAVE MORE THAN ONE DECIMAL POINT");
+      assert(isNumber(numberString[i + 1]) && "THERE MUST BE A NUMBER AFTER A DECIMAL POINT");
+      ++pointCounter;
       }
     }
+    return true;
   }
 }
