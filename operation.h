@@ -14,15 +14,16 @@ namespace Math {
     T firstValue{};
     T secondValue{};
     T result{};
+    int numberOfOperations{};
     char operation{};
     void parse();
     bool areStringCharactersValid();
     void getData();
     void solve();
     void iterate();
+    int getNumberofOperations();
     T getNumber();
     char getOperator();
-    void assertValidNumberStart();
     void iterateThroughNumber() { while (isNumeric(formula[iterator + 1])) iterate(); };
     bool isNumberDecimal(std::string_view numberString);
   public:
@@ -59,6 +60,7 @@ namespace Math {
 
   template <typename T> void Operation<T>::getData() {
     assert(areStringCharactersValid() && "THERE SEEMS TO BE A NON-VALID CHARACTER AS INPUT");
+    numberOfOperations = getNumberofOperations();
     firstValue = getNumber();
     iterate();
     operation = getOperator();
@@ -78,8 +80,28 @@ namespace Math {
     return true;
   }
 
+  template <typename T> int Operation<T>::getNumberofOperations() {
+    int operatorCounter{0};
+    for (size_t i{0}; i < formula.size(); ++i) {
+      if (isOperator(formula[i])) {
+        assert((i != formula.size() - 1) && "OPERATORS CAN'T END FORMULAS");
+        if (formula[i] == '-' && (i == 0 || isOperator(formula[i - 1]))) {  //if isn't substraction operator
+          assert(isNumber(formula[i + 1]) && "THERE MUST BE A NUMBER AFTER THE MINUS SIGN");
+          continue;
+        }
+        assert((i != 0) && (i != formula.size() - 1) && "OPERATORS CAN'T START FORMULAS");
+        assert(isNumber(formula[i - 1]) 
+              && (isNumber(formula[i + 1]) || 
+              (formula[i + 1] == '-' && (isNumber(formula[i + 2]))))
+              && "OPERATORS MUST BE SURROUNDED BY NUMBERS");
+        ++operatorCounter;
+      }
+    }
+    return operatorCounter;
+  }
+
   template <typename T> T Operation<T>::getNumber() {
-    assertValidNumberStart();
+    assert((isNumber(formula[iterator]) || formula[iterator] == '-')  && "OPERATIONS MUST START BY A NUMBER");
     const size_t firstDigit { iterator };
     iterateThroughNumber();
     const size_t firstNonDigit { iterator + 1};
@@ -92,12 +114,6 @@ namespace Math {
   template <typename T> char Operation<T>::getOperator() {
     assert(isOperator(formula[iterator]));
     return formula[iterator];
-  }
-
-  template <typename T> void Operation<T>::assertValidNumberStart() {
-    (formula[iterator] == '-') 
-      ? assert(isNumber(formula[iterator + 1]) && "THERE MUST BE A NUMBER AFTER THE MINUS SIGN") 
-      : assert(isNumber(formula[iterator]) && "OPERATIONS MUST START BY A NUMBER OR MINUS SIGN");
   }
 
   template <typename T> bool Operation<T>::isNumberDecimal(std::string_view numberString) {
