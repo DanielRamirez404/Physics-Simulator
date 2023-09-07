@@ -61,6 +61,25 @@ bool Math::Formula::isPartOfNumber(std::string_view formula, size_t index) {
   return isNumeric(formula[index]) || isMinusSign(formula, index);
 }
 
+bool Math::Formula::areThereParenthesis(std::string_view formula) {
+  for (size_t i{0}; i < formula.size(); ++i) {
+    if (isParenthesis(formula[i])) return true;
+  }
+  return false;
+}
+
+void Math::Formula::assertParenthesisValidation(std::string_view formula) {
+  int openCounter{0};
+  int closeCounter{0};
+  for (size_t i{0}; i < formula.size(); ++i) {
+    if (isParenthesis(formula[i])) {
+      (formula[i] == '(') ? ++openCounter : ++closeCounter;
+      assert((closeCounter < openCounter) && "CAN\'T CLOSE PARENTHESIS WITHOUT OPENING");
+    }
+  }
+  assert((openCounter == closeCounter) && "NUMBER OF OPEN AND CLOSE PARENTHESIS MUST MATCH");
+}
+
 void Math::Formula::removeWhitespaces(std::string& formula) {
   String::eraseWhitespaces(formula);
 }

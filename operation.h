@@ -32,6 +32,8 @@ namespace Math {
 
   template <typename T> void Operation<T>::parse() {
     Formula::removeWhitespaces(formula);
+    assert(!formula.empty() && "OPERATIONS CAN'T BE EMPTY");
+    assert(Formula::areCharactersValid(formula) && "THERE SEEMS TO BE A NON-VALID CHARACTER AS INPUT");
     getData();
     solve();
   }
@@ -57,7 +59,16 @@ namespace Math {
   }
 
   template <typename T> void Operation<T>::getData() {
-    assert(Formula::areCharactersValid(formula) && "THERE SEEMS TO BE A NON-VALID CHARACTER AS INPUT");
+    #if 0
+    if (Formula::areThereParenthesis(formula)) {
+      Formula::assertParenthesisValidation(formula);
+      //  Todo:
+      //  UpdateParenthesisCoordinates(firstOpenParenthesis, ParenthesisLength);
+      //  Operation parenthesis( formula.substr(firstOpenParenthesis, ParenthesisLength));
+      //  formula.replace(firstOpenParenthesis, ParenthesisLength, parenthesis.getResult());
+      getData();
+    }
+    #endif
     numberOfOperations = getNumberofOperations();
     firstValue = getNumber();
     iterate();
@@ -85,14 +96,13 @@ namespace Math {
   }
 
   template <typename T> T Operation<T>::getNumber() {
-    assert(Formula::isPartOfNumber(formula, iterator)  && "OPERATIONS MUST START BY A NUMBER");
+    assert(Formula::isPartOfNumber(formula, iterator) && "OPERATIONS MUST START BY A NUMBER");
     const size_t firstDigit { iterator };
     iterateThroughNumber();
     const size_t firstNonDigit { iterator + 1};
     const size_t totalDigits { firstNonDigit - firstDigit };
     std::string numberString{ formula.substr(firstDigit, totalDigits) };
-    bool isDecimal { isNumberDecimal(numberString) };
-    return static_cast<T>( (isDecimal) ? std::stod(numberString) : std::stoi(numberString) );
+    return static_cast<T>( (isNumberDecimal(numberString)) ? std::stod(numberString) : std::stoi(numberString) );
   }
 
   template <typename T> bool Operation<T>::isNumberDecimal(std::string_view numberString) {
