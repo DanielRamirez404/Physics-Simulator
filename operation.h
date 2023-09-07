@@ -1,6 +1,6 @@
 #pragma once
+#include "formula.h"
 #include "usermath.h"
-#include "userstring.h"
 #include <cstddef>
 #include <cassert>
 #include <string>
@@ -17,13 +17,11 @@ namespace Math {
     int numberOfOperations{};
     char operation{};
     void parse();
-    bool areStringCharactersValid();
     void getData();
     void solve();
     void iterate();
     int getNumberofOperations();
     T getNumber();
-    char getOperator();
     void iterateThroughNumber() { while (isNumeric(formula[iterator + 1])) iterate(); };
     bool isNumberDecimal(std::string_view numberString);
   public:
@@ -33,7 +31,7 @@ namespace Math {
   };
 
   template <typename T> void Operation<T>::parse() {
-    String::eraseWhitespaces(formula);
+    Formula::removeWhitespaces(formula);
     getData();
     solve();
   }
@@ -59,41 +57,27 @@ namespace Math {
   }
 
   template <typename T> void Operation<T>::getData() {
-    assert(areStringCharactersValid() && "THERE SEEMS TO BE A NON-VALID CHARACTER AS INPUT");
+    assert(Formula::areCharactersValid(formula) && "THERE SEEMS TO BE A NON-VALID CHARACTER AS INPUT");
     numberOfOperations = getNumberofOperations();
     firstValue = getNumber();
     iterate();
-    operation = getOperator();
+    operation = formula[iterator];
     iterate();
     secondValue = getNumber();
   }
 
   template <typename T> void Operation<T>::iterate() {
-    assert(((iterator + 1) < formula.size()) && "CAN\'T KEEP ITERATING");
+    assert((iterator + 1 < formula.size()) && "CAN\'T KEEP ITERATING");
     ++iterator;
-  }
-
-  template <typename T> bool Operation<T>::areStringCharactersValid() {
-    for (size_t i{0}; i < formula.size(); ++i) {
-      if (!isMathRelated(formula[i])) return false;
-    }
-    return true;
   }
 
   template <typename T> int Operation<T>::getNumberofOperations() {
     int operatorCounter{0};
     for (size_t i{0}; i < formula.size(); ++i) {
       if (isOperator(formula[i])) {
-        assert((i != formula.size() - 1) && "OPERATORS CAN'T END FORMULAS");
-        if (formula[i] == '-' && (i == 0 || isOperator(formula[i - 1]))) {  //if isn't substraction operator
-          assert(isNumber(formula[i + 1]) && "THERE MUST BE A NUMBER AFTER THE MINUS SIGN");
-          continue;
-        }
-        assert((i != 0) && (i != formula.size() - 1) && "OPERATORS CAN'T START FORMULAS");
-        assert(isNumber(formula[i - 1]) 
-              && (isNumber(formula[i + 1]) || 
-              (formula[i + 1] == '-' && (isNumber(formula[i + 2]))))
-              && "OPERATORS MUST BE SURROUNDED BY NUMBERS");
+        if (Formula::isMinusSign(formula, i)) continue;
+        assert((i != 0) && (i != formula.size() - 1) && "OPERATORS CAN'T EITHER START NOR END FORMULAS");
+        assert(isNumber(formula[i - 1]) && Formula::isPartOfNumber(formula, i + 1) && "OPERATORS MUST BE SURROUNDED BY NUMBERS");
         ++operatorCounter;
       }
     }
@@ -101,7 +85,7 @@ namespace Math {
   }
 
   template <typename T> T Operation<T>::getNumber() {
-    assert((isNumber(formula[iterator]) || formula[iterator] == '-')  && "OPERATIONS MUST START BY A NUMBER");
+    assert(Formula::isPartOfNumber(formula, iterator)  && "OPERATIONS MUST START BY A NUMBER");
     const size_t firstDigit { iterator };
     iterateThroughNumber();
     const size_t firstNonDigit { iterator + 1};
@@ -111,17 +95,12 @@ namespace Math {
     return static_cast<T>( (isDecimal) ? std::stod(numberString) : std::stoi(numberString) );
   }
 
-  template <typename T> char Operation<T>::getOperator() {
-    assert(isOperator(formula[iterator]));
-    return formula[iterator];
-  }
-
   template <typename T> bool Operation<T>::isNumberDecimal(std::string_view numberString) {
     int pointCounter{0};
     for (size_t i{0}; i < numberString.size(); ++i) {
       if (numberString[i] == '.') {
       assert((pointCounter <= 1) && "NUMBERS CAN\'T HAVE MORE THAN ONE DECIMAL POINT");
-      assert(isNumber(numberString[i + 1]) && "THERE MUST BE A NUMBER AFTER A DECIMAL POINT");
+      assert(isNumber(numberString[i - 1]) && isNumber(numberString[i + 1]) && "DECIMAL POINTS MUST BE SURROUNDED BY NUMBERS");
       ++pointCounter;
       }
     }

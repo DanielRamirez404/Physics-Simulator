@@ -1,0 +1,73 @@
+#include "formula.h"
+#include "usermath.h"
+#include "userstring.h"
+#include <cstddef>
+#include <string>
+#include <string_view>
+
+bool Math::isNumber(char myChar) {
+  switch (myChar) {
+    case '0':
+    case '1':
+    case '2':
+    case '3':
+    case '4':
+    case '5':
+    case '6':
+    case '7':
+    case '8':
+    case '9':
+      return true;
+  }
+  return false;
+}
+
+bool Math::isNumeric(char myChar) {
+  return (isNumber(myChar) || (myChar == '.'));
+}
+
+bool Math::isOperator(char myChar) {
+  switch (myChar) {
+    case '+':
+    case '-':
+    case '*':
+    case '/':
+    case '^':
+      return true;
+  }
+  return false;
+}
+
+bool Math::isParenthesis(char myChar) {
+  return ((myChar == '(') || (myChar == ')'));
+}
+
+bool Math::isMathSymbol(char myChar) {
+  return (isOperator(myChar) || isParenthesis(myChar) || (myChar == '.'));
+}
+
+bool Math::isMathRelated(char myChar) {
+  return (isMathSymbol(myChar) || isNumber(myChar));
+}
+
+bool Math::Formula::isMinusSign(std::string_view formula, size_t index) {
+  bool isRightChar { formula[index] == '-' };
+  bool comesAfterNumber { (index == 0) ? false : isNumber(formula[index - 1]) };
+  bool comesBeforeNumber { (index < formula.size() - 1) ? true : isNumber(formula[index + 1]) };
+  return isRightChar && !comesAfterNumber && comesBeforeNumber;
+}
+
+bool Math::Formula::isPartOfNumber(std::string_view formula, size_t index) {
+  return isNumeric(formula[index]) || isMinusSign(formula, index);
+}
+
+void Math::Formula::removeWhitespaces(std::string& formula) {
+  String::eraseWhitespaces(formula);
+}
+
+bool Math::Formula::areCharactersValid(std::string_view formula) {
+  for (size_t i{0}; i < formula.size(); ++i) {
+    if (!isMathRelated(formula[i])) return false;
+  }
+  return true;
+}
