@@ -57,16 +57,17 @@ namespace Math {
   }
 
   template <typename T> void Operation<T>::getData() {
-    #if 0
-    if (Formula::areThereParenthesis(formula)) {
+    while (Formula::areThereParenthesis(formula)) {
+      // works only for parenthesis of this style (c + (a + b))
+      // doesn't work for style ((a + b) + (c + d)) yet
       Formula::assertParenthesisValidation(formula);
-      //  Todo:
-      //  UpdateParenthesisCoordinates(firstOpenParenthesis, ParenthesisLength);
-      //  Operation parenthesis( formula.substr(firstOpenParenthesis, ParenthesisLength));
-      //  formula.replace(firstOpenParenthesis, ParenthesisLength, parenthesis.getResult());
-      getData();
+      size_t firstOpenParenthesis{};
+      size_t ParenthesisLength{};
+      Formula::UpdateParenthesisCoordinates(formula, firstOpenParenthesis, ParenthesisLength);
+      std::string parenthesisFormula{ formula.substr(firstOpenParenthesis + 1, ParenthesisLength - 2) };
+      Operation parenthesis(parenthesisFormula);
+      formula.replace(firstOpenParenthesis, ParenthesisLength, std::to_string(parenthesis.getResult()));
     }
-    #endif
     numberOfOperations = getNumberofOperations();
     firstValue = getNumber();
     iterate();

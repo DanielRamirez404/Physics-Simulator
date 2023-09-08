@@ -86,10 +86,27 @@ void Math::Formula::assertParenthesisValidation(std::string_view formula) {
   for (size_t i{0}; i < formula.size(); ++i) {
     if (isParenthesis(formula[i])) {
       (formula[i] == '(') ? ++openCounter : ++closeCounter;
-      assert((closeCounter < openCounter) && "CAN\'T CLOSE PARENTHESIS WITHOUT OPENING");
+      assert((closeCounter <= openCounter) && "CAN\'T CLOSE PARENTHESIS WITHOUT OPENING");
     }
   }
   assert((openCounter == closeCounter) && "NUMBER OF OPEN AND CLOSE PARENTHESIS MUST MATCH");
+}
+
+void Math::Formula::UpdateParenthesisCoordinates(std::string_view formula, size_t& firstOpenParenthesis, size_t& ParenthesisLength) {
+  for (size_t i{0}; i < formula.size(); ++i) {
+    if (formula[i] == '(') {
+      firstOpenParenthesis = i;
+      break;
+    }
+  }
+  size_t lastCloseParenthesis{};
+  for (size_t i{0}; i < formula.size(); ++i) {
+    if (formula[(formula.size() - 1) - i] == ')') {
+      lastCloseParenthesis = (formula.size() - 1) - i;
+      break;
+    }
+  }
+  ParenthesisLength = (lastCloseParenthesis + 1) - firstOpenParenthesis;
 }
 
 void Math::Formula::removeWhitespaces(std::string& formula) {
