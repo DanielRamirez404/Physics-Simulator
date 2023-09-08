@@ -1,6 +1,6 @@
 #include "formula.h"
-#include "usermath.h"
 #include "userstring.h"
+#include <cassert>
 #include <cstddef>
 #include <string>
 #include <string_view>
@@ -59,6 +59,18 @@ bool Math::Formula::isMinusSign(std::string_view formula, size_t index) {
 
 bool Math::Formula::isPartOfNumber(std::string_view formula, size_t index) {
   return isNumeric(formula[index]) || isMinusSign(formula, index);
+}
+
+bool Math::Formula::isNumberDecimal(std::string_view numberString) {
+  int pointCounter{0};
+  for (size_t i{0}; i < numberString.size(); ++i) {
+    if (numberString[i] == '.') {
+    assert((pointCounter <= 1) && "NUMBERS CAN\'T HAVE MORE THAN ONE DECIMAL POINT");
+    assert(isNumber(numberString[i - 1]) && isNumber(numberString[i + 1]) && "DECIMAL POINTS MUST BE SURROUNDED BY NUMBERS");
+    ++pointCounter;
+    }
+  }
+  return true;
 }
 
 bool Math::Formula::areThereParenthesis(std::string_view formula) {

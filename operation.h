@@ -4,7 +4,6 @@
 #include <cstddef>
 #include <cassert>
 #include <string>
-#include <string_view>
 
 namespace Math {
   template <typename T> class Operation {
@@ -19,11 +18,10 @@ namespace Math {
     void parse();
     void getData();
     void solve();
-    void iterate();
     int getNumberofOperations();
     T getNumber();
+    void iterate();
     void iterateThroughNumber() { while (isNumeric(formula[iterator + 1])) iterate(); };
-    bool isNumberDecimal(std::string_view numberString);
   public:
     Operation(const char* myFormula) : formula(myFormula) { parse(); };
     Operation(std::string& myFormula) : formula(myFormula) { parse(); };
@@ -102,18 +100,6 @@ namespace Math {
     const size_t firstNonDigit { iterator + 1};
     const size_t totalDigits { firstNonDigit - firstDigit };
     std::string numberString{ formula.substr(firstDigit, totalDigits) };
-    return static_cast<T>( (isNumberDecimal(numberString)) ? std::stod(numberString) : std::stoi(numberString) );
-  }
-
-  template <typename T> bool Operation<T>::isNumberDecimal(std::string_view numberString) {
-    int pointCounter{0};
-    for (size_t i{0}; i < numberString.size(); ++i) {
-      if (numberString[i] == '.') {
-      assert((pointCounter <= 1) && "NUMBERS CAN\'T HAVE MORE THAN ONE DECIMAL POINT");
-      assert(isNumber(numberString[i - 1]) && isNumber(numberString[i + 1]) && "DECIMAL POINTS MUST BE SURROUNDED BY NUMBERS");
-      ++pointCounter;
-      }
-    }
-    return true;
+    return static_cast<T>( (Formula::isNumberDecimal(numberString)) ? std::stod(numberString) : std::stoi(numberString) );
   }
 }
