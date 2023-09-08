@@ -99,14 +99,18 @@ void Math::Formula::UpdateParenthesisCoordinates(std::string_view formula, size_
       break;
     }
   }
-  size_t lastCloseParenthesis{};
+  size_t correspondingCloseParenthesis{};
+  int parenthesDeepness{0}; // increases everytime a new parenthesis is open and decreases if it closes
   for (size_t i{0}; i < formula.size(); ++i) {
-    if (formula[(formula.size() - 1) - i] == ')') {
-      lastCloseParenthesis = (formula.size() - 1) - i;
-      break;
+    if (isParenthesis(formula[i])) {
+      if ((formula[i] == ')') && (parenthesDeepness == 1)) {
+        correspondingCloseParenthesis = i;
+        break;
+      }
+      (formula[i] == '(') ? ++parenthesDeepness : --parenthesDeepness;
     }
   }
-  ParenthesisLength = (lastCloseParenthesis + 1) - firstOpenParenthesis;
+  ParenthesisLength = (correspondingCloseParenthesis + 1) - firstOpenParenthesis;
 }
 
 void Math::Formula::removeWhitespaces(std::string& formula) {

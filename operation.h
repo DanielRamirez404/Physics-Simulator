@@ -58,8 +58,6 @@ namespace Math {
 
   template <typename T> void Operation<T>::getData() {
     while (Formula::areThereParenthesis(formula)) {
-      // works only for parenthesis of this style (c + (a + b))
-      // doesn't work for style ((a + b) + (c + d)) yet
       Formula::assertParenthesisValidation(formula);
       size_t firstOpenParenthesis{};
       size_t ParenthesisLength{};
