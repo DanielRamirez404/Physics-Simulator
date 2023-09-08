@@ -18,7 +18,8 @@ namespace Math::Formula {
   bool isNumberDecimal(std::string_view numberString);
   bool areThereParenthesis(std::string_view formula);
   void assertParenthesisValidation(std::string_view formula);
-  void UpdateParenthesisCoordinates(std::string_view formula, size_t& firstOpenParenthesis, size_t& ParenthesisLength);
+  size_t getFirstParenthesisOpeningIndex(std::string_view formula);
+  size_t getFirstParenthesisClosingIndex(std::string_view formula);
   void removeWhitespaces(std::string& formula);
   bool areCharactersValid(std::string_view formula);
 }

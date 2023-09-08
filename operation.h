@@ -18,6 +18,7 @@ namespace Math {
     void parse();
     void getData();
     void solve();
+    void solveFirstParenthesis();
     int getNumberofOperations();
     T getNumber();
     void iterate();
@@ -56,16 +57,21 @@ namespace Math {
     }
   }
 
+  template <typename T> void Operation<T>::solveFirstParenthesis() {
+    Formula::assertParenthesisValidation(formula);
+    constexpr int BothParenthesisCount {2};
+    const size_t openingIndex{ Formula::getFirstParenthesisOpeningIndex(formula) };
+    const size_t closingIndex{ Formula::getFirstParenthesisClosingIndex(formula) };
+    const size_t afterOpeningIndex { openingIndex + 1 };
+    const size_t afterClosingIndex { closingIndex + 1};
+    const size_t length{ afterClosingIndex - openingIndex };
+    std::string parenthesisFormula{ formula.substr(afterOpeningIndex, length - BothParenthesisCount) };
+    Operation internalOperation(parenthesisFormula);
+    formula.replace( openingIndex, length, std::to_string( internalOperation.getResult() ) );
+  }
+
   template <typename T> void Operation<T>::getData() {
-    while (Formula::areThereParenthesis(formula)) {
-      Formula::assertParenthesisValidation(formula);
-      size_t firstOpenParenthesis{};
-      size_t ParenthesisLength{};
-      Formula::UpdateParenthesisCoordinates(formula, firstOpenParenthesis, ParenthesisLength);
-      std::string parenthesisFormula{ formula.substr(firstOpenParenthesis + 1, ParenthesisLength - 2) };
-      Operation parenthesis(parenthesisFormula);
-      formula.replace(firstOpenParenthesis, ParenthesisLength, std::to_string(parenthesis.getResult()));
-    }
+    while (Formula::areThereParenthesis(formula)) solveFirstParenthesis();
     numberOfOperations = getNumberofOperations();
     firstValue = getNumber();
     iterate();

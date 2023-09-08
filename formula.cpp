@@ -92,25 +92,32 @@ void Math::Formula::assertParenthesisValidation(std::string_view formula) {
   assert((openCounter == closeCounter) && "NUMBER OF OPEN AND CLOSE PARENTHESIS MUST MATCH");
 }
 
-void Math::Formula::UpdateParenthesisCoordinates(std::string_view formula, size_t& firstOpenParenthesis, size_t& ParenthesisLength) {
+size_t Math::Formula::getFirstParenthesisOpeningIndex(std::string_view formula) {
+  assert(areThereParenthesis(formula) && "THERE IS NOT ANY PARENTHESIS TO GET INDEX FROM");
+  size_t firstParenthesisOpenIndex{};
   for (size_t i{0}; i < formula.size(); ++i) {
     if (formula[i] == '(') {
-      firstOpenParenthesis = i;
+      firstParenthesisOpenIndex = i;
       break;
     }
   }
-  size_t correspondingCloseParenthesis{};
+  return firstParenthesisOpenIndex;
+}
+
+size_t Math::Formula::getFirstParenthesisClosingIndex(std::string_view formula) {
+  assert(areThereParenthesis(formula) && "THERE IS NOT ANY PARENTHESIS TO GET INDEX FROM");
+  size_t firstParenthesisCloseIndex{};
   int parenthesDeepness{0}; // increases everytime a new parenthesis is open and decreases if it closes
   for (size_t i{0}; i < formula.size(); ++i) {
     if (isParenthesis(formula[i])) {
       if ((formula[i] == ')') && (parenthesDeepness == 1)) {
-        correspondingCloseParenthesis = i;
+        firstParenthesisCloseIndex = i;
         break;
       }
       (formula[i] == '(') ? ++parenthesDeepness : --parenthesDeepness;
     }
   }
-  ParenthesisLength = (correspondingCloseParenthesis + 1) - firstOpenParenthesis;
+  return firstParenthesisCloseIndex;
 }
 
 void Math::Formula::removeWhitespaces(std::string& formula) {
