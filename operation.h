@@ -10,13 +10,9 @@ namespace Math {
   private:
     std::string formula{};
     size_t iterator{0};
-    T firstValue{};
-    T secondValue{};
     T result{};
     int numberOfOperations{};
-    char operation{};
     void parse();
-    void getData();
     void solve();
     void solveFirstParenthesis();
     int getNumberofOperations();
@@ -33,28 +29,7 @@ namespace Math {
     Formula::removeWhitespaces(formula);
     assert(!formula.empty() && "OPERATIONS CAN'T BE EMPTY");
     assert(Formula::areCharactersValid(formula) && "THERE SEEMS TO BE A NON-VALID CHARACTER AS INPUT");
-    getData();
     solve();
-  }
-
-  template <typename T> void Operation<T>::solve() {
-    switch (operation) {
-      case '+':
-        result = firstValue + secondValue;
-        break;
-      case '-':
-        result = firstValue - secondValue;
-        break;
-      case '*':
-        result = firstValue * secondValue;
-        break;
-      case '/':
-        result = firstValue / secondValue;
-        break;
-      case '^':
-        result = toThePower<T>(firstValue, static_cast<int>(secondValue));
-        break;
-    }
   }
 
   template <typename T> void Operation<T>::solveFirstParenthesis() {
@@ -63,21 +38,40 @@ namespace Math {
     const size_t openingIndex{ Formula::getFirstParenthesisOpeningIndex(formula) };
     const size_t closingIndex{ Formula::getFirstParenthesisClosingIndex(formula) };
     const size_t afterOpeningIndex { openingIndex + 1 };
-    const size_t afterClosingIndex { closingIndex + 1};
+    const size_t afterClosingIndex { closingIndex + 1 };
     const size_t length{ afterClosingIndex - openingIndex };
     std::string parenthesisFormula{ formula.substr(afterOpeningIndex, length - BothParenthesisCount) };
     Operation internalOperation(parenthesisFormula);
     formula.replace( openingIndex, length, std::to_string( internalOperation.getResult() ) );
   }
 
-  template <typename T> void Operation<T>::getData() {
+  template <typename T> void Operation<T>::solve() {
     while (Formula::areThereParenthesis(formula)) solveFirstParenthesis();
     numberOfOperations = getNumberofOperations();
-    firstValue = getNumber();
-    iterate();
-    operation = formula[iterator];
-    iterate();
-    secondValue = getNumber();
+    switch (numberOfOperations) {
+      case 0:
+        result = getNumber();
+        break;
+      case 1: 
+      {
+        T firstValue{getNumber()};
+        iterate();
+        char operation{formula[iterator]};
+        iterate();
+        T secondValue{getNumber()};
+        result = doOperation<T>(firstValue, operation, secondValue);
+        break;
+      }
+      default:
+        /*  todo:
+
+        writeOperatorPriorities();
+        resetIterator();
+        solve();
+
+        */
+       break;
+    }    
   }
 
   template <typename T> void Operation<T>::iterate() {

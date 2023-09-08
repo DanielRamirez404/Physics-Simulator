@@ -26,4 +26,28 @@ namespace Math {
   template <typename T> int percentage(T relativeValue, T maxValue) {
     return ((relativeValue / maxValue) * 100);
   }
+
+  template <typename T> T doOperation(T firstValue, char operation, T secondValue) {
+    T result{};
+    switch (operation) {
+      case '+':
+        result = firstValue + secondValue;
+        break;
+      case '-':
+        result = firstValue - secondValue;
+        break;
+      case '*':
+        result = firstValue * secondValue;
+        break;
+      case '/':
+        result = firstValue / secondValue;
+        break;
+      case '^':
+        result = toThePower<T>(firstValue, static_cast<int>(secondValue));
+        break;
+      default:
+        assert(false && "OPERATOR DOES NOT EXIST");
+    }
+    return result;
+  }
 }
