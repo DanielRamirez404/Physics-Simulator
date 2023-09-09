@@ -22,7 +22,7 @@ namespace Math {
     void iterateThroughNumber() { while (isNumeric(formula[iterator + 1])) iterate(); };
   public:
     Operation(const char* myFormula) : formula(myFormula) { parse(); };
-    Operation(std::string& myFormula) : formula(myFormula) { parse(); };
+    Operation(std::string myFormula) : formula(myFormula) { parse(); };
     T getResult() { return result; };
   };
 

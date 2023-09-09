@@ -33,6 +33,7 @@ bool Math::isOperator(char myChar) {
     case '*':
     case '/':
     case '^':
+    case 'v':
       return true;
   }
   return false;
@@ -62,6 +63,7 @@ int Math::getOperatorPriority(char myOperator) {
       priority = 2;
       break;
     case '^':
+    case 'v':
       priority = 3;
       break;
     default:
@@ -73,7 +75,7 @@ int Math::getOperatorPriority(char myOperator) {
 bool Math::Formula::isMinusSign(std::string_view formula, size_t index) {
   bool isRightChar { formula[index] == '-' };
   bool comesAfterNumber { (index == 0) ? false : isNumber(formula[index - 1]) };
-  bool comesBeforeNumber { (index < formula.size() - 1) ? true : isNumber(formula[index + 1]) };
+  bool comesBeforeNumber { (index < formula.size() - 1) ? true : (isNumber(formula[index + 1]) || formula[index + 1] == '(') };
   return isRightChar && !comesAfterNumber && comesBeforeNumber;
 }
 

@@ -3,11 +3,7 @@
 #include <cassert>
 
 namespace Math {
-  template <typename T> T squareOf(T number) {
-    return number * number;
-  }
-
-  template <typename T> T toThePower(T base, int power) {
+  template <typename T> T exponentiation(T base, int power) {
     if (power == 0) {
       return static_cast<T>(1);
     }
@@ -16,6 +12,26 @@ namespace Math {
       result *= base;
     }
     return (power > 0) ? result : static_cast<T>(1 / result);
+  }
+
+  template <typename T> T root(T radicand , int index) {
+    assert((radicand >= 0) && "CAN\'T CALCULATE ROOT OF NEGATIVE NUMBER");
+    assert((index != 0) && "CAN\'T CALCULATE 0TH ROOT");
+    assert((index <= 3) && "ONLY IMPLEMENTED SQUARE AND CUBIC ROOTS");
+    if (radicand == 0) return 0;
+    T result{};
+    switch (index) {
+      case 1:
+        result = radicand;
+        break;        
+      case 2:
+        result = static_cast<T>(sqrt(radicand));
+        break;
+      case 3:
+        result = static_cast<T>(cbrt(radicand));
+        break;
+    }
+    return result;
   }
 
   template <typename T> T squareRootOf(T number) {
@@ -43,7 +59,10 @@ namespace Math {
         result = firstValue / secondValue;
         break;
       case '^':
-        result = toThePower<T>(firstValue, static_cast<int>(secondValue));
+        result = exponentiation<T>(firstValue, static_cast<int>(secondValue));
+        break;
+      case 'v':   //using v for roots to keep it similar to the ^ operator
+        result = root(firstValue, static_cast<int>(secondValue));
         break;
       default:
         assert(false && "OPERATOR DOES NOT EXIST");

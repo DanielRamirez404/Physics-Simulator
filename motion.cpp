@@ -7,7 +7,7 @@
 #include <iostream>
 
 void Motion::determineRemainingVariables() {
-  assert (canDetermineRemainingVariables() && "CAN\'T DETERMINE REMAINING VALUES");
+  assert(canDetermineRemainingVariables() && "CAN\'T DETERMINE REMAINING VALUES");
   if (!acceleration.hasBeenSet) {
     determineAcceleration();
     if (areAllVariablesSet()) return;
@@ -28,9 +28,9 @@ void Motion::determineRemainingVariables() {
 
 void Motion::determineAcceleration() {
   if (setVariables == 3) {
-    acceleration.value = (-2 * (distance.value - (velocity.value * time.value))) / Math::squareOf(time.value); 
+    acceleration.value = (-2 * (distance.value - (velocity.value * time.value))) / Math::exponentiation(time.value, 2); 
   } else if (!velocity.hasBeenSet) {
-    acceleration.value = (2 * distance.value) / Math::squareOf(time.value);
+    acceleration.value = (2 * distance.value) / Math::exponentiation(time.value, 2);
   } else if (!distance.hasBeenSet) {
     acceleration.value = velocity.value / time.value;
   } else {
@@ -42,7 +42,7 @@ void Motion::determineAcceleration() {
 
 void Motion::determineVelocity() {
   if (setVariables == 3) {
-    velocity.value = (distance.value + ((acceleration.value * Math::squareOf(time.value)) / 2)) / time.value;
+    velocity.value = (distance.value + ((acceleration.value * Math::exponentiation(time.value, 2)) / 2)) / time.value;
   } else if (!acceleration.hasBeenSet) {
     velocity.value = (2 * distance.value) / time.value;
   } else if (!distance.hasBeenSet) {
@@ -56,11 +56,11 @@ void Motion::determineVelocity() {
 
 void Motion::determineDistance() {
   if (setVariables == 3) {
-    distance.value = (velocity.value * time.value) - ((acceleration.value * Math::squareOf(time.value)) / 2);
+    distance.value = (velocity.value * time.value) - ((acceleration.value * Math::exponentiation(time.value, 2)) / 2);
   } else if (!acceleration.hasBeenSet) {
     distance.value = (velocity.value * time.value) / 2;
   } else if (!velocity.hasBeenSet) {
-    distance.value = (acceleration.value * Math::squareOf(time.value)) / 2;
+    distance.value = (acceleration.value * Math::exponentiation(time.value, 2)) / 2;
   } else {
     distance.value = pow(velocity.value, 2) /  (2 * acceleration.value);
   }
