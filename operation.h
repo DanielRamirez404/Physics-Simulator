@@ -15,6 +15,7 @@ namespace Math {
     void parse();
     void solve();
     void solveFirstParenthesis();
+    void solveByPriorities();
     int getNumberofOperations();
     T getNumber();
     void iterate();
@@ -29,6 +30,8 @@ namespace Math {
     Formula::removeWhitespaces(formula);
     assert(!formula.empty() && "OPERATIONS CAN'T BE EMPTY");
     assert(Formula::areCharactersValid(formula) && "THERE SEEMS TO BE A NON-VALID CHARACTER AS INPUT");
+    while (Formula::areThereParenthesis(formula)) solveFirstParenthesis();
+    numberOfOperations = getNumberofOperations();
     solve();
   }
 
@@ -45,9 +48,46 @@ namespace Math {
     formula.replace( openingIndex, length, std::to_string( internalOperation.getResult() ) );
   }
 
+  template <typename T> void Operation<T>::solveByPriorities() {
+    //todo: make dedicated functions to make this function smaller
+
+    //get MaxOrder
+    int maxOrder{0};
+    for (size_t i{0}; i < formula.size(); ++i) {
+      if (isOperator(formula[i])) {
+        if (Formula::isMinusSign(formula, i)) continue;
+        if (maxOrder < getOperatorPriority(formula[i])) {
+          ++maxOrder;
+          if (maxOrder == maxOperatorPriority) break;
+        } 
+      }
+    }
+    // replace first highest order operation by parenthesis operation
+    for (size_t i{0}; i < formula.size(); ++i) {
+      if (isOperator(formula[i]) && (getOperatorPriority(formula[i]) == maxOrder)) {
+        if (Formula::isMinusSign(formula, i)) continue;
+        size_t j{1};
+        while (isNumeric(formula[i - j])) {
+          ++j;
+          if ((i - j) + 1 == 0) break;
+        }
+        formula.insert(i - j + 1, "(");
+        ++i;
+        j = 1;
+        while (isNumeric(formula[i + j]) || ((i + j) == formula.size() - 1)) ++j;
+        ((i + j) == formula.size()) ? formula.append(")") : formula.insert(i + j + 1, ")");
+        break;
+      }
+    }
+    //solve parenthesis
+    solveFirstParenthesis();
+    --numberOfOperations;
+
+    //self-explanatory
+    (numberOfOperations == 1) ? solve() : solveByPriorities();
+  }
+
   template <typename T> void Operation<T>::solve() {
-    while (Formula::areThereParenthesis(formula)) solveFirstParenthesis();
-    numberOfOperations = getNumberofOperations();
     switch (numberOfOperations) {
       case 0:
         result = getNumber();
@@ -63,13 +103,7 @@ namespace Math {
         break;
       }
       default:
-        /*  todo:
-
-        writeOperatorPriorities();
-        resetIterator();
-        solve();
-
-        */
+        solveByPriorities();
        break;
     }    
   }

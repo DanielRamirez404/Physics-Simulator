@@ -10,6 +10,9 @@ namespace Math {
   bool isParenthesis(char myChar);
   bool isMathSymbol(char myChar);
   bool isMathRelated(char myChar);
+  int getOperatorPriority(char myOperator);
+  inline constexpr int minOperatorPriority{1};
+  inline constexpr int maxOperatorPriority{3};
 }
 
 namespace Math::Formula {

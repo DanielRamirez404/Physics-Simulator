@@ -50,6 +50,26 @@ bool Math::isMathRelated(char myChar) {
   return (isMathSymbol(myChar) || isNumber(myChar));
 }
 
+int Math::getOperatorPriority(char myOperator) {
+  int priority{};
+  switch (myOperator) {
+    case '+':
+    case '-':
+      priority = 1;
+      break;
+    case '*':
+    case '/':
+      priority = 2;
+      break;
+    case '^':
+      priority = 3;
+      break;
+    default:
+      assert(false && "OPERATOR DOES NOT EXIST");
+  }
+  return priority;
+}
+
 bool Math::Formula::isMinusSign(std::string_view formula, size_t index) {
   bool isRightChar { formula[index] == '-' };
   bool comesAfterNumber { (index == 0) ? false : isNumber(formula[index - 1]) };
