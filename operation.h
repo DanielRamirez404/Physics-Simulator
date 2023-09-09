@@ -57,7 +57,7 @@ namespace Math {
       if (isOperator(formula[i])) {
         if (Formula::isMinusSign(formula, i)) continue;
         if (maxOrder < getOperatorPriority(formula[i])) {
-          ++maxOrder;
+          maxOrder = getOperatorPriority(formula[i]);
           if (maxOrder == maxOperatorPriority) break;
         } 
       }
