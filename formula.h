@@ -23,6 +23,9 @@ namespace Math::Formula {
   void assertParenthesisValidation(std::string_view formula);
   size_t getFirstParenthesisOpeningIndex(std::string_view formula);
   size_t getFirstParenthesisClosingIndex(std::string_view formula);
+  int getMaxOperatorPriority(std::string_view formula);
+  void writeParenthesisByPriority(std::string& formula);
+  void addParenthesisAroundOperator(std::string& formula, size_t operatorIndex);
   void removeWhitespaces(std::string& formula);
   bool areCharactersValid(std::string_view formula);
 }

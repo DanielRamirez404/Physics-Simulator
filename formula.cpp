@@ -142,6 +142,51 @@ size_t Math::Formula::getFirstParenthesisClosingIndex(std::string_view formula) 
   return firstParenthesisCloseIndex;
 }
 
+int Math::Formula::getMaxOperatorPriority(std::string_view formula) {
+  int formulaOrder{0};
+  for (size_t i{0}; i < formula.size(); ++i) {
+    if (isOperator(formula[i])) {
+      if (isMinusSign(formula, i)) continue;
+      int currentOrder { getOperatorPriority(formula[i]) };
+      if (formulaOrder < currentOrder) {
+        formulaOrder = currentOrder;
+        if (formulaOrder == maxOperatorPriority) break;
+      }
+    }
+  }
+  return formulaOrder;
+}
+
+void Math::Formula::writeParenthesisByPriority(std::string& formula) {
+  int maxOrder{ getMaxOperatorPriority(formula) };
+  for (size_t i{0}; i < formula.size(); ++i) {
+    if (isOperator(formula[i]) && (getOperatorPriority(formula[i]) == maxOrder)) {
+      if (Formula::isMinusSign(formula, i)) continue;
+      addParenthesisAroundOperator(formula, i);
+      break;
+    }
+  }
+}
+
+void Math::Formula::addParenthesisAroundOperator(std::string& formula, size_t operatorIndex) {
+  assert(isOperator(formula[operatorIndex]) && "INDEX DOES NOT BELONG TO OPERATOR");
+  for (size_t i{1}; true; ++i) {
+    size_t index{operatorIndex - i};
+    if (!isNumeric(formula[index]) || index + 1 == 0) {
+      String::addToString(formula, "(", index + 1);
+      break;
+    }
+  }
+  ++operatorIndex;
+  for (size_t i{1}; true; ++i) {
+    size_t index{operatorIndex + i};
+    if (!isNumeric(formula[index]) || index == formula.size() - 1) {
+      String::addToString(formula, ")", index + 1);
+      break;
+    }
+  }
+}
+
 void Math::Formula::removeWhitespaces(std::string& formula) {
   String::eraseWhitespaces(formula);
 }

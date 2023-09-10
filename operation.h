@@ -49,41 +49,9 @@ namespace Math {
   }
 
   template <typename T> void Operation<T>::solveByPriorities() {
-    //todo: make dedicated functions to make this function smaller
-
-    //get MaxOrder
-    int maxOrder{0};
-    for (size_t i{0}; i < formula.size(); ++i) {
-      if (isOperator(formula[i])) {
-        if (Formula::isMinusSign(formula, i)) continue;
-        if (maxOrder < getOperatorPriority(formula[i])) {
-          maxOrder = getOperatorPriority(formula[i]);
-          if (maxOrder == maxOperatorPriority) break;
-        } 
-      }
-    }
-    // replace first highest order operation by parenthesis operation
-    for (size_t i{0}; i < formula.size(); ++i) {
-      if (isOperator(formula[i]) && (getOperatorPriority(formula[i]) == maxOrder)) {
-        if (Formula::isMinusSign(formula, i)) continue;
-        size_t j{1};
-        while (isNumeric(formula[i - j])) {
-          ++j;
-          if ((i - j) + 1 == 0) break;
-        }
-        formula.insert(i - j + 1, "(");
-        ++i;
-        j = 1;
-        while (isNumeric(formula[i + j]) || ((i + j) == formula.size() - 1)) ++j;
-        ((i + j) == formula.size()) ? formula.append(")") : formula.insert(i + j + 1, ")");
-        break;
-      }
-    }
-    //solve parenthesis
+    Formula::writeParenthesisByPriority(formula);
     solveFirstParenthesis();
     --numberOfOperations;
-
-    //self-explanatory
     (numberOfOperations == 1) ? solve() : solveByPriorities();
   }
 
