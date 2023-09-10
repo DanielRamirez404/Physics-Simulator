@@ -15,16 +15,18 @@ namespace Math {
     std::string formula{};
     Variable* variables{};
   public:
-    Ecuation(const char* myFormula, std::string_view* myVariableNames) : formula(myFormula), variableNames(myVariableNames) {};
+    Ecuation(const char* myFormula, char myVariableNames) : formula(myFormula), variableNames(myVariableNames) {};
     Ecuation(const Ecuation&) = delete;
     Ecuation& operator=(const Ecuation&) = delete;
     T solveFor(char identifier);
   };
 
   template <typename T> T Ecuation<T>::solveFor(char identifier) {
-    /*  if (doesIndentifierExist(identifier))
-     *  1. operation = Ecuation.getOperationToCalculate(identifier)
-     *  2. return operation.solve();
+    /*  todo:
+     *  1. if (doesIndentifierExist(identifier)) { 
+     *  2.   operation myOperation { Ecuation.getOperationToCalculate(identifier) };
+     *  3.   return operation.getResult();
+     *     }
      */
   }
 }

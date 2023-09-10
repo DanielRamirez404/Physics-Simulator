@@ -1,6 +1,5 @@
 #include "simulator.h"
 #include "menu.h"
-#include <vector>
 
 int main() {
   MainMenu simulator{"PHYSICS SIMULATOR", getSimulatorFunctions()};

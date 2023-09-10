@@ -6,8 +6,8 @@
 #include <iostream>
 #include <vector>
 
-std::vector<MenuFunction> getSimulatorFunctions() {
-  std::vector<MenuFunction> functions{};
+const std::vector<MenuFunction>& getSimulatorFunctions() {
+  static std::vector<MenuFunction> functions{};
   functions.push_back( {"HORIZONTAL MOTION", &chooseHorizontalMotion} );
   functions.push_back( {"VERTICAL MOTION", &chooseVerticalMotion} );
   return functions;

@@ -64,7 +64,7 @@ void RunOnceMenu::run() {
     } else {
       run();
     }
+  }
   --selectedOption;
   functions[selectedOption].function();
-  }
 }
