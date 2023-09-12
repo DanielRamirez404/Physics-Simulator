@@ -29,14 +29,24 @@ namespace Math {
     Equation(const Equation&) = delete;
     Equation& operator=(const Equation&) = delete;
     T solveFor(char identifier);
+    void addValueFor(char identifier, T value);
   };
 
   template <typename T> T Equation<T>::solveFor(char identifier) {
+    assert( (formula.find(identifier) =! std::string::npos) && "IDENTIFIER DOES NOT EXIST");
     /*  todo:
      *  1. if (doesIndentifierExist(identifier)) { 
      *  2.   operation myOperation { Equation.getOperationToCalculate(identifier) };
      *  3.   return operation.getResult();
      *     }
      */
+  }
+
+  template <typename T> void Equation<T>::addValueFor(char identifier, T value) {
+    size_t identifierIndex { formula.find(identifier) };
+    assert( (identifierIndex != std::string::npos) && "IDENTIFIER DOES NOT EXIST");
+    constexpr size_t charSize { 1 };
+    formula.replace(identifierIndex, charSize, std::to_string(value));
+    --variableCounter;
   }
 }
