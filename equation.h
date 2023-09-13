@@ -42,7 +42,7 @@ namespace Math {
     if (formula[0] == identifier && formula[1] == '=') {
       constexpr int firstRightExpressionIndex{2};
       Operation<T> result { formula.substr(firstRightExpressionIndex) };
-      return result.getResult();
+      return result.solve();
     }
     rewriteFormulaToSolveFor(identifier);
     return solveFor(identifier);
