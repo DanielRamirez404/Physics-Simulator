@@ -2,6 +2,7 @@
 #include "operation.h"
 #include "formula.h"
 #include "usermath.h"
+#include "userstring.h"
 #include <cassert>
 #include <cstddef>
 #include <string>
@@ -24,7 +25,7 @@ namespace Math {
     {
       for (size_t i{0}; i < myVariableNames.size(); ++i) {
         assert(!isMathRelated(i) && i != '=' && "INVALID VARIABLE IDENTIFIER");
-        variables.push_back ( { myVariableNames[i], 0 } );
+        variables.push_back ( { myVariableNames[i]} );
       }
       variableCounter = variables.size();
       assert((variableCounter > 0) && "FORMULA MUST HAVE AT LEAST ONE IDENTIFIER");
@@ -56,7 +57,45 @@ namespace Math {
     --variableCounter;
   }
 
-  template <typename T> void Equation<T>::rewriteFormulaToSolveFor([[maybe_unused]]  char identifier) {
-    //to-do hehe
+  template <typename T> void Equation<T>::rewriteFormulaToSolveFor(char identifier) {
+    //needs HUGE rework
+    bool isIdentifierToTheLeft { false } ;
+    //getValueForPreviousBool
+    for (size_t i{0}; formula[i] != '='; ++i) {
+      if (formula[i] == identifier) {
+        isIdentifierToTheLeft = true;
+        break;
+      }
+    }
+    //assuming there's no parenthesis and that the operator is to the right
+    if (isIdentifierToTheLeft) {
+      //place parentheses at the right side of the equal sign
+      for (size_t i{0}; true; ++i) {
+        if (formula[i] == '=') {
+          String::addToString(formula, "(", i + 1);
+          formula.append(")"); 
+          break;
+        }
+      }
+      //change the operator and pass it to the right with the number
+      for (size_t i{0}; true; ++i) {
+        if (formula[i] == identifier) {
+          std::string oppositeOperator(1, getOppositeOperator(formula[i + 1]) );
+          formula.append(oppositeOperator);
+          formula.erase(i + 1, 1);
+          //pasted from getNumber() function in the operation class
+          size_t iterator{ i + 1 };
+          const size_t firstDigit { iterator };
+          while (isNumeric(formula[iterator + 1])) ++iterator;
+          const size_t firstNonDigit { iterator + 1};
+          const size_t totalDigits { firstNonDigit - firstDigit };
+          std::string numberString{ formula.substr(firstDigit, totalDigits) };
+          //we got our number so we append and erase it
+          formula.append(numberString);
+          formula.erase(firstDigit, totalDigits);
+          break;
+        }
+      }
+    }
   }
 }

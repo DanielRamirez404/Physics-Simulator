@@ -72,6 +72,30 @@ int Math::getOperatorPriority(char myOperator) {
   return priority;
 }
 
+char Math::getOppositeOperator(char myOperator) {
+  char opposite{};
+  switch (myOperator) {
+    case '+':
+      opposite = '-';
+      break;
+    case '-':
+      opposite = '+';
+      break;
+    case '*':
+      opposite = '/';
+      break;
+    case '^':
+      opposite = 'v';
+      break;
+    case 'v':
+      opposite = '^';
+      break;
+    default:
+      assert(false && "OPERATOR DOES NOT EXIST");
+  }
+  return opposite;
+}
+
 bool Math::Formula::isMinusSign(std::string_view formula, size_t index) {
   bool isRightChar { formula[index] == '-' };
   bool comesAfterNumber { (index == 0) ? false : isNumber(formula[index - 1]) };

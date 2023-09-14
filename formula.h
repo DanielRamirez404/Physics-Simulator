@@ -11,6 +11,7 @@ namespace Math {
   bool isMathSymbol(char myChar);
   bool isMathRelated(char myChar);
   int getOperatorPriority(char myOperator);
+  char getOppositeOperator(char myOperator);
   inline constexpr int minOperatorPriority{1};
   inline constexpr int maxOperatorPriority{3};
 }
