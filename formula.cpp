@@ -180,8 +180,8 @@ void Math::Formula::addParenthesisAroundOperator(std::string& formula, size_t op
   ++operatorIndex;
   for (size_t i{1}; true; ++i) {
     size_t index{operatorIndex + i};
-    if (!isNumeric(formula[index]) || index == formula.size() - 1) {
-      String::addToString(formula, ")", index + 1);
+    if (!isNumeric(formula[index]) || index == formula.size()) {
+      String::addToString(formula, ")", index);
       break;
     }
   }
