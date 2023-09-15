@@ -96,18 +96,9 @@ char getOppositeOperator(char myOperator) {
   return opposite;
 }
 
-bool Math::isMinusSign(std::string_view formula, size_t index) {
-  bool isRightChar { formula[index] == '-' };
-  bool comesAfterNumber { (index == 0) ? false : isNumber(formula[index - 1]) };
-  bool comesBeforeNumber { (index < formula.size() - 1) ? true : (isNumber(formula[index + 1]) || formula[index + 1] == '(') };
-  return isRightChar && !comesAfterNumber && comesBeforeNumber;
-}
 
-bool Math::isPartOfNumber(std::string_view formula, size_t index) {
-  return isNumeric(formula[index]) || isMinusSign(formula, index);
-}
 
-bool Math::isNumberDecimal(std::string_view numberString) {
+bool isNumberDecimal(std::string_view numberString) {
   int pointCounter{0};
   for (size_t i{0}; i < numberString.size(); ++i) {
     if (numberString[i] == '.') {
@@ -167,10 +158,11 @@ size_t Math::getFirstParenthesisClosingIndex(std::string_view formula) {
 }
 
 int Math::getMaxOperatorPriority(std::string_view formula) {
+  Formula myFormula { formula };
   int formulaOrder{0};
   for (size_t i{0}; i < formula.size(); ++i) {
     if (isOperator(formula[i])) {
-      if (isMinusSign(formula, i)) continue;
+      if (myFormula.isMinusSign(i)) continue;
       int currentOrder { getOperatorPriority(formula[i]) };
       if (formulaOrder < currentOrder) {
         formulaOrder = currentOrder;
@@ -183,9 +175,10 @@ int Math::getMaxOperatorPriority(std::string_view formula) {
 
 void Math::writeParenthesisByPriority(std::string& formula) {
   int maxOrder{ getMaxOperatorPriority(formula) };
+  Formula myFormula { formula };
   for (size_t i{0}; i < formula.size(); ++i) {
     if (isOperator(formula[i]) && (getOperatorPriority(formula[i]) == maxOrder)) {
-      if (isMinusSign(formula, i)) continue;
+      if (myFormula.isMinusSign(i)) continue;
       addParenthesisAroundOperator(formula, i);
       break;
     }
@@ -211,10 +204,6 @@ void Math::addParenthesisAroundOperator(std::string& formula, size_t operatorInd
   }
 }
 
-void Math::removeWhitespaces(std::string& formula) {
-  String::eraseWhitespaces(formula);
-}
-
 void Formula::removeWhitespaces() {
   String::eraseWhitespaces(formula);
 }
@@ -231,4 +220,21 @@ bool Formula::areCharactersValid() {
     if (!isMathRelated(formula[i])) return false;
   }
   return true;
+}
+
+void Formula::assertIsValid() {
+  std::string errorMessage { syntaxError.getMessage() };
+  assert(isValid() && errorMessage.c_str());
+}
+
+bool Formula::isMinusSign(size_t index) {
+  if (formula[index] != '-') return false;
+  else if (index >= formula.size() - 1) return false;
+  const bool comesBeforeNumber { isNumber(formula[index + 1]) };
+  const bool comesAfterNumber { (index == 0) ? false : isNumber(formula[index - 1]) };
+  return !comesAfterNumber && comesBeforeNumber;
+}
+
+bool Formula::isPartOfNumber(size_t index) {
+  return isNumeric(formula[index]) || isMinusSign(index);
 }

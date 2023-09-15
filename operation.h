@@ -9,7 +9,6 @@ namespace Math {
   template <typename T> class Operation {
   private:
     Formula formula{};
-    void parse();
     void solveFirstParenthesis();
     int getNumberofOperations();
     T solveForOneOperator();
@@ -17,7 +16,7 @@ namespace Math {
     T getNumber(size_t& iterator);
     T getNumber() { size_t iterator{0}; return getNumber(iterator); };
   public:
-    Operation(std::string_view myFormula) : formula(myFormula) { parse(); };
+    Operation(std::string_view myFormula) : formula(myFormula) { formula.assertIsValid(); };
     T solve();
   };
 }
@@ -38,12 +37,6 @@ template <typename T> T Math::Operation<T>::solve() {
       break;
   }
   return result;    
-}
-
-template <typename T> void Math::Operation<T>::parse() {
-  std::string errorString { formula.getErrorMessage() };
-  const char* errorMessage { errorString.c_str() };
-  assert(formula.isValid() && errorMessage);
 }
 
 template <typename T> void Math::Operation<T>::solveFirstParenthesis() {
@@ -80,9 +73,9 @@ template <typename T> int Math::Operation<T>::getNumberofOperations() {
   int operatorCounter{0};
   for (size_t i{0}; i < formula.formula.size(); ++i) {
     if (isOperator(formula.formula[i])) {
-      if (isMinusSign(formula.formula, i)) continue;
+      if (formula.isMinusSign(i)) continue;
       assert((i != 0) && (i != formula.formula.size() - 1) && "OPERATORS CAN'T EITHER START NOR END FORMULAS");
-      assert(isNumber(formula.formula[i - 1]) && isPartOfNumber(formula.formula, i + 1) && "OPERATORS MUST BE SURROUNDED BY NUMBERS");
+      assert(isNumber(formula.formula[i - 1]) && formula.isPartOfNumber(i+1) && "OPERATORS MUST BE SURROUNDED BY NUMBERS");
       ++operatorCounter;
     }
   }
@@ -90,7 +83,7 @@ template <typename T> int Math::Operation<T>::getNumberofOperations() {
 }
 
 template <typename T> T Math::Operation<T>::getNumber(size_t& iterator) {
-  assert(isPartOfNumber(formula.formula, iterator) && "OPERATIONS MUST START BY A NUMBER");
+  assert(formula.isPartOfNumber(iterator) && "OPERATIONS MUST START BY A NUMBER");
   const size_t firstDigit { iterator };
   while (isNumeric(formula.formula[iterator + 1])) ++iterator;
   const size_t firstNonDigit { iterator + 1};
