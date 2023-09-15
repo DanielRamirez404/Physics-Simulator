@@ -19,6 +19,7 @@ private:
   void removeWhitespaces();
   void checkForErrors();
   bool areCharactersValid();
+  bool areParenthesesValid();
 public:
   std::string formula{};  //public for the moment
   Formula(std::string_view myFormula) : formula(myFormula) { 
@@ -28,8 +29,11 @@ public:
   bool isValid() { return !syntaxError.exists(); };
   std::string_view getErrorMessage() { return syntaxError.getMessage(); };
   void assertIsValid();
-  bool isMinusSign(size_t index);     // instead of substraction operator
-  bool isPartOfNumber(size_t index);  // includes minus signs
+  bool isMinusSign(size_t index);           // instead of substraction operator
+  bool isPartOfNumber(size_t index);        // includes minus signs
+  bool hasParentheses();
+  size_t getFirstParenthesisOpeningIndex(); //returns 0 if there's no parenthesis
+  size_t getFirstParenthesisClosingIndex(); //returns 0 if there's no parenthesis
 };
 
 bool isNumberDecimal(std::string_view numberString);
@@ -46,11 +50,6 @@ inline constexpr int minOperatorPriority{1};
 inline constexpr int maxOperatorPriority{3};
 
 namespace Math {
-  bool areThereParenthesis(std::string_view formula);
-  void assertParenthesisValidation(std::string_view formula);
-  size_t getFirstParenthesisOpeningIndex(std::string_view formula);
-  size_t getFirstParenthesisClosingIndex(std::string_view formula);
-
   int getMaxOperatorPriority(std::string_view formula);
   void writeParenthesisByPriority(std::string& formula);
   void addParenthesisAroundOperator(std::string& formula, size_t operatorIndex);

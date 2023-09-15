@@ -110,53 +110,6 @@ bool isNumberDecimal(std::string_view numberString) {
   return true;
 }
 
-bool Math::areThereParenthesis(std::string_view formula) {
-  for (size_t i{0}; i < formula.size(); ++i) {
-    if (isParenthesis(formula[i])) return true;
-  }
-  return false;
-}
-
-void Math::assertParenthesisValidation(std::string_view formula) {
-  int openCounter{0};
-  int closeCounter{0};
-  for (size_t i{0}; i < formula.size(); ++i) {
-    if (isParenthesis(formula[i])) {
-      (formula[i] == '(') ? ++openCounter : ++closeCounter;
-      assert((closeCounter <= openCounter) && "CAN\'T CLOSE PARENTHESIS WITHOUT OPENING");
-    }
-  }
-  assert((openCounter == closeCounter) && "NUMBER OF OPEN AND CLOSE PARENTHESIS MUST MATCH");
-}
-
-size_t Math::getFirstParenthesisOpeningIndex(std::string_view formula) {
-  assert(areThereParenthesis(formula) && "THERE IS NOT ANY PARENTHESIS TO GET INDEX FROM");
-  size_t firstParenthesisOpenIndex{};
-  for (size_t i{0}; i < formula.size(); ++i) {
-    if (formula[i] == '(') {
-      firstParenthesisOpenIndex = i;
-      break;
-    }
-  }
-  return firstParenthesisOpenIndex;
-}
-
-size_t Math::getFirstParenthesisClosingIndex(std::string_view formula) {
-  assert(areThereParenthesis(formula) && "THERE IS NOT ANY PARENTHESIS TO GET INDEX FROM");
-  size_t firstParenthesisCloseIndex{};
-  int parenthesDeepness{0}; // increases everytime a new parenthesis is open and decreases if it closes
-  for (size_t i{0}; i < formula.size(); ++i) {
-    if (isParenthesis(formula[i])) {
-      if ((formula[i] == ')') && (parenthesDeepness == 1)) {
-        firstParenthesisCloseIndex = i;
-        break;
-      }
-      (formula[i] == '(') ? ++parenthesDeepness : --parenthesDeepness;
-    }
-  }
-  return firstParenthesisCloseIndex;
-}
-
 int Math::getMaxOperatorPriority(std::string_view formula) {
   Formula myFormula { formula };
   int formulaOrder{0};
@@ -213,11 +166,32 @@ void Formula::checkForErrors() {
     syntaxError.add("FORMULA CAN\'T BE EMPTY");
   else if (!areCharactersValid())
     syntaxError.add("SEEMS LIKE THERE IS A NON-VALID CHARACTER");
+  else if (hasParentheses() && !areParenthesesValid())
+    return;
 }
 
 bool Formula::areCharactersValid() {
   for (size_t i{0}; i < formula.size(); ++i) {
     if (!isMathRelated(formula[i])) return false;
+  }
+  return true;
+}
+
+bool Formula::areParenthesesValid() {
+  int openCounter{0};
+  int closeCounter{0};
+  for (size_t i{0}; i < formula.size(); ++i) {
+    if (isParenthesis(formula[i])) {
+      (formula[i] == '(') ? ++openCounter : ++closeCounter;
+      if (closeCounter > openCounter) {
+        syntaxError.add("CAN\'T CLOSE PARENTHESES WITHOUT OPENING");
+        return false;
+      } 
+    }
+  }
+  if (openCounter != closeCounter) {
+    syntaxError.add("NUMBER OF OPEN AND CLOSE PARENTHESES MUST MATCH");
+    return false;
   }
   return true;
 }
@@ -231,10 +205,43 @@ bool Formula::isMinusSign(size_t index) {
   if (formula[index] != '-') return false;
   else if (index >= formula.size() - 1) return false;
   const bool comesBeforeNumber { isNumber(formula[index + 1]) };
-  const bool comesAfterNumber { (index == 0) ? false : isNumber(formula[index - 1]) };
+  const bool comesAfterNumber { !(index == 0) || isNumber(formula[index - 1]) };
   return !comesAfterNumber && comesBeforeNumber;
 }
 
 bool Formula::isPartOfNumber(size_t index) {
   return isNumeric(formula[index]) || isMinusSign(index);
+}
+
+bool Formula::hasParentheses() {
+  for (size_t i{0}; i < formula.size(); ++i) {
+    if (isParenthesis(formula[i])) return true;
+  }
+  return false;
+}
+
+size_t Formula::getFirstParenthesisOpeningIndex() {
+  size_t firstParenthesisOpenIndex{0};
+  for (size_t i{0}; i < formula.size(); ++i) {
+    if (formula[i] == '(') {
+      firstParenthesisOpenIndex = i;
+      break;
+    }
+  }
+  return firstParenthesisOpenIndex;
+}
+
+size_t Formula::getFirstParenthesisClosingIndex() {
+  size_t firstParenthesisCloseIndex{};
+  int parenthesDeepness{0}; // increases everytime a new parenthesis is open and decreases if it closes
+  for (size_t i{0}; i < formula.size(); ++i) {
+    if (isParenthesis(formula[i])) {
+      if ((formula[i] == ')') && (parenthesDeepness == 1)) {
+        firstParenthesisCloseIndex = i;
+        break;
+      }
+      (formula[i] == '(') ? ++parenthesDeepness : --parenthesDeepness;
+    }
+  }
+  return firstParenthesisCloseIndex;
 }

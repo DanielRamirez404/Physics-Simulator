@@ -22,7 +22,7 @@ namespace Math {
 }
 
 template <typename T> T Math::Operation<T>::solve() {
-  while (areThereParenthesis(formula.formula)) solveFirstParenthesis();
+  while (formula.hasParentheses()) solveFirstParenthesis();
   T result{};
   int numberOfOperations{ getNumberofOperations() };
   switch (numberOfOperations) {
@@ -40,10 +40,9 @@ template <typename T> T Math::Operation<T>::solve() {
 }
 
 template <typename T> void Math::Operation<T>::solveFirstParenthesis() {
-  assertParenthesisValidation(formula.formula);
   constexpr int BothParenthesisCount {2};
-  const size_t openingIndex{ getFirstParenthesisOpeningIndex(formula.formula) };
-  const size_t closingIndex{ getFirstParenthesisClosingIndex(formula.formula) };
+  const size_t openingIndex{ formula.getFirstParenthesisOpeningIndex() };
+  const size_t closingIndex{ formula.getFirstParenthesisClosingIndex() };
   const size_t afterOpeningIndex { openingIndex + 1 };
   const size_t afterClosingIndex { closingIndex + 1 };
   const size_t length{ afterClosingIndex - openingIndex };
