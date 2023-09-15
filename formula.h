@@ -1,17 +1,8 @@
 #pragma once
+#include "error.h"
 #include <cstddef>
 #include <string>
 #include <string_view>
-
-class Error {
-private:
-  std::string_view message { "NO ERRORS FOUND YET" };
-  bool hasBeenFound{ false };
-public:
-  void add(std::string_view errorMessage) { message = errorMessage; hasBeenFound = true; };
-  std::string_view getMessage() { return message; };
-  bool exists() { return hasBeenFound; };
-};
 
 class Formula {
 private:
@@ -26,9 +17,7 @@ public:
     removeWhitespaces();
     checkForErrors();
   };
-  bool isValid() { return !syntaxError.exists(); };
-  std::string_view getErrorMessage() { return syntaxError.getMessage(); };
-  void assertIsValid();
+  void assertIsValid() { syntaxError.assert(); };
   bool isMinusSign(size_t index);           // instead of substraction operator
   bool isPartOfNumber(size_t index);        // includes minus signs
   bool hasParentheses();
