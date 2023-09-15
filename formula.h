@@ -3,20 +3,44 @@
 #include <string>
 #include <string_view>
 
-namespace Math {
-  bool isNumber(char myChar);
-  bool isNumeric(char myChar);
-  bool isOperator(char myChar);
-  bool isParenthesis(char myChar);
-  bool isMathSymbol(char myChar);
-  bool isMathRelated(char myChar);
-  int getOperatorPriority(char myOperator);
-  char getOppositeOperator(char myOperator);
-  inline constexpr int minOperatorPriority{1};
-  inline constexpr int maxOperatorPriority{3};
-}
+class Error {
+private:
+  std::string_view message { "NO ERRORS FOUND YET" };
+  bool hasBeenFound{ false };
+public:
+  void add(std::string_view errorMessage) { message = errorMessage; hasBeenFound = true; };
+  std::string_view getMessage() { return message; };
+  bool exists() { return hasBeenFound; };
+};
 
-namespace Math::Formula {
+class Formula {
+private:
+  Error syntaxError{};
+  void removeWhitespaces();
+  void checkForErrors();
+  bool areCharactersValid();
+public:
+  std::string formula{};  //public for the moment
+  Formula(std::string_view myFormula) : formula(myFormula) { 
+    removeWhitespaces();
+    checkForErrors();
+  };
+  bool isValid() { return !syntaxError.exists(); };
+  std::string_view getErrorMessage() { return syntaxError.getMessage(); };
+};
+
+bool isNumber(char myChar);
+bool isNumeric(char myChar);
+bool isOperator(char myChar);
+bool isParenthesis(char myChar);
+bool isMathSymbol(char myChar);
+bool isMathRelated(char myChar);
+int getOperatorPriority(char myOperator);
+char getOppositeOperator(char myOperator);
+inline constexpr int minOperatorPriority{1};
+inline constexpr int maxOperatorPriority{3};
+
+namespace Math {
   bool isMinusSign(std::string_view formula, size_t index);     // instead of substraction operator
   bool isPartOfNumber(std::string_view formula, size_t index);  // includes minus signs
   bool isNumberDecimal(std::string_view numberString);
@@ -28,5 +52,4 @@ namespace Math::Formula {
   void writeParenthesisByPriority(std::string& formula);
   void addParenthesisAroundOperator(std::string& formula, size_t operatorIndex);
   void removeWhitespaces(std::string& formula);
-  bool areCharactersValid(std::string_view formula);
 }

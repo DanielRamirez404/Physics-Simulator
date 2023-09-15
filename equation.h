@@ -29,7 +29,7 @@ namespace Math {
       }
       variableCounter = variables.size();
       assert((variableCounter > 0) && "FORMULA MUST HAVE AT LEAST ONE IDENTIFIER");
-      Formula::removeWhitespaces(formula);
+      String::eraseWhitespaces(formula);
     };
     Equation(const Equation&) = delete;
     Equation& operator=(const Equation&) = delete;
