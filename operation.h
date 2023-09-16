@@ -1,6 +1,7 @@
 #pragma once
 #include "formula.h"
 #include "usermath.h"
+#include "userstring.h"
 #include <cstddef>
 #include <cassert>
 #include <string>
@@ -19,6 +20,7 @@ namespace Math {
     Operation(std::string_view myFormula) : formula(myFormula) { formula.assertIsValid(); };
     T solve();
   };
+  Operation(std::string_view) -> Operation<double>;
 }
 
 template <typename T> T Math::Operation<T>::solve() {

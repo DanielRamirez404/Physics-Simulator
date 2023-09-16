@@ -21,7 +21,7 @@ namespace Math {
     size_t variableCounter{};
     void rewriteFormulaToSolveFor(char identifier);
   public:
-    Equation(const char* myFormula, std::vector<char> myVariableNames) : formula(myFormula) 
+    Equation(std::string_view myFormula, std::vector<char> myVariableNames) : formula(myFormula) 
     {
       for (size_t i{0}; i < myVariableNames.size(); ++i) {
         assert(!isMathRelated(i) && i != '=' && "INVALID VARIABLE IDENTIFIER");
@@ -31,11 +31,10 @@ namespace Math {
       assert((variableCounter > 0) && "FORMULA MUST HAVE AT LEAST ONE IDENTIFIER");
       String::eraseWhitespaces(formula);
     };
-    Equation(const Equation&) = delete;
-    Equation& operator=(const Equation&) = delete;
     T solveFor(char identifier);
     void addValueFor(char identifier, T value);
   };
+  Equation(std::string_view, std::vector<char>) -> Equation<double>;
 
   template <typename T> T Equation<T>::solveFor(char identifier) {
     assert( (formula.find(identifier) != std::string::npos) && "IDENTIFIER DOES NOT EXIST");
