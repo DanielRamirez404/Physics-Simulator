@@ -25,8 +25,6 @@ public:
   size_t getFirstParenthesisClosingIndex(); //returns 0 if there's no parenthesis
 };
 
-bool isNumberDecimal(std::string_view numberString);
-
 bool isNumber(char myChar);
 bool isNumeric(char myChar);
 bool isOperator(char myChar);
@@ -37,6 +35,8 @@ int getOperatorPriority(char myOperator);
 char getOppositeOperator(char myOperator);
 inline constexpr int minOperatorPriority{1};
 inline constexpr int maxOperatorPriority{3};
+
+bool isNumberDecimal(std::string_view numberString);
 
 namespace Math {
   int getMaxOperatorPriority(std::string_view formula);

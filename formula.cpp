@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <string>
 #include <string_view>
+#include <algorithm>
 
 bool isNumber(char myChar) {
   switch (myChar) {
@@ -96,19 +97,7 @@ char getOppositeOperator(char myOperator) {
   return opposite;
 }
 
-
-
-bool isNumberDecimal(std::string_view numberString) {
-  int pointCounter{0};
-  for (size_t i{0}; i < numberString.size(); ++i) {
-    if (numberString[i] == '.') {
-    assert((pointCounter <= 1) && "NUMBERS CAN\'T HAVE MORE THAN ONE DECIMAL POINT");
-    assert(isNumber(numberString[i - 1]) && isNumber(numberString[i + 1]) && "DECIMAL POINTS MUST BE SURROUNDED BY NUMBERS");
-    ++pointCounter;
-    }
-  }
-  return true;
-}
+bool isNumberDecimal(std::string_view numberString) { return String::containsCharacter(numberString, '.'); }
 
 int Math::getMaxOperatorPriority(std::string_view formula) {
   Formula myFormula { formula };
@@ -139,7 +128,7 @@ void Math::writeParenthesisByPriority(std::string& formula) {
 }
 
 void Math::addParenthesisAroundOperator(std::string& formula, size_t operatorIndex) {
-  assert(isOperator(formula[operatorIndex]) && "INDEX DOES NOT BELONG TO OPERATOR");
+  //assert(isOperator(formula[operatorIndex]) && "INDEX DOES NOT BELONG TO OPERATOR");
   for (size_t i{1}; true; ++i) {
     size_t index{operatorIndex - i};
     if (!isNumeric(formula[index]) || index + 1 == 0) {
@@ -170,11 +159,10 @@ void Formula::checkForErrors() {
     return;
 }
 
+#include <iostream>
+
 bool Formula::areCharactersValid() {
-  for (size_t i{0}; i < formula.size(); ++i) {
-    if (!isMathRelated(formula[i])) return false;
-  }
-  return true;
+  return std::all_of(formula.begin(), formula.end(), [](char myChar) { return isMathRelated(myChar); } );
 }
 
 bool Formula::areParenthesesValid() {
@@ -194,11 +182,6 @@ bool Formula::areParenthesesValid() {
     return false;
   }
   return true;
-}
-
-void Formula::assertIsValid() {
-  std::string errorMessage { syntaxError.getMessage() };
-  assert(isValid() && errorMessage.c_str());
 }
 
 bool Formula::isMinusSign(size_t index) {
