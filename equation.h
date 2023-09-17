@@ -3,10 +3,14 @@
 #include "formula.h"
 #include "usermath.h"
 #include "userstring.h"
+#include "math characters.h"
 #include <cassert>
 #include <cstddef>
 #include <string>
 #include <vector>
+
+using namespace Math;
+using namespace Math::Operators;
 
 namespace Math {
   template <typename T> struct Variable {
@@ -79,7 +83,7 @@ namespace Math {
       //change the operator and pass it to the right with the number
       for (size_t i{0}; true; ++i) {
         if (formula[i] == identifier) {
-          std::string oppositeOperator(1, getOppositeOperator(formula[i + 1]) );
+          std::string oppositeOperator(1, getOpposite(formula[i + 1]) );
           formula.append(oppositeOperator);
           formula.erase(i + 1, 1);
           //pasted from getNumber() function in the operation class

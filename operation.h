@@ -2,9 +2,13 @@
 #include "formula.h"
 #include "usermath.h"
 #include "userstring.h"
+#include "math characters.h"
 #include <cstddef>
 #include <cassert>
 #include <string>
+
+using namespace Math;
+using namespace Math::Operators;
 
 namespace Math {
   template <typename T> class Operation {

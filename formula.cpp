@@ -1,107 +1,15 @@
 #include "formula.h"
 #include "userstring.h"
+#include "math characters.h"
 #include <cassert>
 #include <cstddef>
 #include <string>
 #include <string_view>
 #include <algorithm>
 
-bool isNumber(char myChar) {
-  switch (myChar) {
-    case '0':
-    case '1':
-    case '2':
-    case '3':
-    case '4':
-    case '5':
-    case '6':
-    case '7':
-    case '8':
-    case '9':
-      return true;
-  }
-  return false;
-}
-
-bool isNumeric(char myChar) {
-  return (isNumber(myChar) || (myChar == '.'));
-}
-
-bool isOperator(char myChar) {
-  switch (myChar) {
-    case '+':
-    case '-':
-    case '*':
-    case '/':
-    case '^':
-    case 'v':
-      return true;
-  }
-  return false;
-}
-
-bool isParenthesis(char myChar) {
-  return ((myChar == '(') || (myChar == ')'));
-}
-
-bool isMathSymbol(char myChar) {
-  return (isOperator(myChar) || isParenthesis(myChar) || (myChar == '.'));
-}
-
-bool isMathRelated(char myChar) {
-  return (isMathSymbol(myChar) || isNumber(myChar));
-}
-
-int getOperatorPriority(char myOperator) {
-  switch (myOperator) {
-    case '+':
-    case '-':
-      return minOperatorPriority;
-    case '*':
-    case '/':
-      return midOperatorPriority;
-    case '^':
-    case 'v':
-      return maxOperatorPriority;
-  }
-  return noOperatorPriority;
-}
-
-char getOppositeOperator(char myOperator) {
-  char opposite{};
-  switch (myOperator) {
-    case '+':
-      opposite = '-';
-      break;
-    case '-':
-      opposite = '+';
-      break;
-    case '*':
-      opposite = '/';
-      break;
-    case '^':
-      opposite = 'v';
-      break;
-    case 'v':
-      opposite = '^';
-      break;
-    default:
-      assert(false && "OPERATOR DOES NOT EXIST");
-  }
-  return opposite;
-}
-
-bool isMinPriority(char myChar) {
-  return getOperatorPriority(myChar) == minOperatorPriority;
-}
-
-bool isMidPriority(char myChar) {
-  return getOperatorPriority(myChar) == midOperatorPriority;
-}
-
-bool isMaxPriority(char myChar) {
-  return getOperatorPriority(myChar) == maxOperatorPriority;
-}
+using namespace Math;
+using namespace Math::Operators;
+using namespace Math::Operators::Constants;
 
 bool isNumberDecimal(std::string_view numberString) { 
   return String::containsCharacter(numberString, '.'); 

@@ -29,22 +29,6 @@ public:
   //void writeParenthesisByPriority();
 };
 
-bool isNumber(char myChar);
-bool isNumeric(char myChar);
-bool isOperator(char myChar);
-bool isParenthesis(char myChar);
-bool isMathSymbol(char myChar);
-bool isMathRelated(char myChar);
-int getOperatorPriority(char myOperator);
-char getOppositeOperator(char myOperator);
-bool isMinPriority(char myChar);
-bool isMidPriority(char myChar);
-bool isMaxPriority(char myChar);
-inline constexpr int noOperatorPriority{0};
-inline constexpr int minOperatorPriority{1};
-inline constexpr int midOperatorPriority{2};
-inline constexpr int maxOperatorPriority{3};
-
 bool isNumberDecimal(std::string_view numberString);
 
 namespace Math {
