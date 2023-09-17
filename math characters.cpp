@@ -1,5 +1,4 @@
 #include "math characters.h"
-#include <cassert>
 
 bool Math::isNumber(char myChar) {
   switch (myChar) {
@@ -19,7 +18,7 @@ bool Math::isNumber(char myChar) {
 }
 
 bool Math::isNumeric(char myChar) {
-  return (isNumber(myChar) || (myChar == '.'));
+  return isNumber(myChar) || (myChar == '.');
 }
 
 bool Math::isOperator(char myChar) {
@@ -36,11 +35,11 @@ bool Math::isOperator(char myChar) {
 }
 
 bool Math::isParenthesis(char myChar) {
-  return ((myChar == '(') || (myChar == ')'));
+  return (myChar == '(') || (myChar == ')');
 }
 
 bool Math::isMathSymbol(char myChar) {
-  return (isOperator(myChar) || isParenthesis(myChar) || (myChar == '.'));
+  return isOperator(myChar) || isParenthesis(myChar) || (myChar == '.');
 }
 
 bool Math::isMathRelated(char myChar) {
@@ -63,27 +62,19 @@ int Math::Operators::getPriority(char myOperator) {
 }
 
 char Math::Operators::getOpposite(char myOperator) {
-  char opposite{};
   switch (myOperator) {
     case '+':
-      opposite = '-';
-      break;
+      return '-';
     case '-':
-      opposite = '+';
-      break;
+      return '+';
     case '*':
-      opposite = '/';
-      break;
+      return '/';
     case '^':
-      opposite = 'v';
-      break;
+      return 'v';
     case 'v':
-      opposite = '^';
-      break;
-    default:
-      assert(false && "OPERATOR DOES NOT EXIST");
+      return '^';
   }
-  return opposite;
+  return myOperator;  //returns the same char if it's not an operator
 }
 
 bool Math::Operators::isMinPriority(char myChar) {
