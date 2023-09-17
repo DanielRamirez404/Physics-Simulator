@@ -19,6 +19,7 @@ public:
   };
   void assertIsValid() { syntaxError.assert(); };
   bool isMinusSign(size_t index);           // instead of substraction operator
+  bool isTrueOperator(size_t index);        // includes minus signs
   bool isPartOfNumber(size_t index);        // includes minus signs
   bool hasParentheses();
   size_t getFirstParenthesisOpeningIndex(); //returns 0 if there's no parenthesis

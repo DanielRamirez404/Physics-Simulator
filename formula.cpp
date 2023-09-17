@@ -97,7 +97,9 @@ char getOppositeOperator(char myOperator) {
   return opposite;
 }
 
-bool isNumberDecimal(std::string_view numberString) { return String::containsCharacter(numberString, '.'); }
+bool isNumberDecimal(std::string_view numberString) { 
+  return String::containsCharacter(numberString, '.'); 
+}
 
 int Math::getMaxOperatorPriority(std::string_view formula) {
   Formula myFormula { formula };
@@ -155,63 +157,46 @@ void Formula::checkForErrors() {
     syntaxError.add("FORMULA CAN\'T BE EMPTY");
   else if (!areCharactersValid())
     syntaxError.add("SEEMS LIKE THERE IS A NON-VALID CHARACTER");
-  else if (hasParentheses() && !areParenthesesValid())
-    return;
+  else if (hasParentheses())
+    if (!areParenthesesValid()) return;
 }
 
-#include <iostream>
+bool Formula::areCharactersValid() { 
+  return std::all_of(formula.begin(), formula.end(), [](char myChar) { return isMathRelated(myChar); } ); 
+}
 
-bool Formula::areCharactersValid() {
-  return std::all_of(formula.begin(), formula.end(), [](char myChar) { return isMathRelated(myChar); } );
+bool Formula::hasParentheses() {
+  return std::any_of(formula.begin(), formula.end(), [](char myChar) { return isParenthesis(myChar); } );
 }
 
 bool Formula::areParenthesesValid() {
-  int openCounter{0};
-  int closeCounter{0};
-  for (size_t i{0}; i < formula.size(); ++i) {
-    if (isParenthesis(formula[i])) {
-      (formula[i] == '(') ? ++openCounter : ++closeCounter;
-      if (closeCounter > openCounter) {
-        syntaxError.add("CAN\'T CLOSE PARENTHESES WITHOUT OPENING");
-        return false;
-      } 
-    }
-  }
-  if (openCounter != closeCounter) {
-    syntaxError.add("NUMBER OF OPEN AND CLOSE PARENTHESES MUST MATCH");
+  const int openingCounter{ static_cast<int>(std::count(formula.begin(), formula.end(), '(')) };
+  const int closingCounter{ static_cast<int>(std::count(formula.begin(), formula.end(), ')')) };
+  if (openingCounter != closingCounter) {
+    std::string_view errorMessage { (openingCounter < closingCounter) ? "CAN\'T CLOSE PARENTHESES WITHOUT OPENING" : "NUMBER OF OPEN AND CLOSE PARENTHESES MUST MATCH" };
+    syntaxError.add(errorMessage);
     return false;
   }
   return true;
 }
 
 bool Formula::isMinusSign(size_t index) {
-  if (formula[index] != '-') return false;
-  else if (index >= formula.size() - 1) return false;
+  if (formula[index] != '-' || index >= formula.size() - 1) return false;
   const bool comesBeforeNumber { isNumber(formula[index + 1]) };
-  const bool comesAfterNumber { !(index == 0) || isNumber(formula[index - 1]) };
-  return !comesAfterNumber && comesBeforeNumber;
+  const bool comesAfterNumber { isNumber(formula[index - 1]) };
+  return !comesAfterNumber && (comesBeforeNumber || (index == 0));
+}
+
+bool Formula::isTrueOperator(size_t index) {
+  return isOperator(formula[index]) && !isMinusSign(index);
 }
 
 bool Formula::isPartOfNumber(size_t index) {
   return isNumeric(formula[index]) || isMinusSign(index);
 }
 
-bool Formula::hasParentheses() {
-  for (size_t i{0}; i < formula.size(); ++i) {
-    if (isParenthesis(formula[i])) return true;
-  }
-  return false;
-}
-
 size_t Formula::getFirstParenthesisOpeningIndex() {
-  size_t firstParenthesisOpenIndex{0};
-  for (size_t i{0}; i < formula.size(); ++i) {
-    if (formula[i] == '(') {
-      firstParenthesisOpenIndex = i;
-      break;
-    }
-  }
-  return firstParenthesisOpenIndex;
+  return String::findIndexOfCharacter(formula, '(');
 }
 
 size_t Formula::getFirstParenthesisClosingIndex() {
