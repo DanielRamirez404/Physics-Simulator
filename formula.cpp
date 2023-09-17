@@ -53,24 +53,18 @@ bool isMathRelated(char myChar) {
 }
 
 int getOperatorPriority(char myOperator) {
-  int priority{};
   switch (myOperator) {
     case '+':
     case '-':
-      priority = 1;
-      break;
+      return minOperatorPriority;
     case '*':
     case '/':
-      priority = 2;
-      break;
+      return midOperatorPriority;
     case '^':
     case 'v':
-      priority = 3;
-      break;
-    default:
-      assert(false && "OPERATOR DOES NOT EXIST");
+      return maxOperatorPriority;
   }
-  return priority;
+  return noOperatorPriority;
 }
 
 char getOppositeOperator(char myOperator) {
@@ -97,27 +91,23 @@ char getOppositeOperator(char myOperator) {
   return opposite;
 }
 
+bool isMinPriority(char myChar) {
+  return getOperatorPriority(myChar) == minOperatorPriority;
+}
+
+bool isMidPriority(char myChar) {
+  return getOperatorPriority(myChar) == midOperatorPriority;
+}
+
+bool isMaxPriority(char myChar) {
+  return getOperatorPriority(myChar) == maxOperatorPriority;
+}
+
 bool isNumberDecimal(std::string_view numberString) { 
   return String::containsCharacter(numberString, '.'); 
 }
 
-int Math::getMaxOperatorPriority(std::string_view formula) {
-  Formula myFormula { formula };
-  int formulaOrder{0};
-  for (size_t i{0}; i < formula.size(); ++i) {
-    if (isOperator(formula[i])) {
-      if (myFormula.isMinusSign(i)) continue;
-      int currentOrder { getOperatorPriority(formula[i]) };
-      if (formulaOrder < currentOrder) {
-        formulaOrder = currentOrder;
-        if (formulaOrder == maxOperatorPriority) break;
-      }
-    }
-  }
-  return formulaOrder;
-}
-
-void Math::writeParenthesisByPriority(std::string& formula) {
+/* void Math::writeParenthesisByPriority(std::string& formula) {
   int maxOrder{ getMaxOperatorPriority(formula) };
   Formula myFormula { formula };
   for (size_t i{0}; i < formula.size(); ++i) {
@@ -127,7 +117,7 @@ void Math::writeParenthesisByPriority(std::string& formula) {
       break;
     }
   }
-}
+} */
 
 void Math::addParenthesisAroundOperator(std::string& formula, size_t operatorIndex) {
   //assert(isOperator(formula[operatorIndex]) && "INDEX DOES NOT BELONG TO OPERATOR");
@@ -162,19 +152,18 @@ void Formula::checkForErrors() {
 }
 
 bool Formula::areCharactersValid() { 
-  return std::all_of(formula.begin(), formula.end(), [](char myChar) { return isMathRelated(myChar); } ); 
+  return std::all_of(formula.begin(), formula.end(), isMathRelated);
 }
 
 bool Formula::hasParentheses() {
-  return std::any_of(formula.begin(), formula.end(), [](char myChar) { return isParenthesis(myChar); } );
+  return std::any_of(formula.begin(), formula.end(), isParenthesis);
 }
 
 bool Formula::areParenthesesValid() {
   const int openingCounter{ static_cast<int>(std::count(formula.begin(), formula.end(), '(')) };
   const int closingCounter{ static_cast<int>(std::count(formula.begin(), formula.end(), ')')) };
   if (openingCounter != closingCounter) {
-    std::string_view errorMessage { (openingCounter < closingCounter) ? "CAN\'T CLOSE PARENTHESES WITHOUT OPENING" : "NUMBER OF OPEN AND CLOSE PARENTHESES MUST MATCH" };
-    syntaxError.add(errorMessage);
+    syntaxError.add("NUMBER OF OPEN AND CLOSE PARENTHESES MUST MATCH");
     return false;
   }
   return true;
@@ -201,15 +190,22 @@ size_t Formula::getFirstParenthesisOpeningIndex() {
 
 size_t Formula::getFirstParenthesisClosingIndex() {
   size_t firstParenthesisCloseIndex{};
-  int parenthesDeepness{0}; // increases everytime a new parenthesis is open and decreases if it closes
+  int deepness{0}; // increases everytime a new parenthesis is open and decreases if it closes
   for (size_t i{0}; i < formula.size(); ++i) {
     if (isParenthesis(formula[i])) {
-      if ((formula[i] == ')') && (parenthesDeepness == 1)) {
+      if ((formula[i] == ')') && (deepness == 1)) {
         firstParenthesisCloseIndex = i;
         break;
       }
-      (formula[i] == '(') ? ++parenthesDeepness : --parenthesDeepness;
+      (formula[i] == '(') ? ++deepness : --deepness;
     }
   }
   return firstParenthesisCloseIndex;
 }
+
+int Formula::getMaxOperatorPriority() {
+  if (std::any_of(formula.begin(), formula.end(), isMaxPriority)) return maxOperatorPriority;
+  if (std::any_of(formula.begin(), formula.end(), isMidPriority)) return midOperatorPriority;
+  if (std::any_of(formula.begin(), formula.end(), isMinPriority)) return minOperatorPriority;
+  return noOperatorPriority;
+} 

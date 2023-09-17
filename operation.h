@@ -54,7 +54,7 @@ template <typename T> void Math::Operation<T>::solveFirstParenthesis() {
 }
 
 template <typename T> T Math::Operation<T>::solveByPriorities(int numberOfOperations) {
-  writeParenthesisByPriority(formula.formula);
+  //writeParenthesisByPriority(formula.formula);
   solveFirstParenthesis();
   --numberOfOperations;
   return (numberOfOperations == 1) ? solveForOneOperator() : solveByPriorities(numberOfOperations);
@@ -73,8 +73,7 @@ template <typename T> T Math::Operation<T>::solveForOneOperator() {
 template <typename T> int Math::Operation<T>::getNumberofOperations() {
   int operatorCounter{0};
   for (size_t i{0}; i < formula.formula.size(); ++i) {
-    if (isOperator(formula.formula[i])) {
-      if (formula.isMinusSign(i)) continue;
+    if (formula.isTrueOperator(i)) {
       assert((i != 0) && (i != formula.formula.size() - 1) && "OPERATORS CAN'T EITHER START NOR END FORMULAS");
       assert(isNumber(formula.formula[i - 1]) && formula.isPartOfNumber(i+1) && "OPERATORS MUST BE SURROUNDED BY NUMBERS");
       ++operatorCounter;
