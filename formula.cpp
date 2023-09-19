@@ -7,19 +7,15 @@
 #include <string_view>
 #include <algorithm>
 
-using namespace Math;
-using namespace Math::Operators;
-using namespace Math::Operators::Constants;
-
-bool isNumberDecimal(std::string_view numberString) { 
+bool Math::isNumberDecimal(std::string_view numberString) { 
   return String::containsCharacter(numberString, '.');
 }
 
-void Formula::removeWhitespaces() {
+void Math::Formula::removeWhitespaces() {
   String::eraseWhitespaces(formula);
 }
 
-void Formula::checkForErrors() {
+void Math::Formula::checkForErrors() {
   if (formula.empty())
     syntaxError.add("FORMULA CAN\'T BE EMPTY");
   else if (!areCharactersValid())
@@ -28,15 +24,15 @@ void Formula::checkForErrors() {
     if (!areParenthesesValid()) return;
 }
 
-bool Formula::areCharactersValid() { 
+bool Math::Formula::areCharactersValid() { 
   return std::all_of(formula.begin(), formula.end(), isMathRelated);
 }
 
-bool Formula::hasParentheses() {
+bool Math::Formula::hasParentheses() {
   return std::any_of(formula.begin(), formula.end(), isParenthesis);
 }
 
-bool Formula::areParenthesesValid() {
+bool Math::Formula::areParenthesesValid() {
   const int openingCounter{ static_cast<int>(std::count(formula.begin(), formula.end(), '(')) };
   const int closingCounter{ static_cast<int>(std::count(formula.begin(), formula.end(), ')')) };
   if (openingCounter != closingCounter) {
@@ -46,58 +42,68 @@ bool Formula::areParenthesesValid() {
   return true;
 }
 
-bool Formula::isMinusSign(size_t index) {
+bool Math::Formula::isMinusSign(size_t index) {
   if (formula[index] != '-' || index >= formula.size() - 1) return false;
   const bool comesBeforeNumber { isNumber(formula[index + 1]) };
   const bool comesAfterNumber { isNumber(formula[index - 1]) };
   return !comesAfterNumber && (comesBeforeNumber || (index == 0));
 }
 
-bool Formula::isTrueOperator(size_t index) {
+bool Math::Formula::isSubstractionOperator(size_t index) {
+  return formula[index] == '-' && !isMinusSign(index);
+}
+
+bool Math::Formula::isTrueOperator(size_t index) {
   return isOperator(formula[index]) && !isMinusSign(index);
 }
 
-bool Formula::isPartOfNumber(size_t index) {
+bool Math::Formula::isPartOfNumber(size_t index) {
   return isNumeric(formula[index]) || isMinusSign(index);
 }
 
-size_t Formula::getFirstParenthesisOpeningIndex() {
+size_t Math::Formula::getFirstParenthesisOpeningIndex() {
   return String::findIndexOfCharacter(formula, '(');
 }
 
-size_t Formula::getFirstParenthesisClosingIndex() {
-  size_t firstParenthesisCloseIndex{};
-  int deepness{0}; // increases everytime a new parenthesis is open and decreases if it closes
+size_t Math::Formula::getFirstParenthesisClosingIndex() {
+  size_t firstClosing{};
+  size_t parenthesisDeepness{};
   for (size_t i{0}; i < formula.size(); ++i) {
-    if (isParenthesis(formula[i])) {
-      if ((formula[i] == ')') && (deepness == 1)) {
-        firstParenthesisCloseIndex = i;
-        break;
-      }
-      (formula[i] == '(') ? ++deepness : --deepness;
+    if (!isParenthesis(formula[i])) continue;
+    (formula[i] == '(') ? ++parenthesisDeepness : --parenthesisDeepness;
+    if (formula[i] == ')' && parenthesisDeepness == 0) {
+      firstClosing = i;
+      break;
     }
   }
-  return firstParenthesisCloseIndex;
+  return firstClosing;
 }
 
-int Formula::getMaxOperatorPriority() {
-  if (std::any_of(formula.begin(), formula.end(), isMaxPriority)) return maxOperatorPriority;
-  if (std::any_of(formula.begin(), formula.end(), isMidPriority)) return midOperatorPriority;
-  if (std::any_of(formula.begin(), formula.end(), isMinPriority)) return minOperatorPriority;
-  return noOperatorPriority;
-} 
+int Math::Formula::getMaxOperatorPriority() {
+  using namespace Operators;
+  if (std::any_of(formula.begin(), formula.end(), isMaxPriority)) return Constants::maxOperatorPriority;
+  if (std::any_of(formula.begin(), formula.end(), isMidPriority)) return Constants::midOperatorPriority;
+  return (areThereMinPriorityOperator()) ? Constants::minOperatorPriority : Constants::noOperatorPriority;
+}
 
-void Formula::writeParenthesesAtMaxPriority() {
+bool Math::Formula::areThereMinPriorityOperator() {
+  for (size_t i; i < formula.size(); ++i) {
+    if (Operators::isMinPriority(formula[i]) && !isMinusSign(i)) return true;
+  }
+  return false;
+}
+
+void Math::Formula::writeParenthesesAtMaxPriority() {
   int maxPriority{ getMaxOperatorPriority() };
   for (size_t i{0}; i < formula.size(); ++i) {
-    if (isTrueOperator(i) && (getPriority(formula[i]) == maxPriority)) {
+    if (isTrueOperator(i) && (Operators::getPriority(formula[i]) == maxPriority)) {
       addParenthesesAroundOperator(i);
       break;
     }
   }
 }
 
-void Formula::addParenthesesAroundOperator(size_t operatorIndex) {
+void Math::Formula::addParenthesesAroundOperator(size_t operatorIndex) {
   size_t leftIterator{operatorIndex - 1};
   while (isNumeric(formula[leftIterator]) && (leftIterator > 0)) --leftIterator;
   String::addToString(formula, "(", leftIterator + 1);
