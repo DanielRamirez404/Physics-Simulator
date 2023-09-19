@@ -4,6 +4,8 @@
 #include <string>
 #include <string_view>
 
+bool isNumberDecimal(std::string_view numberString);
+
 class Formula {
 private:
   Error syntaxError{};
@@ -11,7 +13,7 @@ private:
   void checkForErrors();
   bool areCharactersValid();
   bool areParenthesesValid();
-  //void addParenthesisAroundOperator(size_t operatorIndex);
+  void addParenthesesAroundOperator(size_t operatorIndex);
 public:
   std::string formula{};  //public for the moment
   Formula(std::string_view myFormula) : formula(myFormula) { 
@@ -26,12 +28,5 @@ public:
   size_t getFirstParenthesisOpeningIndex(); //returns 0 if there's no parenthesis
   size_t getFirstParenthesisClosingIndex(); //returns 0 if there's no parenthesis
   int getMaxOperatorPriority();
-  //void writeParenthesisByPriority();
+  void writeParenthesesAtMaxPriority();
 };
-
-bool isNumberDecimal(std::string_view numberString);
-
-namespace Math {
-  //void writeParenthesisByPriority(std::string& formula);
-  void addParenthesisAroundOperator(std::string& formula, size_t operatorIndex);
-}

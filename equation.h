@@ -9,10 +9,9 @@
 #include <string>
 #include <vector>
 
-using namespace Math;
-using namespace Math::Operators;
-
 namespace Math {
+  using namespace Operators;
+  
   template <typename T> struct Variable {
     char identifier{};
     T value{};

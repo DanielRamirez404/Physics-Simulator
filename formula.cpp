@@ -12,38 +12,7 @@ using namespace Math::Operators;
 using namespace Math::Operators::Constants;
 
 bool isNumberDecimal(std::string_view numberString) { 
-  return String::containsCharacter(numberString, '.'); 
-}
-
-/* void Math::writeParenthesisByPriority(std::string& formula) {
-  int maxOrder{ getMaxOperatorPriority(formula) };
-  Formula myFormula { formula };
-  for (size_t i{0}; i < formula.size(); ++i) {
-    if (isOperator(formula[i]) && (getOperatorPriority(formula[i]) == maxOrder)) {
-      if (myFormula.isMinusSign(i)) continue;
-      addParenthesisAroundOperator(formula, i);
-      break;
-    }
-  }
-} */
-
-void Math::addParenthesisAroundOperator(std::string& formula, size_t operatorIndex) {
-  //assert(isOperator(formula[operatorIndex]) && "INDEX DOES NOT BELONG TO OPERATOR");
-  for (size_t i{1}; true; ++i) {
-    size_t index{operatorIndex - i};
-    if (!isNumeric(formula[index]) || index + 1 == 0) {
-      String::addToString(formula, "(", index + 1);
-      break;
-    }
-  }
-  ++operatorIndex;
-  for (size_t i{1}; true; ++i) {
-    size_t index{operatorIndex + i};
-    if (!isNumeric(formula[index]) || index == formula.size()) {
-      String::addToString(formula, ")", index);
-      break;
-    }
-  }
+  return String::containsCharacter(numberString, '.');
 }
 
 void Formula::removeWhitespaces() {
@@ -117,3 +86,23 @@ int Formula::getMaxOperatorPriority() {
   if (std::any_of(formula.begin(), formula.end(), isMinPriority)) return minOperatorPriority;
   return noOperatorPriority;
 } 
+
+void Formula::writeParenthesesAtMaxPriority() {
+  int maxPriority{ getMaxOperatorPriority() };
+  for (size_t i{0}; i < formula.size(); ++i) {
+    if (isTrueOperator(i) && (getPriority(formula[i]) == maxPriority)) {
+      addParenthesesAroundOperator(i);
+      break;
+    }
+  }
+}
+
+void Formula::addParenthesesAroundOperator(size_t operatorIndex) {
+  size_t leftIterator{operatorIndex - 1};
+  while (isNumeric(formula[leftIterator]) && (leftIterator > 0)) --leftIterator;
+  String::addToString(formula, "(", leftIterator + 1);
+  ++operatorIndex;
+  size_t rightIterator{operatorIndex + 1};
+  while (isNumeric(formula[rightIterator]) && (rightIterator < formula.size())) ++rightIterator;
+  String::addToString(formula, ")", rightIterator);
+}

@@ -7,9 +7,6 @@
 #include <cassert>
 #include <string>
 
-using namespace Math;
-using namespace Math::Operators;
-
 namespace Math {
   template <typename T> class Operation {
   private:
@@ -58,7 +55,7 @@ template <typename T> void Math::Operation<T>::solveFirstParenthesis() {
 }
 
 template <typename T> T Math::Operation<T>::solveByPriorities(int numberOfOperations) {
-  //writeParenthesisByPriority(formula.formula);
+  formula.writeParenthesesAtMaxPriority();
   solveFirstParenthesis();
   --numberOfOperations;
   return (numberOfOperations == 1) ? solveForOneOperator() : solveByPriorities(numberOfOperations);
