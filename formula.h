@@ -12,15 +12,13 @@ namespace Math {
   protected:
     std::string formula{};
     Error syntaxError{};
-    void checkForErrors();
     bool doParenthesesMatch();
     void addParenthesesAroundOperator(size_t operatorIndex);
-    bool isMinusSign(size_t index);             // instead of substraction operator
-    bool isSubstractionOperator(size_t index);
-    bool areThereMinPriorityOperator();
   public:
     Formula(std::string_view myFormula) : formula(myFormula) { String::eraseWhitespaces(formula); };
-    void assertIsValid() { syntaxError.assert(); };
+    void assertIsValid();
+    bool isMinusSign(size_t index);             // instead of substraction operator
+    bool areThereMinPriorityOperator();
     bool isTrueOperator(size_t index);          // does not include minus signs
     bool isPartOfNumber(size_t index);          // includes minus signs
     size_t getFirstParenthesisOpeningIndex();   //returns 0 if there's no parenthesis

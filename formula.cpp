@@ -1,9 +1,7 @@
 #include "formula.h"
 #include "userstring.h"
 #include "math characters.h"
-#include <cassert>
 #include <cstddef>
-#include <string>
 #include <string_view>
 #include <algorithm>
 
@@ -11,13 +9,14 @@ bool Math::isNumberDecimal(std::string_view numberString) {
   return String::containsCharacter(numberString, '.');
 }
 
-void Math::Formula::checkForErrors() {
+void Math::Formula::assertIsValid() {
   if (formula.empty())
     syntaxError.add("FORMULA CAN\'T BE EMPTY");
   else if (!std::all_of(formula.begin(), formula.end(), isMathRelated))
     syntaxError.add("SEEMS LIKE THERE IS A NON-VALID CHARACTER");
   else if (std::any_of(formula.begin(), formula.end(), isParenthesis) && !doParenthesesMatch())
     syntaxError.add("NUMBER OF OPEN AND CLOSE PARENTHESES MUST MATCH");
+  syntaxError.assert();
 }
 
 bool Math::Formula::doParenthesesMatch() {
@@ -31,10 +30,6 @@ bool Math::Formula::isMinusSign(size_t index) {
   const bool comesBeforeNumber { (index == 0) || isNumber(formula[index + 1]) };
   const bool comesAfterNumber { isNumber(formula[index - 1]) };
   return !comesAfterNumber && comesBeforeNumber;
-}
-
-bool Math::Formula::isSubstractionOperator(size_t index) {
-  return formula[index] == '-' && !isMinusSign(index);
 }
 
 bool Math::Formula::isTrueOperator(size_t index) {

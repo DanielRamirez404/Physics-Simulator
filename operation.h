@@ -6,9 +6,10 @@
 #include <cassert>
 #include <string>
 #include <string_view>
+#include <algorithm>
 
 namespace Math {
-  template <typename T> class Operation : public Formula {
+  template <typename T> class Operation : private Formula {
   private:
     void solveFirstParenthesis();
     int getNumberofOperations();
