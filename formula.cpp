@@ -11,42 +11,26 @@ bool Math::isNumberDecimal(std::string_view numberString) {
   return String::containsCharacter(numberString, '.');
 }
 
-void Math::Formula::removeWhitespaces() {
-  String::eraseWhitespaces(formula);
-}
-
 void Math::Formula::checkForErrors() {
   if (formula.empty())
     syntaxError.add("FORMULA CAN\'T BE EMPTY");
-  else if (!areCharactersValid())
+  else if (!std::all_of(formula.begin(), formula.end(), isMathRelated))
     syntaxError.add("SEEMS LIKE THERE IS A NON-VALID CHARACTER");
-  else if (hasParentheses())
-    if (!areParenthesesValid()) return;
-}
-
-bool Math::Formula::areCharactersValid() { 
-  return std::all_of(formula.begin(), formula.end(), isMathRelated);
-}
-
-bool Math::Formula::hasParentheses() {
-  return std::any_of(formula.begin(), formula.end(), isParenthesis);
-}
-
-bool Math::Formula::areParenthesesValid() {
-  const int openingCounter{ static_cast<int>(std::count(formula.begin(), formula.end(), '(')) };
-  const int closingCounter{ static_cast<int>(std::count(formula.begin(), formula.end(), ')')) };
-  if (openingCounter != closingCounter) {
+  else if (std::any_of(formula.begin(), formula.end(), isParenthesis) && !doParenthesesMatch())
     syntaxError.add("NUMBER OF OPEN AND CLOSE PARENTHESES MUST MATCH");
-    return false;
-  }
-  return true;
+}
+
+bool Math::Formula::doParenthesesMatch() {
+  const auto openingCounter{ std::count(formula.begin(), formula.end(), '(') };
+  const auto closingCounter{ std::count(formula.begin(), formula.end(), ')') };
+  return openingCounter == closingCounter;
 }
 
 bool Math::Formula::isMinusSign(size_t index) {
   if (formula[index] != '-' || index >= formula.size() - 1) return false;
-  const bool comesBeforeNumber { isNumber(formula[index + 1]) };
+  const bool comesBeforeNumber { (index == 0) || isNumber(formula[index + 1]) };
   const bool comesAfterNumber { isNumber(formula[index - 1]) };
-  return !comesAfterNumber && (comesBeforeNumber || (index == 0));
+  return !comesAfterNumber && comesBeforeNumber;
 }
 
 bool Math::Formula::isSubstractionOperator(size_t index) {

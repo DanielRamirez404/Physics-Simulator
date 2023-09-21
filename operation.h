@@ -24,7 +24,7 @@ namespace Math {
 }
 
 template <typename T> T Math::Operation<T>::solve() {
-  while (hasParentheses()) solveFirstParenthesis();
+  while (std::any_of(formula.begin(), formula.end(), isParenthesis)) solveFirstParenthesis();
   T result{};
   int numberOfOperations{ getNumberofOperations() };
   switch (numberOfOperations) {
@@ -38,7 +38,7 @@ template <typename T> T Math::Operation<T>::solve() {
       result = solveByPriorities(numberOfOperations);
       break;
   }
-  return result;    
+  return result;
 }
 
 template <typename T> void Math::Operation<T>::solveFirstParenthesis() {
