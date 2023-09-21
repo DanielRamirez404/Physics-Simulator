@@ -74,11 +74,7 @@ template <typename T> T Math::Operation<T>::solveForOneOperator() {
 template <typename T> int Math::Operation<T>::getNumberofOperations() {
   int operatorCounter{0};
   for (size_t i{0}; i < formula.size(); ++i) {
-    if (isTrueOperator(i)) {
-      assert((i != 0) && (i != formula.size() - 1) && "OPERATORS CAN'T EITHER START NOR END FORMULAS");
-      assert(isNumber(formula[i - 1]) && isPartOfNumber(i+1) && "OPERATORS MUST BE SURROUNDED BY NUMBERS");
-      ++operatorCounter;
-    }
+    if (isTrueOperator(i)) ++operatorCounter;
   }
   return operatorCounter;
 }

@@ -10,12 +10,26 @@ bool Math::isNumberDecimal(std::string_view numberString) {
 }
 
 void Math::Formula::assertIsValid() {
+  assertRightCharacterUsage();
+  assertRightCharacterArrangement();
+}
+
+void Math::Formula::assertRightCharacterUsage() {
   if (formula.empty())
     syntaxError.add("FORMULA CAN\'T BE EMPTY");
   else if (!std::all_of(formula.begin(), formula.end(), isMathRelated))
     syntaxError.add("SEEMS LIKE THERE IS A NON-VALID CHARACTER");
   else if (std::any_of(formula.begin(), formula.end(), isParenthesis) && !doParenthesesMatch())
     syntaxError.add("NUMBER OF OPEN AND CLOSE PARENTHESES MUST MATCH");
+  syntaxError.assert();
+}
+
+void Math::Formula::assertRightCharacterArrangement() {
+  syntaxError.add("A");
+  if (isTrueOperator(0) || isTrueOperator(formula.size() - 1))
+    syntaxError.add("OPERATORS CAN'T EITHER START NOR END FORMULAS");
+  else if (std::any_of(formula.begin(), formula.end(), isBadlyPlacedOperator))
+    syntaxError.add("THERE IS A BADLY PLACED OPERATOR");
   syntaxError.assert();
 }
 
@@ -27,8 +41,8 @@ bool Math::Formula::doParenthesesMatch() {
 
 bool Math::Formula::isMinusSign(size_t index) {
   if (formula[index] != '-' || index >= formula.size() - 1) return false;
-  const bool comesBeforeNumber { (index == 0) || isNumber(formula[index + 1]) };
-  const bool comesAfterNumber { isNumber(formula[index - 1]) };
+  const bool comesBeforeNumber { (index == 0) || isNumber(formula[index + 1]) || formula[index + 1] == '('};
+  const bool comesAfterNumber { (index != 0) && (isNumber(formula[index - 1]) || formula[index - 1] == ')')};
   return !comesAfterNumber && comesBeforeNumber;
 }
 
@@ -38,6 +52,13 @@ bool Math::Formula::isTrueOperator(size_t index) {
 
 bool Math::Formula::isPartOfNumber(size_t index) {
   return isNumeric(formula[index]) || isMinusSign(index);
+}
+
+bool Math::Formula::isBadlyPlacedOperator(size_t index) {
+  if (!isTrueOperator(index)) return false;
+  const bool comesBeforeNumber { (index == 0) || isNumber(formula[index + 1]) || formula[index + 1] == '('};
+  const bool comesAfterNumber { (index != 0) && (isNumber(formula[index - 1]) || formula[index - 1] == ')')};
+  return !comesAfterNumber || !comesBeforeNumber;
 }
 
 size_t Math::Formula::getFirstParenthesisOpeningIndex() {

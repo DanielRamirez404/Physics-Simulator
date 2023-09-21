@@ -14,9 +14,12 @@ namespace Math {
     Error syntaxError{};
     bool doParenthesesMatch();
     void addParenthesesAroundOperator(size_t operatorIndex);
+    bool isBadlyPlacedOperator(size_t index);
   public:
     Formula(std::string_view myFormula) : formula(myFormula) { String::eraseWhitespaces(formula); };
     void assertIsValid();
+    void assertRightCharacterUsage();
+    void assertRightCharacterArrangement();
     bool isMinusSign(size_t index);             // instead of substraction operator
     bool areThereMinPriorityOperator();
     bool isTrueOperator(size_t index);          // does not include minus signs
