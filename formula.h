@@ -8,7 +8,8 @@ namespace Math {
   bool isNumberDecimal(std::string_view numberString);
 
   class Formula {
-  private:
+  protected:
+    std::string formula{};
     Error syntaxError{};
     void removeWhitespaces();
     void checkForErrors();
@@ -19,7 +20,6 @@ namespace Math {
     bool isSubstractionOperator(size_t index);
     bool areThereMinPriorityOperator();
   public:
-    std::string formula{};  //public for the moment
     Formula(std::string_view myFormula) : formula(myFormula) { 
       removeWhitespaces();
       checkForErrors();
@@ -34,5 +34,3 @@ namespace Math {
     void writeParenthesesAtMaxPriority();
   };
 }
-
-
