@@ -41,11 +41,16 @@ bool Math::Formula::doParenthesesMatch() {
   return openingCounter == closingCounter;
 }
 
+bool Math::Formula::comesBeforeNumber(size_t index) {
+  return (index < formula.size() - 1) && (isPartOfNumber(index + 1) || formula[index + 1] == '(');
+}
+
+bool Math::Formula::comesAfterNumber(size_t index) {
+  return (index > 0) && (isPartOfNumber(index - 1) || formula[index - 1] == ')');
+}
+
 bool Math::Formula::isMinusSign(size_t index) {
-  if (formula[index] != '-' || index >= formula.size() - 1) return false;
-  const bool comesBeforeNumber { (index == 0) || isNumber(formula[index + 1]) || formula[index + 1] == '('};
-  const bool comesAfterNumber { (index != 0) && (isNumber(formula[index - 1]) || formula[index - 1] == ')')};
-  return !comesAfterNumber && comesBeforeNumber;
+  return (formula[index] == '-') && !comesAfterNumber(index) && comesBeforeNumber(index);
 }
 
 bool Math::Formula::isTrueOperator(size_t index) {
@@ -57,10 +62,7 @@ bool Math::Formula::isPartOfNumber(size_t index) {
 }
 
 bool Math::Formula::isBadlyPlacedOperator(size_t index) {
-  if (!isTrueOperator(index)) return false;
-  const bool comesBeforeNumber { (index == 0) || isNumber(formula[index + 1]) || formula[index + 1] == '('};
-  const bool comesAfterNumber { (index != 0) && (isNumber(formula[index - 1]) || formula[index - 1] == ')')};
-  return !comesAfterNumber || !comesBeforeNumber;
+  return isTrueOperator(index) && !(comesAfterNumber(index) && comesBeforeNumber(index));
 }
 
 size_t Math::Formula::getFirstParenthesisOpeningIndex() {
