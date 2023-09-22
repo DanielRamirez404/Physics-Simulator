@@ -3,7 +3,6 @@
 #include "usermath.h"
 #include "math characters.h"
 #include <cstddef>
-#include <cassert>
 #include <string>
 #include <string_view>
 #include <algorithm>
@@ -80,7 +79,6 @@ template <typename T> int Math::Operation<T>::getNumberofOperations() {
 }
 
 template <typename T> T Math::Operation<T>::getNumber(size_t& iterator) {
-  assert(isPartOfNumber(iterator) && "OPERATIONS MUST START BY A NUMBER");
   const size_t firstDigit { iterator };
   while (isNumeric(formula[iterator + 1])) ++iterator;
   const size_t firstNonDigit { iterator + 1};

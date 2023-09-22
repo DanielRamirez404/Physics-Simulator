@@ -19,7 +19,7 @@ void Math::Formula::assertRightCharacterUsage() {
     syntaxError.add("FORMULA CAN\'T BE EMPTY");
   else if (!std::all_of(formula.begin(), formula.end(), isMathRelated))
     syntaxError.add("SEEMS LIKE THERE IS A NON-VALID CHARACTER");
-  else if (std::any_of(formula.begin(), formula.end(), isParenthesis) && !doParenthesesMatch())
+  else if (!areParenthesesNumbersEqual())
     syntaxError.add("NUMBER OF OPEN AND CLOSE PARENTHESES MUST MATCH");
   syntaxError.assert();
 }
@@ -27,18 +27,13 @@ void Math::Formula::assertRightCharacterUsage() {
 void Math::Formula::assertRightCharacterArrangement() {
   if (isTrueOperator(0) || isTrueOperator(formula.size() - 1))
     syntaxError.add("OPERATORS CAN'T EITHER START NOR END FORMULAS");
-  else {
-    for (size_t i{0}; i < formula.size(); ++i) 
-      if (isBadlyPlacedOperator(i)) 
-        syntaxError.add("THERE IS A BADLY PLACED OPERATOR");
-  }
+  else if (isThereAnyBadlyPlacedOperator())
+    syntaxError.add("THERE IS A BADLY PLACED OPERATOR");
   syntaxError.assert();
 }
 
-bool Math::Formula::doParenthesesMatch() {
-  const auto openingCounter{ std::count(formula.begin(), formula.end(), '(') };
-  const auto closingCounter{ std::count(formula.begin(), formula.end(), ')') };
-  return openingCounter == closingCounter;
+bool Math::Formula::areParenthesesNumbersEqual() {
+  return std::count(formula.begin(), formula.end(), '(') == std::count(formula.begin(), formula.end(), ')');
 }
 
 bool Math::Formula::comesBeforeNumber(size_t index) {
@@ -61,8 +56,11 @@ bool Math::Formula::isPartOfNumber(size_t index) {
   return isNumeric(formula[index]) || isMinusSign(index);
 }
 
-bool Math::Formula::isBadlyPlacedOperator(size_t index) {
-  return isTrueOperator(index) && !(comesAfterNumber(index) && comesBeforeNumber(index));
+bool Math::Formula::isThereAnyBadlyPlacedOperator() {
+  for (size_t i{0}; i < formula.size(); ++i) {
+    if (isTrueOperator(i) && !(comesAfterNumber(i) && comesBeforeNumber(i))) return true;
+  }
+  return false;
 }
 
 size_t Math::Formula::getFirstParenthesisOpeningIndex() {
@@ -70,17 +68,13 @@ size_t Math::Formula::getFirstParenthesisOpeningIndex() {
 }
 
 size_t Math::Formula::getFirstParenthesisClosingIndex() {
-  size_t firstClosing{};
   size_t parenthesisDeepness{};
   for (size_t i{0}; i < formula.size(); ++i) {
     if (!isParenthesis(formula[i])) continue;
     (formula[i] == '(') ? ++parenthesisDeepness : --parenthesisDeepness;
-    if (formula[i] == ')' && parenthesisDeepness == 0) {
-      firstClosing = i;
-      break;
-    }
+    if (formula[i] == ')' && parenthesisDeepness == 0) return i;
   }
-  return firstClosing;
+  return 0; //if there's no closing parentheses
 }
 
 int Math::Formula::getMaxOperatorPriority() {
@@ -102,7 +96,7 @@ void Math::Formula::writeParenthesesAtMaxPriority() {
   for (size_t i{0}; i < formula.size(); ++i) {
     if (isTrueOperator(i) && (Operators::getPriority(formula[i]) == maxPriority)) {
       addParenthesesAroundOperator(i);
-      break;
+      return;
     }
   }
 }

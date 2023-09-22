@@ -12,9 +12,9 @@ namespace Math {
   protected:
     std::string formula{};
     Error syntaxError{};
-    bool doParenthesesMatch();
+    bool areParenthesesNumbersEqual();
     void addParenthesesAroundOperator(size_t operatorIndex);
-    bool isBadlyPlacedOperator(size_t index);
+    bool isThereAnyBadlyPlacedOperator();
     bool areThereMinPriorityOperator();
   public:
     Formula(std::string_view myFormula) : formula(myFormula) { String::eraseWhitespaces(formula); };
