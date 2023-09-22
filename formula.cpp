@@ -25,11 +25,13 @@ void Math::Formula::assertRightCharacterUsage() {
 }
 
 void Math::Formula::assertRightCharacterArrangement() {
-  syntaxError.add("A");
   if (isTrueOperator(0) || isTrueOperator(formula.size() - 1))
     syntaxError.add("OPERATORS CAN'T EITHER START NOR END FORMULAS");
-  else if (std::any_of(formula.begin(), formula.end(), isBadlyPlacedOperator))
-    syntaxError.add("THERE IS A BADLY PLACED OPERATOR");
+  else {
+    for (size_t i{0}; i < formula.size(); ++i) 
+      if (isBadlyPlacedOperator(i)) 
+        syntaxError.add("THERE IS A BADLY PLACED OPERATOR");
+  }
   syntaxError.assert();
 }
 
