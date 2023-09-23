@@ -1,5 +1,6 @@
 #pragma once
 #include "formula.h"
+#include "userstring.h"
 #include "usermath.h"
 #include "math characters.h"
 #include <cstddef>
@@ -8,7 +9,7 @@
 #include <algorithm>
 
 namespace Math {
-  template <typename T> class Operation : private Formula {
+  template <typename T> class Operation : public Formula {
   private:
     void solveFirstParenthesis();
     int getNumberofOperations();
@@ -25,6 +26,7 @@ namespace Math {
 
 template <typename T> T Math::Operation<T>::solve() {
   while (std::any_of(formula.begin(), formula.end(), isParenthesis)) solveFirstParenthesis();
+  simplifyConsecutiveMinusSigns();
   T result{};
   int numberOfOperations{ getNumberofOperations() };
   switch (numberOfOperations) {
@@ -48,8 +50,7 @@ template <typename T> void Math::Operation<T>::solveFirstParenthesis() {
   const size_t afterOpeningIndex { openingIndex + 1 };
   const size_t afterClosingIndex { closingIndex + 1 };
   const size_t length{ afterClosingIndex - openingIndex };
-  std::string parenthesisFormula{ formula.substr(afterOpeningIndex, length - BothParenthesisCount) };
-  Operation internalOperation(parenthesisFormula);
+  Operation internalOperation(formula.substr(afterOpeningIndex, length - BothParenthesisCount));
   formula.replace( openingIndex, length, std::to_string( internalOperation.solve() ) );
 }
 

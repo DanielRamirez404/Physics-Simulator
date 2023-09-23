@@ -12,17 +12,22 @@ namespace Math {
   protected:
     std::string formula{};
     Error syntaxError{};
+    void simplifyConsecutiveMinusSigns();
     bool areParenthesesNumbersEqual();
     void addParenthesesAroundOperator(size_t operatorIndex);
     bool isThereAnyBadlyPlacedOperator();
     bool areThereMinPriorityOperator();
   public:
-    Formula(std::string_view myFormula) : formula(myFormula) { String::eraseWhitespaces(formula); };
+    Formula(std::string_view myFormula) : formula(myFormula) { 
+      String::eraseWhitespaces(formula);
+      simplifyConsecutiveMinusSigns();
+      };
     void assertIsValid();
     void assertRightCharacterUsage();
     void assertRightCharacterArrangement();
     bool comesBeforeNumber(size_t index);
     bool comesAfterNumber(size_t index);
+    bool isConsecutiveMinusSign(size_t index);
     bool isMinusSign(size_t index);             // instead of substraction operator
     bool isTrueOperator(size_t index);          // does not include minus signs
     bool isPartOfNumber(size_t index);          // includes minus signs

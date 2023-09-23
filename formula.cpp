@@ -9,6 +9,15 @@ bool Math::isNumberDecimal(std::string_view numberString) {
   return String::containsCharacter(numberString, '.');
 }
 
+void Math::Formula::simplifyConsecutiveMinusSigns() {
+  for (size_t i{0}; i < formula.size(); ++i) {
+    while (isConsecutiveMinusSign(i)) {
+      formula.erase(i - 1, 2);
+      i = (i == 1) ? 0 : i - 2;
+    } 
+  }
+}
+
 void Math::Formula::assertIsValid() {
   assertRightCharacterUsage();
   assertRightCharacterArrangement();
@@ -42,6 +51,12 @@ bool Math::Formula::comesBeforeNumber(size_t index) {
 
 bool Math::Formula::comesAfterNumber(size_t index) {
   return (index > 0) && (isPartOfNumber(index - 1) || formula[index - 1] == ')');
+}
+
+bool Math::Formula::isConsecutiveMinusSign(size_t index) {
+  if (index == 0)  return false;
+  bool existConsecutiveMinusChars{ formula[index] == '-' && formula[index - 1] == '-' };
+  return existConsecutiveMinusChars && isNumber(formula[index + 1]) && (index == 1 || !isNumber(formula[index - 2]));
 }
 
 bool Math::Formula::isMinusSign(size_t index) {
