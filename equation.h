@@ -6,6 +6,7 @@
 #include "math characters.h"
 #include <cstddef>
 #include <string>
+#include <string_view>
 #include <vector>
 
 namespace Math {
@@ -21,29 +22,42 @@ namespace Math {
     std::string formula{};
     std::vector<Variable<T>> variables{};
     size_t variableCounter{};
+    std::string_view getLeftOperandView();
+    std::string_view getRightOperandView();
     void rewriteFormulaToSolveFor(char identifier);
   public:
     Equation(std::string_view myFormula, std::vector<char> myVariableNames) : formula(myFormula) 
     {
+      String::eraseWhitespaces(formula);
       for (size_t i{0}; i < myVariableNames.size(); ++i) {
         //assert(!isMathRelated(i) && i != '=' && "INVALID VARIABLE IDENTIFIER");
-        variables.push_back ( { myVariableNames[i]} );
+        variables.push_back ( { myVariableNames[i] } );
       }
       variableCounter = variables.size();
       //assert((variableCounter > 0) && "FORMULA MUST HAVE AT LEAST ONE IDENTIFIER");
-      String::eraseWhitespaces(formula);
     };
     T solveFor(char identifier);
     void addValueFor(char identifier, T value);
   };
   Equation(std::string_view, std::vector<char>) -> Equation<double>;
 
+  template <typename T> std::string_view Equation<T>::getLeftOperandView() {
+    std::string_view leftOperand{formula};
+    leftOperand.remove_suffix(formula.size() - String::findIndexOfCharacter(formula, '='));
+    return leftOperand;
+  }
+
+  template <typename T> std::string_view Equation<T>::getRightOperandView() {
+    std::string_view leftOperand{formula};
+    leftOperand.remove_prefix(String::findIndexOfCharacter(formula, '=') + 1);
+    return leftOperand;
+  }
+
   template <typename T> T Equation<T>::solveFor(char identifier) {
     //assert( (formula.find(identifier) != std::string::npos) && "IDENTIFIER DOES NOT EXIST");
     //assert( (variableCounter == 1) && "THERE CANNOT BE MORE THAN ONE UNKNOWN VARIABLE IN THE FORMULA");
     if (formula[0] == identifier && formula[1] == '=') {
-      constexpr int firstRightExpressionIndex{2};
-      Operation<T> result { formula.substr(firstRightExpressionIndex) };
+      Operation<T> result { getRightOperandView() };
       return result.solve();
     }
     rewriteFormulaToSolveFor(identifier);
