@@ -12,6 +12,11 @@
 namespace Math {
   using namespace Operators;
 
+  enum class EquationSide {
+    right,
+    left,
+  };
+
   template <typename T> struct Variable {
     char identifier{};
     T value{};
@@ -22,8 +27,9 @@ namespace Math {
     std::string formula{};
     std::vector<Variable<T>> variables{};
     size_t variableCounter{};
-    std::string_view getLeftOperandView();
-    std::string_view getRightOperandView();
+    std::string_view getSideView(EquationSide side) { return (side == EquationSide::right) ? getRightSideView() : getLeftSideView(); };
+    std::string_view getLeftSideView();
+    std::string_view getRightSideView();
     void rewriteFormulaToSolveFor(char identifier);
   public:
     Equation(std::string_view myFormula, std::vector<char> myVariableNames) : formula(myFormula) 
@@ -41,13 +47,13 @@ namespace Math {
   };
   Equation(std::string_view, std::vector<char>) -> Equation<double>;
 
-  template <typename T> std::string_view Equation<T>::getLeftOperandView() {
+  template <typename T> std::string_view Equation<T>::getLeftSideView() {
     std::string_view leftOperand{formula};
     leftOperand.remove_suffix(formula.size() - String::findIndexOfCharacter(formula, '='));
     return leftOperand;
   }
 
-  template <typename T> std::string_view Equation<T>::getRightOperandView() {
+  template <typename T> std::string_view Equation<T>::getRightSideView() {
     std::string_view leftOperand{formula};
     leftOperand.remove_prefix(String::findIndexOfCharacter(formula, '=') + 1);
     return leftOperand;
@@ -56,8 +62,14 @@ namespace Math {
   template <typename T> T Equation<T>::solveFor(char identifier) {
     //assert( (formula.find(identifier) != std::string::npos) && "IDENTIFIER DOES NOT EXIST");
     //assert( (variableCounter == 1) && "THERE CANNOT BE MORE THAN ONE UNKNOWN VARIABLE IN THE FORMULA");
-    if (formula[0] == identifier && formula[1] == '=') {
-      Operation<T> result { getRightOperandView() };
+    std::string_view leftSide{ getLeftSideView() };
+    std::string_view rightSide{ getRightSideView() };
+    if (leftSide[0] == identifier && leftSide.size() == 1) {
+      Operation<T> result { rightSide };
+      return result.solve();
+    }
+    if (rightSide[0] == identifier && rightSide.size() == 1) {
+      Operation<T> result { leftSide };
       return result.solve();
     }
     rewriteFormulaToSolveFor(identifier);
