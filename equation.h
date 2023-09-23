@@ -8,14 +8,19 @@
 #include <string>
 #include <string_view>
 #include <vector>
+#include <algorithm>
 
 namespace Math {
   using namespace Operators;
 
-  enum class EquationSide {
-    right,
+  enum class Side {
     left,
+    right,
   };
+
+  Side getOppositeSide(Side side) {
+    return (side == Side::left) ? Side::right : Side::left;
+  }
 
   template <typename T> struct Variable {
     char identifier{};
@@ -27,7 +32,11 @@ namespace Math {
     std::string formula{};
     std::vector<Variable<T>> variables{};
     size_t variableCounter{};
-    std::string_view getSideView(EquationSide side) { return (side == EquationSide::right) ? getRightSideView() : getLeftSideView(); };
+    size_t getEqualsSignIndex() { return formula.find('='); };
+    size_t getFirstIndexOfSide(Side side) { return (side == Side::left) ? 0 : getEqualsSignIndex() + 1; };
+    size_t getLastIndexOfSide(Side side) { return (side == Side::left) ? getEqualsSignIndex() - 1 : formula.size(); };
+    Side getIdentifierSide(char identifier);
+    std::string_view getSideView(Side side);
     std::string_view getLeftSideView();
     std::string_view getRightSideView();
     void rewriteFormulaToSolveFor(char identifier);
@@ -40,36 +49,39 @@ namespace Math {
         variables.push_back ( { myVariableNames[i] } );
       }
       variableCounter = variables.size();
-      //assert((variableCounter > 0) && "FORMULA MUST HAVE AT LEAST ONE IDENTIFIER");
+      //assert((variableCounter > 0) && "FORMULA MUST HAVE AT LEAST ONE IDENTIFIER";
     };
     T solveFor(char identifier);
     void addValueFor(char identifier, T value);
   };
   Equation(std::string_view, std::vector<char>) -> Equation<double>;
 
+  template <typename T> Side Equation<T>::getIdentifierSide(char identifier) {
+    return (String::containsCharacter(getLeftSideView(), identifier)) ? Side::left : Side::right;
+  }
+
+  template <typename T> std::string_view Equation<T>::getSideView(Side side) {
+    return (side == Side::left) ? getLeftSideView() : getRightSideView();
+  }
+
   template <typename T> std::string_view Equation<T>::getLeftSideView() {
     std::string_view leftOperand{formula};
-    leftOperand.remove_suffix(formula.size() - String::findIndexOfCharacter(formula, '='));
+    leftOperand.remove_suffix(formula.size() - getEqualsSignIndex());
     return leftOperand;
   }
 
   template <typename T> std::string_view Equation<T>::getRightSideView() {
     std::string_view leftOperand{formula};
-    leftOperand.remove_prefix(String::findIndexOfCharacter(formula, '=') + 1);
+    leftOperand.remove_prefix(getEqualsSignIndex() + 1);
     return leftOperand;
   }
 
   template <typename T> T Equation<T>::solveFor(char identifier) {
     //assert( (formula.find(identifier) != std::string::npos) && "IDENTIFIER DOES NOT EXIST");
     //assert( (variableCounter == 1) && "THERE CANNOT BE MORE THAN ONE UNKNOWN VARIABLE IN THE FORMULA");
-    std::string_view leftSide{ getLeftSideView() };
-    std::string_view rightSide{ getRightSideView() };
-    if (leftSide[0] == identifier && leftSide.size() == 1) {
-      Operation<T> result { rightSide };
-      return result.solve();
-    }
-    if (rightSide[0] == identifier && rightSide.size() == 1) {
-      Operation<T> result { leftSide };
+    Side identifierSide { getIdentifierSide(identifier) };
+    if (getSideView(identifierSide).size() == 1) {
+      Operation<T> result { getSideView(getOppositeSide(identifierSide)) };
       return result.solve();
     }
     rewriteFormulaToSolveFor(identifier);
@@ -86,42 +98,28 @@ namespace Math {
 
   template <typename T> void Equation<T>::rewriteFormulaToSolveFor(char identifier) {
     //needs HUGE rework
-    bool isIdentifierToTheLeft { false } ;
-    //getValueForPreviousBool
-    for (size_t i{0}; formula[i] != '='; ++i) {
+    Side identifierSide { getIdentifierSide(identifier) };
+    Side oppositeSide { getOppositeSide(identifierSide) };
+    //assuming there's no parenthesis and that the operator and operands are to the right
+    //place parentheses at the right side of the equal sign
+    String::addToString(formula, "(", getFirstIndexOfSide(oppositeSide));
+    String::addToString(formula, ")", getLastIndexOfSide(oppositeSide));
+    //change the operator and pass it to the right side with the number
+    for (size_t i{0}; true; ++i) {
       if (formula[i] == identifier) {
-        isIdentifierToTheLeft = true;
+        formula += getOpposite(formula[i + 1]);
+        formula.erase(i + 1, 1);
+        //pasted from getNumber() function in the operation class
+        size_t iterator{ i + 1 };
+        const size_t firstDigit { iterator };
+        while (isNumeric(formula[iterator + 1])) ++iterator;
+        const size_t firstNonDigit { iterator + 1};
+        const size_t totalDigits { firstNonDigit - firstDigit };
+        std::string numberString{ formula.substr(firstDigit, totalDigits) };
+        //we got our number so we append and erase it
+        formula.append(numberString);
+        formula.erase(firstDigit, totalDigits);
         break;
-      }
-    }
-    //assuming there's no parenthesis and that the operator is to the right
-    if (isIdentifierToTheLeft) {
-      //place parentheses at the right side of the equal sign
-      for (size_t i{0}; true; ++i) {
-        if (formula[i] == '=') {
-          String::addToString(formula, "(", i + 1);
-          formula.append(")"); 
-          break;
-        }
-      }
-      //change the operator and pass it to the right with the number
-      for (size_t i{0}; true; ++i) {
-        if (formula[i] == identifier) {
-          std::string oppositeOperator(1, getOpposite(formula[i + 1]) );
-          formula.append(oppositeOperator);
-          formula.erase(i + 1, 1);
-          //pasted from getNumber() function in the operation class
-          size_t iterator{ i + 1 };
-          const size_t firstDigit { iterator };
-          while (isNumeric(formula[iterator + 1])) ++iterator;
-          const size_t firstNonDigit { iterator + 1};
-          const size_t totalDigits { firstNonDigit - firstDigit };
-          std::string numberString{ formula.substr(firstDigit, totalDigits) };
-          //we got our number so we append and erase it
-          formula.append(numberString);
-          formula.erase(firstDigit, totalDigits);
-          break;
-        }
       }
     }
   }
