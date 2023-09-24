@@ -15,6 +15,13 @@ void String::addToString(std::string& baseString, std::string_view stringToAdd, 
   (index >= baseString.size()) ? baseString.append(stringToAdd) : baseString.insert(index, stringToAdd);
 }
 
+void String::addToString(std::string& baseString, char charToAdd, size_t index) {
+  if (index >= baseString.size())
+    baseString += charToAdd;
+  else
+    baseString.insert(index, 1, charToAdd);
+}
+
 bool String::containsCharacter(std::string_view string, char myChar) {
   return string.find(myChar) != std::string::npos;
 }

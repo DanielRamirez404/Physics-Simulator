@@ -119,9 +119,9 @@ void Math::Formula::writeParenthesesAtMaxPriority() {
 void Math::Formula::addParenthesesAroundOperator(size_t operatorIndex) {
   size_t leftIterator{operatorIndex - 1};
   while (isNumeric(formula[leftIterator]) && (leftIterator > 0)) --leftIterator;
-  String::addToString(formula, "(", leftIterator + 1);
+  String::addToString(formula, '(', leftIterator + 1);
   ++operatorIndex;
   size_t rightIterator{operatorIndex + 1};
   while (isNumeric(formula[rightIterator]) && (rightIterator < formula.size())) ++rightIterator;
-  String::addToString(formula, ")", rightIterator);
+  String::addToString(formula, ')', rightIterator);
 }

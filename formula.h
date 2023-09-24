@@ -21,7 +21,7 @@ namespace Math {
     Formula(std::string_view myFormula) : formula(myFormula) { 
       String::eraseWhitespaces(formula);
       simplifyConsecutiveMinusSigns();
-      };
+    };
     void assertIsValid();
     void assertRightCharacterUsage();
     void assertRightCharacterArrangement();

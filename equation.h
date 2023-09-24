@@ -32,6 +32,7 @@ namespace Math {
     std::string formula{};
     std::vector<Variable<T>> variables{};
     size_t variableCounter{};
+    size_t getIdentifierIndex(char identifier) { return formula.find(identifier); };
     size_t getEqualsSignIndex() { return formula.find('='); };
     size_t getFirstIndexOfSide(Side side) { return (side == Side::left) ? 0 : getEqualsSignIndex() + 1; };
     size_t getLastIndexOfSide(Side side) { return (side == Side::left) ? getEqualsSignIndex() - 1 : formula.size(); };
@@ -97,30 +98,26 @@ namespace Math {
   }
 
   template <typename T> void Equation<T>::rewriteFormulaToSolveFor(char identifier) {
-    //needs HUGE rework
-    Side identifierSide { getIdentifierSide(identifier) };
-    Side oppositeSide { getOppositeSide(identifierSide) };
-    //assuming there's no parenthesis and that the operator and operands are to the right
+    //needs rework
+    const Side identifierSide { getIdentifierSide(identifier) };
+    const Side oppositeSide { getOppositeSide(identifierSide) };
     //place parentheses at the right side of the equal sign
-    String::addToString(formula, "(", getFirstIndexOfSide(oppositeSide));
-    String::addToString(formula, ")", getLastIndexOfSide(oppositeSide));
+    String::addToString(formula, '(', getFirstIndexOfSide(oppositeSide));
+    String::addToString(formula, ')', getLastIndexOfSide(oppositeSide) + 1);
+    //assuming there's no parenthesis and that the operator and operands are to the right of the identifier
     //change the operator and pass it to the right side with the number
-    for (size_t i{0}; true; ++i) {
-      if (formula[i] == identifier) {
-        formula += getOpposite(formula[i + 1]);
-        formula.erase(i + 1, 1);
-        //pasted from getNumber() function in the operation class
-        size_t iterator{ i + 1 };
-        const size_t firstDigit { iterator };
-        while (isNumeric(formula[iterator + 1])) ++iterator;
-        const size_t firstNonDigit { iterator + 1};
-        const size_t totalDigits { firstNonDigit - firstDigit };
-        std::string numberString{ formula.substr(firstDigit, totalDigits) };
-        //we got our number so we append and erase it
-        formula.append(numberString);
-        formula.erase(firstDigit, totalDigits);
-        break;
-      }
-    }
+    char oppositeOperator { getOpposite(formula[getIdentifierIndex(identifier) + 1]) };
+    formula.erase(getIdentifierIndex(identifier) + 1, 1);
+    String::addToString(formula, oppositeOperator, getLastIndexOfSide(oppositeSide) + 1);
+    //addapted from getNumber() function in the operation class
+    size_t iterator{ getIdentifierIndex(identifier) + 1 };
+    const size_t firstDigit { iterator };
+    while (isNumeric(formula[iterator + 1])) ++iterator;
+    const size_t firstNonDigit { iterator + 1};
+    const size_t totalDigits { firstNonDigit - firstDigit };
+    std::string numberString{ formula.substr(firstDigit, totalDigits) };
+    //we got our number so we append and erase it
+    formula.erase(firstDigit, totalDigits);
+    String::addToString(formula, numberString, getLastIndexOfSide(oppositeSide) + 1);
   }
 }
