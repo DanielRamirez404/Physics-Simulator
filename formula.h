@@ -21,6 +21,7 @@ namespace Math {
     bool isThereAnyBadlyPlacedOperator();
     bool areThereMinPriorityOperator();
   public:
+    Formula() {};
     Formula(std::string_view myFormula) : formula(myFormula) { format(); };
     Formula(std::string_view myFormula, const std::vector<char>& myVariables) : formula(myFormula), variables(myVariables) { format(); };
     void assertIsValid();
@@ -36,5 +37,10 @@ namespace Math {
     size_t getFirstParenthesisClosingIndex();   // returns 0 if there's no parenthesis
     int getMaxOperatorPriority();
     void writeParenthesesAtMaxPriority();
+    void setFormula(std::string_view myFormula) { formula = myFormula; };
+    void setFormula(std::string_view myFormula, const std::vector<char>& myVariables) { 
+      formula = myFormula;
+      variables = myVariables;
+    };
   };
 }

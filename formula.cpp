@@ -48,7 +48,9 @@ void Math::Formula::assertRightCharacterArrangement() {
 }
 
 bool Math::Formula::areCharactersValid() {
-  return std::all_of(formula.begin(), formula.end(), [&](char myChar) { return isMathRelated(myChar) || Vector::doesElementExist(variables, myChar); });
+  return std::all_of(formula.begin(), formula.end(), [&](char myChar) { 
+    return isMathRelated(myChar) || Vector::doesElementExist(variables, myChar); 
+  });
 }
 
 bool Math::Formula::areParenthesesNumbersEqual() {

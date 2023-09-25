@@ -5,6 +5,7 @@
 #include "userstring.h"
 #include "math characters.h"
 #include <cstddef>
+#include <cassert>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -29,8 +30,9 @@ namespace Math {
   template <typename T> class Equation {
   private:
     std::string formula{};
+    Formula leftSideFormula{};
+    Formula rightSideFormula{};
     std::vector<Variable<T>> variables{};
-    size_t variableCounter{};
     size_t getIdentifierIndex(char identifier) { return formula.find(identifier); };
     size_t getEqualsSignIndex() { return formula.find('='); };
     size_t getFirstIndexOfSide(Side side) { return (side == Side::left) ? 0 : getEqualsSignIndex() + 1; };
@@ -41,15 +43,16 @@ namespace Math {
     std::string_view getRightSideView();
     void rewriteFormulaToSolveFor(char identifier);
   public:
-    Equation(std::string_view myFormula, std::vector<char> myVariableNames) : formula(myFormula) 
+    Equation(std::string_view myFormula, const std::vector<char>& myVariableNames) : formula(myFormula) 
     {
       String::eraseWhitespaces(formula);
-      for (size_t i{0}; i < myVariableNames.size(); ++i) {
-        //assert(!isMathRelated(i) && i != '=' && "INVALID VARIABLE IDENTIFIER");
-        variables.push_back ( { myVariableNames[i] } );
-      }
-      variableCounter = variables.size();
-      //assert((variableCounter > 0) && "FORMULA MUST HAVE AT LEAST ONE IDENTIFIER";
+      assert(std::count(formula.begin(), formula.end(), '=') == 1 && "THERE MUST BE ONE (AND ONLY ONE) EQUALS SIGN IN THE FORMULA");
+      leftSideFormula.setFormula(getLeftSideView(), myVariableNames);
+      rightSideFormula.setFormula(getRightSideView(), myVariableNames);
+      leftSideFormula.assertIsValid();
+      rightSideFormula.assertIsValid();
+      std::for_each(myVariableNames.begin(), myVariableNames.end(), [&](char identifier) { variables.push_back( { identifier } ); });
+      //checkThatVariablesExist();
     };
     T solveFor(char identifier);
     void addValueFor(char identifier, T value);
@@ -93,7 +96,7 @@ namespace Math {
     //assert( (identifierIndex != std::string::npos) && "IDENTIFIER DOES NOT EXIST");
     constexpr size_t charSize { 1 };
     formula.replace(identifierIndex, charSize, std::to_string(value));
-    --variableCounter;
+    //eliminateIdentifierFromVector();
   }
 
   template <typename T> void Equation<T>::rewriteFormulaToSolveFor(char identifier) {
