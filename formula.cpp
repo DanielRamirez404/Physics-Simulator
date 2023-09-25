@@ -1,12 +1,18 @@
 #include "formula.h"
-#include "userstring.h"
 #include "math characters.h"
+#include "userstring.h"
+#include "uservector.h"
 #include <cstddef>
 #include <string_view>
 #include <algorithm>
 
 bool Math::isNumberDecimal(std::string_view numberString) { 
   return String::containsCharacter(numberString, '.');
+}
+
+void Math::Formula::format() {
+  String::eraseWhitespaces(formula);
+  simplifyConsecutiveMinusSigns();
 }
 
 void Math::Formula::simplifyConsecutiveMinusSigns() {
@@ -26,7 +32,7 @@ void Math::Formula::assertIsValid() {
 void Math::Formula::assertRightCharacterUsage() {
   if (formula.empty())
     syntaxError.add("FORMULA CAN\'T BE EMPTY");
-  else if (!std::all_of(formula.begin(), formula.end(), isMathRelated))
+  else if (!areCharactersValid())
     syntaxError.add("SEEMS LIKE THERE IS A NON-VALID CHARACTER");
   else if (!areParenthesesNumbersEqual())
     syntaxError.add("NUMBER OF OPEN AND CLOSE PARENTHESES MUST MATCH");
@@ -39,6 +45,10 @@ void Math::Formula::assertRightCharacterArrangement() {
   else if (isThereAnyBadlyPlacedOperator())
     syntaxError.add("THERE IS A BADLY PLACED OPERATOR");
   syntaxError.assert();
+}
+
+bool Math::Formula::areCharactersValid() {
+  return std::all_of(formula.begin(), formula.end(), [&](char myChar) { return isMathRelated(myChar) || Vector::doesElementExist(variables, myChar); });
 }
 
 bool Math::Formula::areParenthesesNumbersEqual() {
@@ -68,7 +78,7 @@ bool Math::Formula::isTrueOperator(size_t index) {
 }
 
 bool Math::Formula::isPartOfNumber(size_t index) {
-  return isNumeric(formula[index]) || isMinusSign(index);
+  return isNumeric(formula[index]) || isMinusSign(index) || Vector::doesElementExist(variables, formula[index]);
 }
 
 bool Math::Formula::isThereAnyBadlyPlacedOperator() {

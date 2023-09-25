@@ -11,7 +11,6 @@
 #include <algorithm>
 
 namespace Math {
-  using namespace Operators;
 
   enum class Side {
     left,
@@ -101,12 +100,12 @@ namespace Math {
     //needs rework
     const Side identifierSide { getIdentifierSide(identifier) };
     const Side oppositeSide { getOppositeSide(identifierSide) };
-    //place parentheses at the right side of the equal sign
+    //place parentheses at the correct side of the equal sign
     String::addToString(formula, '(', getFirstIndexOfSide(oppositeSide));
     String::addToString(formula, ')', getLastIndexOfSide(oppositeSide) + 1);
     //assuming there's no parenthesis and that the operator and operands are to the right of the identifier
-    //change the operator and pass it to the right side with the number
-    char oppositeOperator { getOpposite(formula[getIdentifierIndex(identifier) + 1]) };
+    //change the operator and pass it to the corrrect side with the number
+    char oppositeOperator { Operators::getOpposite(formula[getIdentifierIndex(identifier) + 1]) };
     formula.erase(getIdentifierIndex(identifier) + 1, 1);
     String::addToString(formula, oppositeOperator, getLastIndexOfSide(oppositeSide) + 1);
     //addapted from getNumber() function in the operation class

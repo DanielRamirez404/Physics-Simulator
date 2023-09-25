@@ -1,9 +1,9 @@
 #pragma once
 #include "error.h"
-#include "userstring.h"
 #include <cstddef>
 #include <string>
 #include <string_view>
+#include <vector>
 
 namespace Math {
   bool isNumberDecimal(std::string_view numberString);
@@ -11,17 +11,18 @@ namespace Math {
   class Formula {
   protected:
     std::string formula{};
+    std::vector<char> variables{};
     Error syntaxError{};
+    void format();
     void simplifyConsecutiveMinusSigns();
+    bool areCharactersValid();
     bool areParenthesesNumbersEqual();
     void addParenthesesAroundOperator(size_t operatorIndex);
     bool isThereAnyBadlyPlacedOperator();
     bool areThereMinPriorityOperator();
   public:
-    Formula(std::string_view myFormula) : formula(myFormula) { 
-      String::eraseWhitespaces(formula);
-      simplifyConsecutiveMinusSigns();
-    };
+    Formula(std::string_view myFormula) : formula(myFormula) { format(); };
+    Formula(std::string_view myFormula, const std::vector<char>& myVariables) : formula(myFormula), variables(myVariables) { format(); };
     void assertIsValid();
     void assertRightCharacterUsage();
     void assertRightCharacterArrangement();
