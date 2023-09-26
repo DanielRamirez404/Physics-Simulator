@@ -137,3 +137,7 @@ void Math::Formula::addParenthesesAroundOperator(size_t operatorIndex) {
   while (isNumeric(formula[rightIterator]) && (rightIterator < formula.size())) ++rightIterator;
   String::addToString(formula, ')', rightIterator);
 }
+
+void Math::Formula::addValueFor(char identifier, std::string_view value) {
+  formula.replace(getIndex(identifier), 1, value);
+}

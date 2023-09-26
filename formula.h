@@ -1,5 +1,6 @@
 #pragma once
 #include "error.h"
+#include "userstring.h"
 #include <cstddef>
 #include <string>
 #include <string_view>
@@ -37,10 +38,19 @@ namespace Math {
     size_t getFirstParenthesisClosingIndex();   // returns 0 if there's no parenthesis
     int getMaxOperatorPriority();
     void writeParenthesesAtMaxPriority();
-    void setFormula(std::string_view myFormula) { formula = myFormula; };
+    size_t getIndex(char identifier) { return formula.find(identifier); };
+    bool contains(char identifier) { return String::containsCharacter(formula, identifier); };
+    size_t getSize() { return formula.size(); };
+    void setFormula(std::string_view myFormula) { 
+      formula = myFormula;
+      format(); 
+    };
     void setFormula(std::string_view myFormula, const std::vector<char>& myVariables) { 
       formula = myFormula;
       variables = myVariables;
+      format();
     };
+    std::string_view getView() { return formula; };
+    void addValueFor(char identifier, std::string_view value);
   };
 }

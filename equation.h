@@ -24,31 +24,24 @@ namespace Math {
 
   template <typename T> struct Variable {
     char identifier{};
+    //Side side{};
     T value{};
   };
 
   template <typename T> class Equation {
   private:
-    std::string formula{};
     Formula leftSideFormula{};
     Formula rightSideFormula{};
     std::vector<Variable<T>> variables{};
-    size_t getIdentifierIndex(char identifier) { return formula.find(identifier); };
-    size_t getEqualsSignIndex() { return formula.find('='); };
-    size_t getFirstIndexOfSide(Side side) { return (side == Side::left) ? 0 : getEqualsSignIndex() + 1; };
-    size_t getLastIndexOfSide(Side side) { return (side == Side::left) ? getEqualsSignIndex() - 1 : formula.size(); };
     Side getIdentifierSide(char identifier);
-    std::string_view getSideView(Side side);
-    std::string_view getLeftSideView();
-    std::string_view getRightSideView();
-    void rewriteFormulaToSolveFor(char identifier);
+    Formula& getFormulaFromSide(Side side);
+    //void rewriteFormulaToSolveFor(char identifier);
   public:
-    Equation(std::string_view myFormula, const std::vector<char>& myVariableNames) : formula(myFormula) 
-    {
-      String::eraseWhitespaces(formula);
+    Equation(std::string_view formula, const std::vector<char>& myVariableNames) {
       assert(std::count(formula.begin(), formula.end(), '=') == 1 && "THERE MUST BE ONE (AND ONLY ONE) EQUALS SIGN IN THE FORMULA");
-      leftSideFormula.setFormula(getLeftSideView(), myVariableNames);
-      rightSideFormula.setFormula(getRightSideView(), myVariableNames);
+      const size_t equalsSignIndex { formula.find('=') };
+      leftSideFormula.setFormula(formula.substr(0, equalsSignIndex), myVariableNames);
+      rightSideFormula.setFormula(formula.substr(equalsSignIndex + 1, formula.size() - equalsSignIndex), myVariableNames);
       leftSideFormula.assertIsValid();
       rightSideFormula.assertIsValid();
       std::for_each(myVariableNames.begin(), myVariableNames.end(), [&](char identifier) { variables.push_back( { identifier } ); });
@@ -61,45 +54,30 @@ namespace Math {
 }
 
 template <typename T> Math::Side Math::Equation<T>::getIdentifierSide(char identifier) {
-  return (String::containsCharacter(getLeftSideView(), identifier)) ? Side::left : Side::right;
+  return (leftSideFormula.contains(identifier)) ? Side::left : Side::right;
 }
 
-template <typename T> std::string_view Math::Equation<T>::getSideView(Side side) {
-  return (side == Side::left) ? getLeftSideView() : getRightSideView();
-}
-
-template <typename T> std::string_view Math::Equation<T>::getLeftSideView() {
-  std::string_view leftOperand{formula};
-  leftOperand.remove_suffix(formula.size() - getEqualsSignIndex());
-  return leftOperand;
-}
-
-template <typename T> std::string_view Math::Equation<T>::getRightSideView() {
-  std::string_view leftOperand{formula};
-  leftOperand.remove_prefix(getEqualsSignIndex() + 1);
-  return leftOperand;
+template <typename T> Math::Formula& Math::Equation<T>::getFormulaFromSide(Side side) {
+  return (side == Side::left) ? leftSideFormula : rightSideFormula;
 }
 
 template <typename T> T Math::Equation<T>::solveFor(char identifier) {
-  //assert( (formula.find(identifier) != std::string::npos) && "IDENTIFIER DOES NOT EXIST");
-  //assert( (variableCounter == 1) && "THERE CANNOT BE MORE THAN ONE UNKNOWN VARIABLE IN THE FORMULA");
+  assert((variables.size() == 1) && "THERE CANNOT BE MORE THAN ONE UNKNOWN VARIABLE IN THE FORMULA");
   Side identifierSide { getIdentifierSide(identifier) };
-  if (getSideView(identifierSide).size() == 1) {
-    Operation<T> result { getSideView(getOppositeSide(identifierSide)) };
-    return result.solve();
+  if (getFormulaFromSide(identifierSide).getSize() > 1) {
+    //rewriteFormulaToSolveFor(identifier);
   }
-  rewriteFormulaToSolveFor(identifier);
-  return solveFor(identifier);
+  Operation<T> result { getFormulaFromSide(getOppositeSide(identifierSide)).getView() };
+  return result.solve();
 }
 
 template <typename T> void Math::Equation<T>::addValueFor(char identifier, T value) {
-  size_t identifierIndex { formula.find(identifier) };
-  //assert( (identifierIndex != std::string::npos) && "IDENTIFIER DOES NOT EXIST");
-  constexpr size_t charSize { 1 };
-  formula.replace(identifierIndex, charSize, std::to_string(value));
+  getFormulaFromSide(getIdentifierSide(identifier)).addValueFor(identifier, std::to_string(value));
   //eliminateIdentifierFromVector();
 }
 
+#if 0
+  //commented out for the time being
 template <typename T> void Math::Equation<T>::rewriteFormulaToSolveFor(char identifier) {
   //needs rework
   const Side identifierSide { getIdentifierSide(identifier) };
@@ -123,3 +101,5 @@ template <typename T> void Math::Equation<T>::rewriteFormulaToSolveFor(char iden
   formula.erase(firstDigit, totalDigits);
   String::addToString(formula, numberString, getLastIndexOfSide(oppositeSide) + 1);
 }
+
+#endif
