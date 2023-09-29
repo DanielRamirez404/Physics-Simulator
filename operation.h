@@ -25,7 +25,7 @@ namespace Math {
 }
 
 template <typename T> T Math::Operation<T>::solve() {
-  while (std::any_of(formula.begin(), formula.end(), isParenthesis)) solveFirstParenthesis();
+  while (std::any_of(string.begin(), string.end(), isParenthesis)) solveFirstParenthesis();
   simplifyConsecutiveMinusSigns();
   T result{};
   int numberOfOperations{ getNumberofOperations() };
@@ -50,8 +50,8 @@ template <typename T> void Math::Operation<T>::solveFirstParenthesis() {
   const size_t afterOpeningIndex { openingIndex + 1 };
   const size_t afterClosingIndex { closingIndex + 1 };
   const size_t length{ afterClosingIndex - openingIndex };
-  Operation internalOperation(formula.substr(afterOpeningIndex, length - BothParenthesisCount));
-  formula.replace( openingIndex, length, std::to_string( internalOperation.solve() ) );
+  Operation internalOperation(string.substr(afterOpeningIndex, length - BothParenthesisCount));
+  string.replace( openingIndex, length, std::to_string( internalOperation.solve() ) );
 }
 
 template <typename T> T Math::Operation<T>::solveByPriorities(int numberOfOperations) {
@@ -65,7 +65,7 @@ template <typename T> T Math::Operation<T>::solveForOneOperator() {
   size_t iterator{0};
   T firstValue{ getNumber(iterator) };
   ++iterator;
-  char operation{ formula[iterator] };
+  char operation{ string[iterator] };
   ++iterator;
   T secondValue{ getNumber(iterator) };
   return doOperation<T>(firstValue, operation, secondValue);
@@ -73,7 +73,7 @@ template <typename T> T Math::Operation<T>::solveForOneOperator() {
 
 template <typename T> int Math::Operation<T>::getNumberofOperations() {
   int operatorCounter{0};
-  for (size_t i{0}; i < formula.size(); ++i) {
+  for (size_t i{0}; i < string.size(); ++i) {
     if (isTrueOperator(i)) ++operatorCounter;
   }
   return operatorCounter;
@@ -81,9 +81,9 @@ template <typename T> int Math::Operation<T>::getNumberofOperations() {
 
 template <typename T> T Math::Operation<T>::getNumber(size_t& iterator) {
   const size_t firstDigit { iterator };
-  while (isNumeric(formula[iterator + 1])) ++iterator;
+  while (isNumeric(string[iterator + 1])) ++iterator;
   const size_t firstNonDigit { iterator + 1};
   const size_t totalDigits { firstNonDigit - firstDigit };
-  std::string numberString{ formula.substr(firstDigit, totalDigits) };
+  std::string numberString{ string.substr(firstDigit, totalDigits) };
   return static_cast<T>( (isNumberDecimal(numberString)) ? std::stod(numberString) : std::stoi(numberString) );
 }

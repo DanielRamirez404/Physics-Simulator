@@ -3,7 +3,22 @@
 #include <string>
 #include <string_view>
 
-void String::eraseWhitespaces(std::string& string) {
+void String::add(std::string_view stringToAdd, size_t index) {
+  (index >= string.size()) ? string.append(stringToAdd) : string.insert(index, stringToAdd);
+}
+
+void String::add(char charToAdd, size_t index) {
+  if (index >= string.size())
+    string += charToAdd;
+  else
+    string.insert(index, 1, charToAdd);
+}
+
+void String::erase(size_t index, size_t numberOfPositions) {
+  string.erase(index, numberOfPositions);
+}
+
+void String::eraseWhitespaces() {
   for (size_t i{0}; i < string.size(); ++i) {
     while (string[i] == ' ') {
       string.erase(string.begin() + static_cast<int>(i));
@@ -11,21 +26,22 @@ void String::eraseWhitespaces(std::string& string) {
   }
 }
 
-void String::addToString(std::string& baseString, std::string_view stringToAdd, size_t index) {
-  (index >= baseString.size()) ? baseString.append(stringToAdd) : baseString.insert(index, stringToAdd);
-}
-
-void String::addToString(std::string& baseString, char charToAdd, size_t index) {
-  if (index >= baseString.size())
-    baseString += charToAdd;
-  else
-    baseString.insert(index, 1, charToAdd);
-}
-
-bool String::containsCharacter(std::string_view string, char myChar) {
+bool String::contains(char myChar) {
   return string.find(myChar) != std::string::npos;
 }
 
-size_t String::findIndexOfCharacter(std::string_view string, char myChar) {
+size_t String::find(char myChar) {
   return string.find(myChar);
+}
+
+size_t String::size() {
+  return string.size();
+}
+
+std::string String::substr(size_t startingIndex, size_t subStringSize) {
+  return string.substr(startingIndex, subStringSize);
+}
+
+std::string_view String::get() {
+  return string;
 }

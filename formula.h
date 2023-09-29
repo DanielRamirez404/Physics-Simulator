@@ -9,9 +9,8 @@
 namespace Math {
   bool isNumberDecimal(std::string_view numberString);
 
-  class Formula {
+  class Formula : public String {
   protected:
-    std::string formula{};
     std::vector<char> variables{};
     Error syntaxError{};
     void format();
@@ -22,9 +21,9 @@ namespace Math {
     bool isThereAnyBadlyPlacedOperator();
     bool areThereMinPriorityOperator();
   public:
-    Formula() {};
-    Formula(std::string_view myFormula) : formula(myFormula) { format(); };
-    Formula(std::string_view myFormula, const std::vector<char>& myVariables) : formula(myFormula), variables(myVariables) { format(); };
+    Formula() : String() {};
+    Formula(std::string_view myFormula) : String(myFormula) { format(); };
+    Formula(std::string_view myFormula, const std::vector<char>& myVariables) : String(myFormula), variables(myVariables) { format(); };
     void assertIsValid();
     void assertRightCharacterUsage();
     void assertRightCharacterArrangement();
@@ -38,24 +37,15 @@ namespace Math {
     size_t getFirstParenthesisClosingIndex();   // returns 0 if there's no parenthesis
     int getMaxOperatorPriority();
     void writeParenthesesAtMaxPriority();
-    size_t getIndex(char identifier) { return formula.find(identifier); };
-    bool contains(char identifier) { return String::containsCharacter(formula, identifier); };
-    size_t getSize() { return formula.size(); };
     void setFormula(std::string_view myFormula) { 
-      formula = myFormula;
+      string = myFormula;
       format(); 
     };
     void setFormula(std::string_view myFormula, const std::vector<char>& myVariables) { 
-      formula = myFormula;
+      string = myFormula;
       variables = myVariables;
       format();
     };
-    std::string_view getView() { return formula; };
     void addValueFor(char identifier, std::string_view value);
-    void add(char mychar, size_t index) { String::addToString(formula, mychar, index); };
-    void add(std::string_view stringToAdd, size_t index) { String::addToString(formula, stringToAdd, index); };
-    auto operator[](size_t index) { return formula[index]; };
-    void erase(size_t index, size_t numberOfPositions) { formula.erase(index, numberOfPositions); };
-    std::string substr(size_t startingIndex, size_t subStringSize) { return formula.substr(startingIndex, subStringSize); };
   };
 }

@@ -3,10 +3,20 @@
 #include <string>
 #include <string_view>
 
-namespace String {
-  void eraseWhitespaces(std::string& string);
-  void addToString(std::string& baseString, std::string_view stringToAdd, size_t index);
-  void addToString(std::string& baseString, char charToAdd, size_t index);
-  bool containsCharacter(std::string_view string, char myChar);
-  size_t findIndexOfCharacter(std::string_view string, char myChar);
-}
+class String {
+protected:
+  std::string string{};
+public:
+  String() {};
+  String(std::string_view myString) : string(myString) {};
+  auto operator[](size_t index) { return string[index]; };
+  void add(std::string_view stringToAdd, size_t index);
+  void add(char charToAdd, size_t index);
+  void erase(size_t index, size_t numberOfPositions);
+  void eraseWhitespaces();
+  bool contains(char myChar);
+  size_t find(char myChar);
+  size_t size();
+  std::string substr(size_t startingIndex, size_t subStringSize);
+  std::string_view get();
+};

@@ -64,10 +64,10 @@ template <typename T> Math::Formula& Math::Equation<T>::getFormulaFromSide(Side 
 template <typename T> T Math::Equation<T>::solveFor(char identifier) {
   assert((variables.size() == 1) && "THERE CANNOT BE MORE THAN ONE UNKNOWN VARIABLE IN THE FORMULA");
   Side identifierSide { getIdentifierSide(identifier) };
-  if (getFormulaFromSide(identifierSide).getSize() > 1) {
+  if (getFormulaFromSide(identifierSide).size() > 1) {
     rewriteFormulaToSolveFor(identifier);
   }
-  Operation<T> result { getFormulaFromSide(getOppositeSide(identifierSide)).getView() };
+  Operation<T> result { getFormulaFromSide(getOppositeSide(identifierSide)).get() };
   return result.solve();
 }
 
@@ -82,14 +82,14 @@ template <typename T> void Math::Equation<T>::rewriteFormulaToSolveFor(char iden
   const Side oppositeSide { getOppositeSide(identifierSide) };
   //place parentheses at the correct side of the equal sign
   getFormulaFromSide(oppositeSide).add('(', 0);
-  getFormulaFromSide(oppositeSide).add(')', getFormulaFromSide(oppositeSide).getSize() + 1);
+  getFormulaFromSide(oppositeSide).add(')', getFormulaFromSide(oppositeSide).size() + 1);
   //assuming there's no parenthesis and that the operator and operands are to the right of the identifier
   //change the operator and pass it to the corrrect side with the number
-  char oppositeOperator { Operators::getOpposite(getFormulaFromSide(identifierSide)[getFormulaFromSide(identifierSide).getIndex(identifier) + 1]) };
-  getFormulaFromSide(identifierSide).erase((getFormulaFromSide(identifierSide).getIndex(identifier) + 1), 1);
-  getFormulaFromSide(oppositeSide).add(oppositeOperator, getFormulaFromSide(oppositeSide).getSize() + 1);
+  char oppositeOperator { Operators::getOpposite(getFormulaFromSide(identifierSide)[getFormulaFromSide(identifierSide).find(identifier) + 1]) };
+  getFormulaFromSide(identifierSide).erase((getFormulaFromSide(identifierSide).find(identifier) + 1), 1);
+  getFormulaFromSide(oppositeSide).add(oppositeOperator, getFormulaFromSide(oppositeSide).size() + 1);
   //addapted from getNumber() function in the operation class
-  size_t iterator{ getFormulaFromSide(identifierSide).getIndex(identifier) + 1 }; 
+  size_t iterator{ getFormulaFromSide(identifierSide).find(identifier) + 1 }; 
   const size_t firstDigit { iterator };
   while (isNumeric(getFormulaFromSide(identifierSide)[iterator + 1])) ++iterator;
   const size_t firstNonDigit { iterator + 1};
@@ -97,5 +97,5 @@ template <typename T> void Math::Equation<T>::rewriteFormulaToSolveFor(char iden
   std::string numberString{ getFormulaFromSide(identifierSide).substr(firstDigit, totalDigits) };
   //we got our number so we append and erase it
   getFormulaFromSide(identifierSide).erase(firstDigit, totalDigits);
-  getFormulaFromSide(oppositeSide).add( numberString,  getFormulaFromSide(oppositeSide).getSize() + 1);
+  getFormulaFromSide(oppositeSide).add( numberString,  getFormulaFromSide(oppositeSide).size() + 1);
 }
