@@ -35,7 +35,7 @@ namespace Math {
     std::vector<Variable<T>> variables{};
     Side getIdentifierSide(char identifier);
     Formula& getFormulaFromSide(Side side);
-    //void rewriteFormulaToSolveFor(char identifier);
+    void rewriteFormulaToSolveFor(char identifier);
   public:
     Equation(std::string_view formula, const std::vector<char>& myVariableNames) {
       assert(std::count(formula.begin(), formula.end(), '=') == 1 && "THERE MUST BE ONE (AND ONLY ONE) EQUALS SIGN IN THE FORMULA");
@@ -65,7 +65,7 @@ template <typename T> T Math::Equation<T>::solveFor(char identifier) {
   assert((variables.size() == 1) && "THERE CANNOT BE MORE THAN ONE UNKNOWN VARIABLE IN THE FORMULA");
   Side identifierSide { getIdentifierSide(identifier) };
   if (getFormulaFromSide(identifierSide).getSize() > 1) {
-    //rewriteFormulaToSolveFor(identifier);
+    rewriteFormulaToSolveFor(identifier);
   }
   Operation<T> result { getFormulaFromSide(getOppositeSide(identifierSide)).getView() };
   return result.solve();
@@ -76,30 +76,26 @@ template <typename T> void Math::Equation<T>::addValueFor(char identifier, T val
   //eliminateIdentifierFromVector();
 }
 
-#if 0
-  //commented out for the time being
 template <typename T> void Math::Equation<T>::rewriteFormulaToSolveFor(char identifier) {
   //needs rework
   const Side identifierSide { getIdentifierSide(identifier) };
   const Side oppositeSide { getOppositeSide(identifierSide) };
   //place parentheses at the correct side of the equal sign
-  String::addToString(formula, '(', getFirstIndexOfSide(oppositeSide));
-  String::addToString(formula, ')', getLastIndexOfSide(oppositeSide) + 1);
+  getFormulaFromSide(oppositeSide).add('(', 0);
+  getFormulaFromSide(oppositeSide).add(')', getFormulaFromSide(oppositeSide).getSize() + 1);
   //assuming there's no parenthesis and that the operator and operands are to the right of the identifier
   //change the operator and pass it to the corrrect side with the number
-  char oppositeOperator { Operators::getOpposite(formula[getIdentifierIndex(identifier) + 1]) };
-  formula.erase(getIdentifierIndex(identifier) + 1, 1);
-  String::addToString(formula, oppositeOperator, getLastIndexOfSide(oppositeSide) + 1);
+  char oppositeOperator { Operators::getOpposite(getFormulaFromSide(identifierSide)[getFormulaFromSide(identifierSide).getIndex(identifier) + 1]) };
+  getFormulaFromSide(identifierSide).erase((getFormulaFromSide(identifierSide).getIndex(identifier) + 1), 1);
+  getFormulaFromSide(oppositeSide).add(oppositeOperator, getFormulaFromSide(oppositeSide).getSize() + 1);
   //addapted from getNumber() function in the operation class
-  size_t iterator{ getIdentifierIndex(identifier) + 1 };
+  size_t iterator{ getFormulaFromSide(identifierSide).getIndex(identifier) + 1 }; 
   const size_t firstDigit { iterator };
-  while (isNumeric(formula[iterator + 1])) ++iterator;
+  while (isNumeric(getFormulaFromSide(identifierSide)[iterator + 1])) ++iterator;
   const size_t firstNonDigit { iterator + 1};
   const size_t totalDigits { firstNonDigit - firstDigit };
-  std::string numberString{ formula.substr(firstDigit, totalDigits) };
+  std::string numberString{ getFormulaFromSide(identifierSide).substr(firstDigit, totalDigits) };
   //we got our number so we append and erase it
-  formula.erase(firstDigit, totalDigits);
-  String::addToString(formula, numberString, getLastIndexOfSide(oppositeSide) + 1);
+  getFormulaFromSide(identifierSide).erase(firstDigit, totalDigits);
+  getFormulaFromSide(oppositeSide).add( numberString,  getFormulaFromSide(oppositeSide).getSize() + 1);
 }
-
-#endif

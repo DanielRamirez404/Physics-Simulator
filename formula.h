@@ -52,5 +52,10 @@ namespace Math {
     };
     std::string_view getView() { return formula; };
     void addValueFor(char identifier, std::string_view value);
+    void add(char mychar, size_t index) { String::addToString(formula, mychar, index); };
+    void add(std::string_view stringToAdd, size_t index) { String::addToString(formula, stringToAdd, index); };
+    auto operator[](size_t index) { return formula[index]; };
+    void erase(size_t index, size_t numberOfPositions) { formula.erase(index, numberOfPositions); };
+    std::string substr(size_t startingIndex, size_t subStringSize) { return formula.substr(startingIndex, subStringSize); };
   };
 }
