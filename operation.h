@@ -15,8 +15,7 @@ namespace Math {
     int getNumberofOperations();
     T solveForOneOperator();
     T solveByPriorities(int numberOfOperations);
-    T getNumber(size_t& iterator);
-    T getNumber() { size_t iterator{0}; return getNumber(iterator); };
+    T getNumberFromString(const std::string& numberString);
   public:
     Operation(std::string_view myFormula) : Formula(myFormula) {};
     T solve();
@@ -31,7 +30,7 @@ template <typename T> T Math::Operation<T>::solve() {
   int numberOfOperations{ getNumberofOperations() };
   switch (numberOfOperations) {
     case 0:
-      result = getNumber();
+      result = getNumberFromString(string);
       break;
     case 1: 
       result = solveForOneOperator();
@@ -62,12 +61,10 @@ template <typename T> T Math::Operation<T>::solveByPriorities(int numberOfOperat
 }
 
 template <typename T> T Math::Operation<T>::solveForOneOperator() {
-  size_t iterator{0};
-  T firstValue{ getNumber(iterator) };
-  ++iterator;
-  char operation{ string[iterator] };
-  ++iterator;
-  T secondValue{ getNumber(iterator) };
+  size_t operatorIndex { findAnyOperator() };
+  char operation{ string[operatorIndex] };
+  T firstValue{ getNumberFromString(getPreviousNumberString(operatorIndex)) };
+  T secondValue{ getNumberFromString(getNextNumberString(operatorIndex)) };
   return doOperation<T>(firstValue, operation, secondValue);
 }
 
@@ -79,11 +76,6 @@ template <typename T> int Math::Operation<T>::getNumberofOperations() {
   return operatorCounter;
 }
 
-template <typename T> T Math::Operation<T>::getNumber(size_t& iterator) {
-  const size_t firstDigit { iterator };
-  while (isNumeric(string[iterator + 1])) ++iterator;
-  const size_t firstNonDigit { iterator + 1};
-  const size_t totalDigits { firstNonDigit - firstDigit };
-  std::string numberString{ string.substr(firstDigit, totalDigits) };
+template <typename T> T Math::Operation<T>::getNumberFromString(const std::string& numberString) {
   return static_cast<T>( (isNumberDecimal(numberString)) ? std::stod(numberString) : std::stoi(numberString) );
 }
