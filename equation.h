@@ -26,6 +26,7 @@ namespace Math {
     Formula rightSideFormula{};
     std::vector<char> variables{};
     void assignBothSidesFormulas(std::string_view formula, const std::vector<char>& myVariableNames);
+    bool isIdentifierValid(char identifier);
     bool areVariablesValid();
     Side getIdentifierSide(char identifier);
     Formula& getFormulaFromSide(Side side);
@@ -50,10 +51,15 @@ template <typename T> void Math::Equation<T>::assignBothSidesFormulas(std::strin
   rightSideFormula.assertIsValid();
 }
 
+template <typename T> bool Math::Equation<T>::isIdentifierValid(char identifier) {
+  const Side identifierSide { getIdentifierSide(identifier) };
+  Formula& identifierFormula { getFormulaFromSide(identifierSide) };
+  Formula& oppositeFormula { getFormulaFromSide(getOppositeSide(identifierSide)) };
+  return (identifierFormula.count(identifier) == 1) && !oppositeFormula.contains(identifier);
+}
+
 template <typename T> bool Math::Equation<T>::areVariablesValid() {
-  return std::all_of(variables.begin(), variables.end(), [&](char identifier) {
-    return (leftSideFormula.count(identifier) == 1) != (rightSideFormula.count(identifier) == 1);
-  });
+  return std::all_of(variables.begin(), variables.end(), [&](char identifier) { return isIdentifierValid(identifier); } );
 }
 
 template <typename T> Math::Side Math::Equation<T>::getIdentifierSide(char identifier) {
