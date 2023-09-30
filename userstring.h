@@ -12,6 +12,8 @@ public:
   auto operator[](size_t index) { return string[index]; };
   void add(std::string_view stringToAdd, size_t index);
   void add(char charToAdd, size_t index);
+  void prepend(char myChar);
+  void append(char myChar);
   void erase(size_t index, size_t numberOfPositions);
   void eraseWhitespaces();
   bool contains(char myChar);

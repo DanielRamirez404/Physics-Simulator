@@ -88,23 +88,22 @@ template <typename T> void Math::Equation<T>::addValueFor(char identifier, T val
 template <typename T> void Math::Equation<T>::rewriteFormulaToSolveFor(char identifier) {
   //needs rework
   const Side identifierSide { getIdentifierSide(identifier) };
-  const Side oppositeSide { getOppositeSide(identifierSide) };
-  //place parentheses at the correct side of the equal sign
-  getFormulaFromSide(oppositeSide).add('(', 0);
-  getFormulaFromSide(oppositeSide).add(')', getFormulaFromSide(oppositeSide).size() + 1);
+  Formula& identifierFormula { getFormulaFromSide(identifierSide) };
+  Formula& oppositeFormula { getFormulaFromSide(getOppositeSide(identifierSide)) };
+  oppositeFormula.addParentheses();
   //assuming there's no parenthesis and that the operator and operands are to the right of the identifier
   //change the operator and pass it to the corrrect side with the number
-  char oppositeOperator { Operators::getOpposite(getFormulaFromSide(identifierSide)[getFormulaFromSide(identifierSide).find(identifier) + 1]) };
-  getFormulaFromSide(identifierSide).erase((getFormulaFromSide(identifierSide).find(identifier) + 1), 1);
-  getFormulaFromSide(oppositeSide).add(oppositeOperator, getFormulaFromSide(oppositeSide).size() + 1);
+  char oppositeOperator { Operators::getOpposite(identifierFormula[getFormulaFromSide(identifierSide).find(identifier) + 1]) };
+  identifierFormula.erase((identifierFormula.find(identifier) + 1), 1);
+  oppositeFormula.add(oppositeOperator, oppositeFormula.size() + 1);
   //addapted from getNumber() function in the operation class
-  size_t iterator{ getFormulaFromSide(identifierSide).find(identifier) + 1 }; 
+  size_t iterator{ identifierFormula.find(identifier) + 1 }; 
   const size_t firstDigit { iterator };
-  while (isNumeric(getFormulaFromSide(identifierSide)[iterator + 1])) ++iterator;
+  while (isNumeric(identifierFormula[iterator + 1])) ++iterator;
   const size_t firstNonDigit { iterator + 1};
   const size_t totalDigits { firstNonDigit - firstDigit };
-  std::string numberString{ getFormulaFromSide(identifierSide).substr(firstDigit, totalDigits) };
+  std::string numberString{ identifierFormula.substr(firstDigit, totalDigits) };
   //we got our number so we append and erase it
-  getFormulaFromSide(identifierSide).erase(firstDigit, totalDigits);
-  getFormulaFromSide(oppositeSide).add( numberString,  getFormulaFromSide(oppositeSide).size() + 1);
+  identifierFormula.erase(firstDigit, totalDigits);
+  oppositeFormula.add( numberString,  oppositeFormula.size() + 1);
 }

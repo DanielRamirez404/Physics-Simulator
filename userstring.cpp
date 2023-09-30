@@ -15,6 +15,14 @@ void String::add(char charToAdd, size_t index) {
     string.insert(index, 1, charToAdd);
 }
 
+void String::prepend(char myChar) {
+  string.insert(0, 1, myChar);
+}
+
+void String::append(char myChar) {
+  string += myChar;
+}
+
 void String::erase(size_t index, size_t numberOfPositions) {
   string.erase(index, numberOfPositions);
 }

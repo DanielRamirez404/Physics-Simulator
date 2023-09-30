@@ -138,6 +138,11 @@ void Math::Formula::addParenthesesAroundOperator(size_t operatorIndex) {
   add(')', rightIterator);
 }
 
+void Math::Formula::addParentheses() {
+  prepend('(');
+  append(')');
+}
+
 void Math::Formula::addValueFor(char identifier, std::string_view value) {
   string.replace(string.find(identifier), 1, value);
 }

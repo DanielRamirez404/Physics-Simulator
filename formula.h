@@ -37,6 +37,7 @@ namespace Math {
     size_t getFirstParenthesisClosingIndex();   // returns 0 if there's no parenthesis
     int getMaxOperatorPriority();
     void writeParenthesesAtMaxPriority();
+    void addParentheses();
     void setFormula(std::string_view myFormula) { 
       string = myFormula;
       format(); 
