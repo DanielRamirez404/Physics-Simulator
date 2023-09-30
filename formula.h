@@ -20,6 +20,7 @@ namespace Math {
     void addParenthesesAroundOperator(size_t operatorIndex);
     bool isThereAnyBadlyPlacedOperator();
     bool areThereMinPriorityOperator();
+    size_t findAnyOperator();
   public:
     Formula() : String() {};
     Formula(std::string_view myFormula) : String(myFormula) { format(); };
@@ -48,5 +49,7 @@ namespace Math {
       format();
     };
     void addValueFor(char identifier, std::string_view value);
+    std::string getNextNumberString(size_t index);
+    std::string getPreviousNumberString(size_t index);
   };
 }

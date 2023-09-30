@@ -83,6 +83,13 @@ bool Math::Formula::isPartOfNumber(size_t index) {
   return isNumeric(string[index]) || isMinusSign(index) || Vector::doesElementExist(variables, string[index]);
 }
 
+size_t Math::Formula::findAnyOperator() {
+  for (size_t i{0}; i < string.size(); ++i) {
+    if (isTrueOperator(i)) return i;
+  }
+  return 0;
+}
+
 bool Math::Formula::isThereAnyBadlyPlacedOperator() {
   for (size_t i{0}; i < string.size(); ++i) {
     if (isTrueOperator(i) && !(comesAfterNumber(i) && comesBeforeNumber(i))) return true;
@@ -141,6 +148,22 @@ void Math::Formula::addParenthesesAroundOperator(size_t operatorIndex) {
 void Math::Formula::addParentheses() {
   prepend('(');
   append(')');
+}
+
+std::string Math::Formula::getNextNumberString(size_t index) {
+  const size_t firstDigit { index + 1 };
+  while (isPartOfNumber(index + 1)) ++index;
+  const size_t firstNonDigit { index + 1};
+  const size_t totalDigits { firstNonDigit - firstDigit };
+  return string.substr(firstDigit, totalDigits);
+}
+
+std::string Math::Formula::getPreviousNumberString(size_t index) {
+  const size_t firstNonDigit { index };
+  while (isPartOfNumber(index - 1)) --index;
+  const size_t firstDigit { index };
+  const size_t totalDigits { firstNonDigit - firstDigit };
+  return string.substr(firstDigit, totalDigits);
 }
 
 void Math::Formula::addValueFor(char identifier, std::string_view value) {
