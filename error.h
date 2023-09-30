@@ -1,6 +1,8 @@
 #pragma once
 #include <string_view>
 
+void abortIf(bool condition, std::string_view message);
+
 class Error {
 private:
   std::string_view message { "NO ERRORS FOUND YET" };

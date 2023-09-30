@@ -15,6 +15,7 @@ public:
   void erase(size_t index, size_t numberOfPositions);
   void eraseWhitespaces();
   bool contains(char myChar);
+  int count(char myChar);
   size_t find(char myChar);
   size_t size();
   std::string substr(size_t startingIndex, size_t subStringSize);

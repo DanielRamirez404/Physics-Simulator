@@ -2,6 +2,7 @@
 #include <cstddef>
 #include <string>
 #include <string_view>
+#include <algorithm>
 
 void String::add(std::string_view stringToAdd, size_t index) {
   (index >= string.size()) ? string.append(stringToAdd) : string.insert(index, stringToAdd);
@@ -28,6 +29,10 @@ void String::eraseWhitespaces() {
 
 bool String::contains(char myChar) {
   return string.find(myChar) != std::string::npos;
+}
+
+int String::count(char myChar) {
+  return std::count(string.begin(), string.end(), myChar);
 }
 
 size_t String::find(char myChar) {

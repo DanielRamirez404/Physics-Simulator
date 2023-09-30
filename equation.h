@@ -1,11 +1,9 @@
 #pragma once
 #include "operation.h"
 #include "formula.h"
-#include "usermath.h"
-#include "userstring.h"
 #include "math characters.h"
+#include "error.h"
 #include <cstddef>
-#include <cassert>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -22,35 +20,40 @@ namespace Math {
     return (side == Side::left) ? Side::right : Side::left;
   }
 
-  template <typename T> struct Variable {
-    char identifier{};
-    //Side side{};
-    T value{};
-  };
-
   template <typename T> class Equation {
   private:
     Formula leftSideFormula{};
     Formula rightSideFormula{};
-    std::vector<Variable<T>> variables{};
+    std::vector<char> variables{};
+    void assignBothSidesFormulas(std::string_view formula, const std::vector<char>& myVariableNames);
+    bool areVariablesValid();
     Side getIdentifierSide(char identifier);
     Formula& getFormulaFromSide(Side side);
     void rewriteFormulaToSolveFor(char identifier);
   public:
-    Equation(std::string_view formula, const std::vector<char>& myVariableNames) {
-      assert(std::count(formula.begin(), formula.end(), '=') == 1 && "THERE MUST BE ONE (AND ONLY ONE) EQUALS SIGN IN THE FORMULA");
-      const size_t equalsSignIndex { formula.find('=') };
-      leftSideFormula.setFormula(formula.substr(0, equalsSignIndex), myVariableNames);
-      rightSideFormula.setFormula(formula.substr(equalsSignIndex + 1, formula.size() - equalsSignIndex), myVariableNames);
-      leftSideFormula.assertIsValid();
-      rightSideFormula.assertIsValid();
-      std::for_each(myVariableNames.begin(), myVariableNames.end(), [&](char identifier) { variables.push_back( { identifier } ); });
-      //checkThatVariablesExist();
+    Equation(std::string_view formula, const std::vector<char>& myVariableNames) : variables(myVariableNames) {
+      abortIf(std::count(formula.begin(), formula.end(), '=') == 1, "THERE MUST BE ONE (AND ONLY ONE) EQUALS SIGN IN THE FORMULA");
+      assignBothSidesFormulas(formula, myVariableNames);
+      abortIf(areVariablesValid(), "THE VARIABLES IN THE FORMULA ARE NOT VALID. REMEMBER THEY MUST BE USED ONCE (AND ONLY ONCE)");
     };
     T solveFor(char identifier);
     void addValueFor(char identifier, T value);
   };
   Equation(std::string_view, std::vector<char>) -> Equation<double>;
+}
+
+template <typename T> void Math::Equation<T>::assignBothSidesFormulas(std::string_view formula, const std::vector<char>& myVariableNames) {
+  const size_t equalsSignIndex { formula.find('=') };
+  leftSideFormula.setFormula(formula.substr(0, equalsSignIndex), myVariableNames);
+  rightSideFormula.setFormula(formula.substr(equalsSignIndex + 1, formula.size() - equalsSignIndex), myVariableNames);
+  leftSideFormula.assertIsValid();
+  rightSideFormula.assertIsValid();
+}
+
+template <typename T> bool Math::Equation<T>::areVariablesValid() {
+  return std::all_of(variables.begin(), variables.end(), [&](char identifier) {
+    return (leftSideFormula.count(identifier) == 1) != (rightSideFormula.count(identifier) == 1);
+  });
 }
 
 template <typename T> Math::Side Math::Equation<T>::getIdentifierSide(char identifier) {
