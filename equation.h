@@ -84,24 +84,16 @@ template <typename T> void Math::Equation<T>::addValueFor(char identifier, T val
 }
 
 template <typename T> void Math::Equation<T>::moveOperandFromSideOf(char identifier) {
-  //needs rework
+  //it's getting reworked!
   const Side identifierSide { getIdentifierSide(identifier) };
   Formula& identifierFormula { getFormulaFromSide(identifierSide) };
   Formula& oppositeFormula { getFormulaFromSide(getOppositeSide(identifierSide)) };
   oppositeFormula.addParentheses();
-  //assuming there's no parenthesis and that the operator and operands are to the right of the identifier
-  //change the operator and pass it to the corrrect side with the number
+  //assuming there's no parenthesis on the identifier's side and that the operator is to its right
+  //for later usage: const Side operatorSide { (identifierFormula.isTrueOperator(identifierFormula.find(identifier) - 1)) ? Side::left : Side::right };
   char oppositeOperator { Operators::getOpposite(identifierFormula[getFormulaFromSide(identifierSide).find(identifier) + 1]) };
   identifierFormula.erase((identifierFormula.find(identifier) + 1), 1);
   oppositeFormula.add(oppositeOperator, oppositeFormula.size() + 1);
-  //addapted from getNumber() function in the operation class
-  size_t iterator{ identifierFormula.find(identifier) + 1 }; 
-  const size_t firstDigit { iterator };
-  while (isNumeric(identifierFormula[iterator + 1])) ++iterator;
-  const size_t firstNonDigit { iterator + 1};
-  const size_t totalDigits { firstNonDigit - firstDigit };
-  std::string numberString{ identifierFormula.substr(firstDigit, totalDigits) };
   //we got our number so we append and erase it
-  identifierFormula.erase(firstDigit, totalDigits);
-  oppositeFormula.add( numberString,  oppositeFormula.size() + 1);
+  oppositeFormula.add( identifierFormula.cutNextNumberString(identifierFormula.find(identifier)), oppositeFormula.size() + 1);
 }

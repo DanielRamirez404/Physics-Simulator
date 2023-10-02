@@ -51,5 +51,7 @@ namespace Math {
     void addValueFor(char identifier, std::string_view value);
     std::string getNextNumberString(size_t index);
     std::string getPreviousNumberString(size_t index);
+    std::string cutNextNumberString(size_t index);
+    std::string cutPreviousNumberString(size_t index);
   };
 }

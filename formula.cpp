@@ -166,6 +166,26 @@ std::string Math::Formula::getPreviousNumberString(size_t index) {
   return string.substr(firstDigit, totalDigits);
 }
 
+std::string Math::Formula::cutNextNumberString(size_t index) {
+  const size_t firstDigit { index + 1 };
+  while (isPartOfNumber(index + 1)) ++index;
+  const size_t firstNonDigit { index + 1};
+  const size_t totalDigits { firstNonDigit - firstDigit };
+  std::string numberString { string.substr(firstDigit, totalDigits) };
+  string.erase(firstDigit, totalDigits);
+  return numberString;
+}
+
+std::string Math::Formula::cutPreviousNumberString(size_t index) {
+  const size_t firstNonDigit { index };
+  while (isPartOfNumber(index - 1)) --index;
+  const size_t firstDigit { index };
+  const size_t totalDigits { firstNonDigit - firstDigit };
+  std::string numberString { string.substr(firstDigit, totalDigits) };
+  string.erase(firstDigit, totalDigits);
+  return numberString;
+}
+
 void Math::Formula::addValueFor(char identifier, std::string_view value) {
   string.replace(string.find(identifier), 1, value);
 }
