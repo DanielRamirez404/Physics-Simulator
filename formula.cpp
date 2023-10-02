@@ -119,7 +119,7 @@ int Math::Formula::getMaxOperatorPriority() {
 }
 
 bool Math::Formula::areThereMinPriorityOperator() {
-  for (size_t i; i < string.size(); ++i) {
+  for (size_t i{0}; i < string.size(); ++i) {
     if (Operators::isMinPriority(string[i]) && !isMinusSign(i)) return true;
   }
   return false;

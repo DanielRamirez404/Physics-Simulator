@@ -1,7 +1,7 @@
 #pragma once
 #include <string_view>
 
-void abortIf(bool condition, std::string_view message);
+void assertWithMessage(bool condition, std::string_view message);
 
 class Error {
 private:

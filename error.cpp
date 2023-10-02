@@ -2,7 +2,7 @@
 #include <string_view>
 #include <iostream>
 
-void abortIf(bool condition, std::string_view message) {
+void assertWithMessage(bool condition, std::string_view message) {
   if (!condition) {
     std::cerr << "Error found: " << message << '\n';
     std::abort();
@@ -15,5 +15,5 @@ void Error::add(std::string_view errorMessage) {
 }
 
 void Error::assert() {
-  abortIf(!hasBeenFound, message);
+  assertWithMessage(!hasBeenFound, message);
 }

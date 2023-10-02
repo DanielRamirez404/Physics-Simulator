@@ -30,12 +30,12 @@ namespace Math {
     bool areVariablesValid();
     Side getIdentifierSide(char identifier);
     Formula& getFormulaFromSide(Side side);
-    void rewriteFormulaToSolveFor(char identifier);
+    void moveOperandFromSideOf(char identifier);
   public:
     Equation(std::string_view formula, const std::vector<char>& myVariableNames) : variables(myVariableNames) {
-      abortIf(std::count(formula.begin(), formula.end(), '=') == 1, "THERE MUST BE ONE (AND ONLY ONE) EQUALS SIGN IN THE FORMULA");
+      assertWithMessage(std::count(formula.begin(), formula.end(), '=') == 1, "THERE MUST BE ONE (AND ONLY ONE) EQUALS SIGN IN THE FORMULA");
       assignBothSidesFormulas(formula, myVariableNames);
-      abortIf(areVariablesValid(), "THE VARIABLES IN THE FORMULA ARE NOT VALID. REMEMBER THEY MUST BE USED ONCE (AND ONLY ONCE)");
+      assertWithMessage(areVariablesValid(), "THE VARIABLES IN THE FORMULA ARE NOT VALID. REMEMBER THEY MUST BE USED ONCE (AND ONLY ONCE)");
     };
     T solveFor(char identifier);
     void addValueFor(char identifier, T value);
@@ -73,19 +73,17 @@ template <typename T> Math::Formula& Math::Equation<T>::getFormulaFromSide(Side 
 template <typename T> T Math::Equation<T>::solveFor(char identifier) {
   assert((variables.size() == 1) && "THERE CANNOT BE MORE THAN ONE UNKNOWN VARIABLE IN THE FORMULA");
   Side identifierSide { getIdentifierSide(identifier) };
-  if (getFormulaFromSide(identifierSide).size() > 1) {
-    rewriteFormulaToSolveFor(identifier);
-  }
+  while (getFormulaFromSide(identifierSide).size() > 1) moveOperandFromSideOf(identifier);
   Operation<T> result { getFormulaFromSide(getOppositeSide(identifierSide)).get() };
   return result.solve();
 }
 
 template <typename T> void Math::Equation<T>::addValueFor(char identifier, T value) {
   getFormulaFromSide(getIdentifierSide(identifier)).addValueFor(identifier, std::to_string(value));
-  //eliminateIdentifierFromVector();
+  variables.erase(std::find(variables.begin(), variables.end(), identifier));
 }
 
-template <typename T> void Math::Equation<T>::rewriteFormulaToSolveFor(char identifier) {
+template <typename T> void Math::Equation<T>::moveOperandFromSideOf(char identifier) {
   //needs rework
   const Side identifierSide { getIdentifierSide(identifier) };
   Formula& identifierFormula { getFormulaFromSide(identifierSide) };
