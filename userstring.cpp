@@ -55,6 +55,18 @@ std::string String::substr(size_t startingIndex, size_t subStringSize) {
   return string.substr(startingIndex, subStringSize);
 }
 
+std::string String::cut(size_t startingIndex, size_t cutStringSize) {
+  std::string cutString { string.substr(startingIndex, cutStringSize) };
+  string.erase(startingIndex, cutStringSize);
+  return cutString;
+}
+
+char String::cut(size_t index) {
+  char cutChar { string[index] };
+  string.erase(index, 1);
+  return cutChar;
+}
+
 std::string_view String::get() {
   return string;
 }

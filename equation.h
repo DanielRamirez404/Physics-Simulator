@@ -91,8 +91,7 @@ template <typename T> void Math::Equation<T>::moveOperandFromSideOf(char identif
   oppositeFormula.addParentheses();
   //assuming there's no parenthesis on the identifier's side and that the operator is to its right
   //for later usage: const Side operatorSide { (identifierFormula.isTrueOperator(identifierFormula.find(identifier) - 1)) ? Side::left : Side::right };
-  char oppositeOperator { Operators::getOpposite(identifierFormula[getFormulaFromSide(identifierSide).find(identifier) + 1]) };
-  identifierFormula.erase((identifierFormula.find(identifier) + 1), 1);
+  char oppositeOperator { Operators::getOpposite( identifierFormula.cut(identifierFormula.find(identifier) + 1) ) };
   oppositeFormula.add(oppositeOperator, oppositeFormula.size() + 1);
   //we got our number so we append and erase it
   oppositeFormula.add( identifierFormula.cutNextNumberString(identifierFormula.find(identifier)), oppositeFormula.size() + 1);
