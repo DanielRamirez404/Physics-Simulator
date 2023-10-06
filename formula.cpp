@@ -178,7 +178,7 @@ std::string Math::Formula::cutNextNumberString(size_t index) {
 
 std::string Math::Formula::cutPreviousNumberString(size_t index) {
   const size_t firstNonDigit { index };
-  while (isPartOfNumber(index - 1)) --index;
+  while (isPartOfNumber(index - 1) && index > 0) --index;
   const size_t firstDigit { index };
   const size_t totalDigits { firstNonDigit - firstDigit };
   std::string numberString { string.substr(firstDigit, totalDigits) };

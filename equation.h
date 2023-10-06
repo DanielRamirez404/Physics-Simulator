@@ -30,6 +30,7 @@ namespace Math {
     bool areVariablesValid();
     Side getIdentifierSide(char identifier);
     Formula& getFormulaFromSide(Side side);
+    size_t getOperatorIndexFromIdentifier(char identifier, Formula& identifierFormula, Side operatorSide);
     void moveOperandFromSideOf(char identifier);
   public:
     Equation(std::string_view formula, const std::vector<char>& myVariableNames) : variables(myVariableNames) {
@@ -83,16 +84,26 @@ template <typename T> void Math::Equation<T>::addValueFor(char identifier, T val
   variables.erase(std::find(variables.begin(), variables.end(), identifier));
 }
 
+template <typename T> size_t Math::Equation<T>::getOperatorIndexFromIdentifier(char identifier, Formula& identifierFormula, Side operatorSide) {
+  if (operatorSide == Side::right) return identifierFormula.find(identifier) + 1;
+  size_t index { identifierFormula.find(identifier) - 2 };
+  while (isNumeric(identifierFormula[index]) && index > 1) --index;
+  return (index == 1 && isOperator(identifierFormula[0])) ? 0 : 1;
+}
+
 template <typename T> void Math::Equation<T>::moveOperandFromSideOf(char identifier) {
   //it's getting reworked!
   const Side identifierSide { getIdentifierSide(identifier) };
   Formula& identifierFormula { getFormulaFromSide(identifierSide) };
   Formula& oppositeFormula { getFormulaFromSide(getOppositeSide(identifierSide)) };
   oppositeFormula.addParentheses();
-  //assuming there's no parenthesis on the identifier's side and that the operator is to its right
-  //for later usage: const Side operatorSide { (identifierFormula.isTrueOperator(identifierFormula.find(identifier) - 1)) ? Side::left : Side::right };
-  char oppositeOperator { Operators::getOpposite( identifierFormula.cut(identifierFormula.find(identifier) + 1) ) };
+  //assuming there's no parenthesis on the identifier's side and that all operators are of the same priority
+  const Side operatorSide { (identifierFormula.isTrueOperator(identifierFormula.find(identifier) - 1)) ? Side::left : Side::right };
+  const size_t operatorIndex { getOperatorIndexFromIdentifier(identifier, identifierFormula, operatorSide) };
+  const char oppositeOperator { Operators::getOpposite(identifierFormula.cut(operatorIndex)) };
   oppositeFormula.add(oppositeOperator, oppositeFormula.size() + 1);
-  //we got our number so we append and erase it
-  oppositeFormula.add( identifierFormula.cutNextNumberString(identifierFormula.find(identifier)), oppositeFormula.size() + 1);
+  const size_t identifierIndex{ identifierFormula.find(identifier) };
+  const std::string numberString { (operatorSide == Side::left) ? identifierFormula.cutPreviousNumberString(identifierIndex - 1) : identifierFormula.cutNextNumberString(identifierIndex)};
+  oppositeFormula.add(numberString, oppositeFormula.size() + 1);
+  if (identifierFormula[identifierFormula.find(identifier) - 1] == '+') identifierFormula.erase(identifierFormula.find(identifier) - 1, 1);
 }
