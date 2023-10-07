@@ -20,6 +20,8 @@ void Math::Formula::simplifyConsecutiveMinusSigns() {
     while (isConsecutiveMinusSign(i)) {
       string.erase(i - 1, 2);
       i = (i == 1) ? 0 : i - 2;
+      if (isPartOfNumber(i) && isPartOfNumber(i + 1))
+        add('+', i);
     } 
   }
 }
