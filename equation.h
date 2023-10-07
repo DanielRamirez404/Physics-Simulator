@@ -29,16 +29,13 @@ namespace Math {
     std::vector<char> variables{};
     void assignBothSidesFormulas(std::string_view formula, const std::vector<char>& myVariableNames);
     void identifyBothFormulasFor(char identifier);
-    bool isIdentifierValid(char identifier);
     bool areVariablesValid();
-    Side getIdentifierSide(char identifier);
-    Formula& getFormulaFromSide(Side side);
-    char cutOperatorFromIdentifier(char identifier, Side operatorSide);
+    char getOperatorFromIdentifier(char identifier, Side operatorSide);
     std::string cutNumberStringFromIdentifier(char identifier, Side Side);
     void moveSingleOperation(char identifier);
-    void moveMinPriorityOperation(char identifier, char myOperator, Side operationSide, std::string_view numberString);
-    //void moveMidPriorityOperation(char identifier, char myOperator, Side operationSide, std::string_view numberString);
-    //void moveMaxPriorityOperation(char identifier, char myOperator, Side operationSide, std::string_view numberString);
+    //void moveMinPriorityOperation(char identifier, char myOperator, Side operationSide);
+    //void moveMidPriorityOperation(char identifier, char myOperator, Side operationSide);
+    //void moveMaxPriorityOperation(char identifier, char myOperator, Side operationSide);
   public:
     Equation(const Equation&) = delete;
     Equation& operator=(const Equation&) = delete; 
@@ -62,28 +59,16 @@ template <typename T> void Math::Equation<T>::assignBothSidesFormulas(std::strin
 }
 
 template <typename T> void Math::Equation<T>::identifyBothFormulasFor(char identifier) {
-  const Side identifierSide { getIdentifierSide(identifier) };
-  variableFormula = &getFormulaFromSide(identifierSide);
-  nonVariableFormula = &getFormulaFromSide(getOppositeSide(identifierSide));
-}
-
-template <typename T> bool Math::Equation<T>::isIdentifierValid(char identifier) {
-  return (variableFormula->count(identifier) == 1) && !nonVariableFormula->contains(identifier);
+  const Side identifierSide { (leftSideFormula.contains(identifier)) ? Side::left : Side::right };
+  variableFormula = (identifierSide == Side::left) ? &leftSideFormula : &rightSideFormula;
+  nonVariableFormula = (identifierSide == Side::right) ? &leftSideFormula : &rightSideFormula;
 }
 
 template <typename T> bool Math::Equation<T>::areVariablesValid() {
   return std::all_of(variables.begin(), variables.end(), [&](char identifier) { 
     identifyBothFormulasFor(identifier);
-    return isIdentifierValid(identifier); 
+    return (variableFormula->count(identifier) == 1) && !nonVariableFormula->contains(identifier);
   } );
-}
-
-template <typename T> Math::Side Math::Equation<T>::getIdentifierSide(char identifier) {
-  return (leftSideFormula.contains(identifier)) ? Side::left : Side::right;
-}
-
-template <typename T> Math::Formula& Math::Equation<T>::getFormulaFromSide(Side side) {
-  return (side == Side::left) ? leftSideFormula : rightSideFormula;
 }
 
 template <typename T> T Math::Equation<T>::solveFor(char identifier) {
@@ -95,7 +80,8 @@ template <typename T> T Math::Equation<T>::solveFor(char identifier) {
 }
 
 template <typename T> void Math::Equation<T>::addValueFor(char identifier, T value) {
-  getFormulaFromSide(getIdentifierSide(identifier)).addValueFor(identifier, std::to_string(value));
+  identifyBothFormulasFor(identifier);
+  variableFormula->addValueFor(identifier, std::to_string(value));
   variables.erase(std::find(variables.begin(), variables.end(), identifier));
 }
 
@@ -105,7 +91,7 @@ template <typename T> void Math::Equation<T>::moveSingleOperation(char identifie
   //assuming there's no parenthesis on the identifier's side
   nonVariableFormula->addParentheses();
   const Side operatorSide { (variableFormula->isTrueOperator(variableFormula->find(identifier) - 1)) ? Side::left : Side::right };
-  const char myOperator { cutOperatorFromIdentifier(identifier, operatorSide) };
+  const char myOperator { getOperatorFromIdentifier(identifier, operatorSide) };
   const std::string numberString { cutNumberStringFromIdentifier(identifier, operatorSide) };
   #if 0
   switch (Operators::getPriority(myOperator)) {
@@ -127,9 +113,9 @@ template <typename T> void Math::Equation<T>::moveSingleOperation(char identifie
   }
 }
 
-template <typename T> char Math::Equation<T>::cutOperatorFromIdentifier(char identifier, Side operatorSide) {
+template <typename T> char Math::Equation<T>::getOperatorFromIdentifier(char identifier, Side operatorSide) {
   size_t index { (operatorSide == Side::right) ? variableFormula->find(identifier) + 1 : variableFormula->find(identifier) - 1};
-  return variableFormula->cut(index);
+  return (*variableFormula)[index];
 }
 
 template <typename T> std::string Math::Equation<T>::cutNumberStringFromIdentifier(char identifier, Side Side) {
