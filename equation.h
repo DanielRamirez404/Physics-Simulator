@@ -24,16 +24,24 @@ namespace Math {
   private:
     Formula leftSideFormula{};
     Formula rightSideFormula{};
+    Formula* variableFormula{};
+    Formula* nonVariableFormula{};
     std::vector<char> variables{};
     void assignBothSidesFormulas(std::string_view formula, const std::vector<char>& myVariableNames);
+    void identifyBothFormulasFor(char identifier);
     bool isIdentifierValid(char identifier);
     bool areVariablesValid();
     Side getIdentifierSide(char identifier);
     Formula& getFormulaFromSide(Side side);
-    char cutOperatorFromIdentifier(char identifier, Formula& identifierFormula, Side operatorSide);
-    std::string cutNumberStringFromIdentifier(char identifier, Formula& identifierFormula, Side Side);
-    void moveSingleOperationToOppositeFormula(char identifier, Formula& identifierFormula, Formula& oppositeFormula);
+    char cutOperatorFromIdentifier(char identifier, Side operatorSide);
+    std::string cutNumberStringFromIdentifier(char identifier, Side Side);
+    void moveSingleOperation(char identifier);
+    void moveMinPriorityOperation(char identifier, char myOperator, Side operationSide, std::string_view numberString);
+    //void moveMidPriorityOperation(char identifier, char myOperator, Side operationSide, std::string_view numberString);
+    //void moveMaxPriorityOperation(char identifier, char myOperator, Side operationSide, std::string_view numberString);
   public:
+    Equation(const Equation&) = delete;
+    Equation& operator=(const Equation&) = delete; 
     Equation(std::string_view formula, const std::vector<char>& myVariableNames) : variables(myVariableNames) {
       assertWithMessage(std::count(formula.begin(), formula.end(), '=') == 1, "THERE MUST BE ONE (AND ONLY ONE) EQUALS SIGN IN THE FORMULA");
       assignBothSidesFormulas(formula, myVariableNames);
@@ -53,15 +61,21 @@ template <typename T> void Math::Equation<T>::assignBothSidesFormulas(std::strin
   rightSideFormula.assertIsValid();
 }
 
-template <typename T> bool Math::Equation<T>::isIdentifierValid(char identifier) {
+template <typename T> void Math::Equation<T>::identifyBothFormulasFor(char identifier) {
   const Side identifierSide { getIdentifierSide(identifier) };
-  Formula& identifierFormula { getFormulaFromSide(identifierSide) };
-  Formula& oppositeFormula { getFormulaFromSide(getOppositeSide(identifierSide)) };
-  return (identifierFormula.count(identifier) == 1) && !oppositeFormula.contains(identifier);
+  variableFormula = &getFormulaFromSide(identifierSide);
+  nonVariableFormula = &getFormulaFromSide(getOppositeSide(identifierSide));
+}
+
+template <typename T> bool Math::Equation<T>::isIdentifierValid(char identifier) {
+  return (variableFormula->count(identifier) == 1) && !nonVariableFormula->contains(identifier);
 }
 
 template <typename T> bool Math::Equation<T>::areVariablesValid() {
-  return std::all_of(variables.begin(), variables.end(), [&](char identifier) { return isIdentifierValid(identifier); } );
+  return std::all_of(variables.begin(), variables.end(), [&](char identifier) { 
+    identifyBothFormulasFor(identifier);
+    return isIdentifierValid(identifier); 
+  } );
 }
 
 template <typename T> Math::Side Math::Equation<T>::getIdentifierSide(char identifier) {
@@ -74,11 +88,9 @@ template <typename T> Math::Formula& Math::Equation<T>::getFormulaFromSide(Side 
 
 template <typename T> T Math::Equation<T>::solveFor(char identifier) {
   assert((variables.size() == 1) && "THERE CANNOT BE MORE THAN ONE UNKNOWN VARIABLE IN THE FORMULA");
-  Side identifierSide { getIdentifierSide(identifier) };
-  Formula& identifierFormula { getFormulaFromSide(identifierSide) };
-  Formula& oppositeFormula { getFormulaFromSide(getOppositeSide(identifierSide)) };
-  while (identifierFormula.size() > 1) moveSingleOperationToOppositeFormula(identifier, identifierFormula, oppositeFormula);
-  Operation<T> result { getFormulaFromSide(getOppositeSide(identifierSide)).get() };
+  identifyBothFormulasFor(identifier);
+  while (variableFormula->size() > 1) moveSingleOperation(identifier);
+  Operation<T> result { nonVariableFormula->get() };
   return result.solve();
 }
 
@@ -87,18 +99,18 @@ template <typename T> void Math::Equation<T>::addValueFor(char identifier, T val
   variables.erase(std::find(variables.begin(), variables.end(), identifier));
 }
 
-template <typename T> void Math::Equation<T>::moveSingleOperationToOppositeFormula(char identifier, Formula& identifierFormula, Formula& oppositeFormula) {
+template <typename T> void Math::Equation<T>::moveSingleOperation(char identifier) {
   //it's getting reworked!
   //it won't work as expected yet
   //assuming there's no parenthesis on the identifier's side
-  oppositeFormula.addParentheses();
-  const Side operatorSide { (identifierFormula.isTrueOperator(identifierFormula.find(identifier) - 1)) ? Side::left : Side::right };
-  const char myOperator { cutOperatorFromIdentifier(identifier, identifierFormula, operatorSide) };
-  const std::string numberString { cutNumberStringFromIdentifier(identifier, identifierFormula, operatorSide) };
-  #if 0 //for later usage
+  nonVariableFormula->addParentheses();
+  const Side operatorSide { (variableFormula->isTrueOperator(variableFormula->find(identifier) - 1)) ? Side::left : Side::right };
+  const char myOperator { cutOperatorFromIdentifier(identifier, operatorSide) };
+  const std::string numberString { cutNumberStringFromIdentifier(identifier, operatorSide) };
+  #if 0
   switch (Operators::getPriority(myOperator)) {
     case Operators::Constants::minOperatorPriority:
-      moveMinPriorityOperation();
+      moveMinPriorityOperation(identifier, variableFormula, nonVariableFormula, myOperator, operatorSide, numberString));
       break;
     case Operators::Constants::midOperatorPriority:
       moveMidPriorityOperation();
@@ -108,19 +120,23 @@ template <typename T> void Math::Equation<T>::moveSingleOperationToOppositeFormu
       break;
   }
   #endif
-  oppositeFormula.add(Operators::getOpposite(myOperator), oppositeFormula.size() + 1);
-  oppositeFormula.add(numberString, oppositeFormula.size() + 1);
-  if (identifierFormula[identifierFormula.find(identifier) - 1] == '+' && identifierFormula.find(identifier) - 1 == 0) {
-    identifierFormula.erase(identifierFormula.find(identifier) - 1, 1);
+  nonVariableFormula->add(Operators::getOpposite(myOperator), nonVariableFormula->size() + 1);
+  nonVariableFormula->add(numberString, nonVariableFormula->size() + 1);
+  if ((*variableFormula)[variableFormula->find(identifier) - 1] == '+' && variableFormula->find(identifier) - 1 == 0) {
+    variableFormula->erase(variableFormula->find(identifier) - 1, 1);
   }
 }
 
-template <typename T> char Math::Equation<T>::cutOperatorFromIdentifier(char identifier, Formula& identifierFormula, Side operatorSide) {
-  size_t index { (operatorSide == Side::right) ? identifierFormula.find(identifier) + 1 : identifierFormula.find(identifier) - 1};
-  return identifierFormula.cut(index);
+template <typename T> char Math::Equation<T>::cutOperatorFromIdentifier(char identifier, Side operatorSide) {
+  size_t index { (operatorSide == Side::right) ? variableFormula->find(identifier) + 1 : variableFormula->find(identifier) - 1};
+  return variableFormula->cut(index);
 }
 
-template <typename T> std::string Math::Equation<T>::cutNumberStringFromIdentifier(char identifier, Formula& identifierFormula, Side Side) {
-  const size_t identifierIndex{ identifierFormula.find(identifier) };
-  return (Side == Side::left) ? identifierFormula.cutPreviousNumberString(identifierIndex - 1) : identifierFormula.cutNextNumberString(identifierIndex + 1);
+template <typename T> std::string Math::Equation<T>::cutNumberStringFromIdentifier(char identifier, Side Side) {
+  const size_t identifierIndex{ variableFormula->find(identifier) };
+  return (Side == Side::left) ? variableFormula->cutPreviousNumberString(identifierIndex - 1) : variableFormula->cutNextNumberString(identifierIndex + 1);
 }
+
+//template <typename T> void Math::Equation<T>::moveMinPriorityOperation(char identifier, char myOperator, Side operationSide, std::string_view numberString) {
+//
+//}
