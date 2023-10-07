@@ -30,8 +30,9 @@ namespace Math {
     bool areVariablesValid();
     Side getIdentifierSide(char identifier);
     Formula& getFormulaFromSide(Side side);
-    size_t getOperatorIndexFromIdentifier(char identifier, Formula& identifierFormula, Side operatorSide);
-    void moveOperandFromSideOf(char identifier);
+    char cutOperatorFromIdentifier(char identifier, Formula& identifierFormula, Side operatorSide);
+    std::string cutNumberStringFromIdentifier(char identifier, Formula& identifierFormula, Side Side);
+    void moveSingleOperationToOppositeFormula(char identifier, Formula& identifierFormula, Formula& oppositeFormula);
   public:
     Equation(std::string_view formula, const std::vector<char>& myVariableNames) : variables(myVariableNames) {
       assertWithMessage(std::count(formula.begin(), formula.end(), '=') == 1, "THERE MUST BE ONE (AND ONLY ONE) EQUALS SIGN IN THE FORMULA");
@@ -74,7 +75,9 @@ template <typename T> Math::Formula& Math::Equation<T>::getFormulaFromSide(Side 
 template <typename T> T Math::Equation<T>::solveFor(char identifier) {
   assert((variables.size() == 1) && "THERE CANNOT BE MORE THAN ONE UNKNOWN VARIABLE IN THE FORMULA");
   Side identifierSide { getIdentifierSide(identifier) };
-  while (getFormulaFromSide(identifierSide).size() > 1) moveOperandFromSideOf(identifier);
+  Formula& identifierFormula { getFormulaFromSide(identifierSide) };
+  Formula& oppositeFormula { getFormulaFromSide(getOppositeSide(identifierSide)) };
+  while (identifierFormula.size() > 1) moveSingleOperationToOppositeFormula(identifier, identifierFormula, oppositeFormula);
   Operation<T> result { getFormulaFromSide(getOppositeSide(identifierSide)).get() };
   return result.solve();
 }
@@ -84,26 +87,40 @@ template <typename T> void Math::Equation<T>::addValueFor(char identifier, T val
   variables.erase(std::find(variables.begin(), variables.end(), identifier));
 }
 
-template <typename T> size_t Math::Equation<T>::getOperatorIndexFromIdentifier(char identifier, Formula& identifierFormula, Side operatorSide) {
-  if (operatorSide == Side::right) return identifierFormula.find(identifier) + 1;
-  size_t index { identifierFormula.find(identifier) - 2 };
-  while (isNumeric(identifierFormula[index]) && index > 1) --index;
-  return (index == 1 && isOperator(identifierFormula[0])) ? 0 : 1;
+template <typename T> void Math::Equation<T>::moveSingleOperationToOppositeFormula(char identifier, Formula& identifierFormula, Formula& oppositeFormula) {
+  //it's getting reworked!
+  //it won't work as expected yet
+  //assuming there's no parenthesis on the identifier's side
+  oppositeFormula.addParentheses();
+  const Side operatorSide { (identifierFormula.isTrueOperator(identifierFormula.find(identifier) - 1)) ? Side::left : Side::right };
+  const char myOperator { cutOperatorFromIdentifier(identifier, identifierFormula, operatorSide) };
+  const std::string numberString { cutNumberStringFromIdentifier(identifier, identifierFormula, operatorSide) };
+  #if 0 //for later usage
+  switch (Operators::getPriority(myOperator)) {
+    case Operators::Constants::minOperatorPriority:
+      moveMinPriorityOperation();
+      break;
+    case Operators::Constants::midOperatorPriority:
+      moveMidPriorityOperation();
+      break;
+    case Operators::Constants::maxOperatorPriority:
+      moveMaxPriorityOperation();
+      break;
+  }
+  #endif
+  oppositeFormula.add(Operators::getOpposite(myOperator), oppositeFormula.size() + 1);
+  oppositeFormula.add(numberString, oppositeFormula.size() + 1);
+  if (identifierFormula[identifierFormula.find(identifier) - 1] == '+' && identifierFormula.find(identifier) - 1 == 0) {
+    identifierFormula.erase(identifierFormula.find(identifier) - 1, 1);
+  }
 }
 
-template <typename T> void Math::Equation<T>::moveOperandFromSideOf(char identifier) {
-  //it's getting reworked!
-  const Side identifierSide { getIdentifierSide(identifier) };
-  Formula& identifierFormula { getFormulaFromSide(identifierSide) };
-  Formula& oppositeFormula { getFormulaFromSide(getOppositeSide(identifierSide)) };
-  oppositeFormula.addParentheses();
-  //assuming there's no parenthesis on the identifier's side and that all operators are of the same priority
-  const Side operatorSide { (identifierFormula.isTrueOperator(identifierFormula.find(identifier) - 1)) ? Side::left : Side::right };
-  const size_t operatorIndex { getOperatorIndexFromIdentifier(identifier, identifierFormula, operatorSide) };
-  const char oppositeOperator { Operators::getOpposite(identifierFormula.cut(operatorIndex)) };
-  oppositeFormula.add(oppositeOperator, oppositeFormula.size() + 1);
+template <typename T> char Math::Equation<T>::cutOperatorFromIdentifier(char identifier, Formula& identifierFormula, Side operatorSide) {
+  size_t index { (operatorSide == Side::right) ? identifierFormula.find(identifier) + 1 : identifierFormula.find(identifier) - 1};
+  return identifierFormula.cut(index);
+}
+
+template <typename T> std::string Math::Equation<T>::cutNumberStringFromIdentifier(char identifier, Formula& identifierFormula, Side Side) {
   const size_t identifierIndex{ identifierFormula.find(identifier) };
-  const std::string numberString { (operatorSide == Side::left) ? identifierFormula.cutPreviousNumberString(identifierIndex - 1) : identifierFormula.cutNextNumberString(identifierIndex)};
-  oppositeFormula.add(numberString, oppositeFormula.size() + 1);
-  if (identifierFormula[identifierFormula.find(identifier) - 1] == '+') identifierFormula.erase(identifierFormula.find(identifier) - 1, 1);
+  return (Side == Side::left) ? identifierFormula.cutPreviousNumberString(identifierIndex - 1) : identifierFormula.cutNextNumberString(identifierIndex + 1);
 }
