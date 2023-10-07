@@ -4,8 +4,8 @@
 #include <string_view>
 #include <algorithm>
 
-void String::add(std::string_view stringToAdd, size_t index) {
-  (index >= string.size()) ? string.append(stringToAdd) : string.insert(index, stringToAdd);
+void String::add(std::string_view myString, size_t index) {
+  (index >= string.size()) ? string.append(myString) : string.insert(index, myString);
 }
 
 void String::add(char charToAdd, size_t index) {
@@ -17,6 +17,10 @@ void String::add(char charToAdd, size_t index) {
 
 void String::prepend(char myChar) {
   string.insert(0, 1, myChar);
+}
+
+void String::append(std::string_view myString) {
+  string.append(myString);
 }
 
 void String::append(char myChar) {
