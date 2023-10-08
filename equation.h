@@ -99,11 +99,9 @@ template <typename T> void Math::Equation<T>::moveSingleOperation(char identifie
     case Operators::Constants::midOperatorPriority:
       moveMidPriorityOperation(identifier, myOperator, operatorSide);
       break;
-#if 0
     case Operators::Constants::maxOperatorPriority:
       moveMaxPriorityOperation(identifier, myOperator, operatorSide);
       break;
-#endif
   }
 }
 
@@ -155,6 +153,10 @@ template <typename T> void Math::Equation<T>::moveMidPriorityOperation(char iden
 }
 
 template <typename T> void Math::Equation<T>::moveMaxPriorityOperation(char identifier, char myOperator, Side operationSide) {
-
+  assertWithMessage(operationSide != Side::left, "CAN'T SOLVE EQUATION FOR AN INDEX");
+  const std::string numberString { cutNumberStringFromIdentifier(identifier, operationSide) };
+  nonVariableFormula->append(Operators::getOpposite(myOperator));
+  nonVariableFormula->append(numberString);
+  variableFormula->erase(variableFormula->find(identifier) + 1, 1);
 }
 
