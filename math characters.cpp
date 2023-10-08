@@ -69,6 +69,8 @@ char Math::Operators::getOpposite(char myOperator) {
       return '+';
     case '*':
       return '/';
+    case '/':
+      return '*';
     case '^':
       return 'v';
     case 'v':

@@ -33,9 +33,10 @@ namespace Math {
     char getOperatorFromIdentifier(char identifier, Side operatorSide);
     std::string cutNumberStringFromIdentifier(char identifier, Side Side);
     void moveSingleOperation(char identifier);
-    void moveMinPriorityOperation(char identifier, char myOperator, Side operationSide);
-    void moveMidPriorityOperation(char identifier, char myOperator, Side operationSide);
-    void moveMaxPriorityOperation(char identifier, char myOperator, Side operationSide);
+    void moveMinPriorityOperation(char identifier, char myOperator, Side operationSide, std::string_view numberString);
+    void moveMidPriorityOperation(char identifier, char myOperator, Side operationSide, std::string_view numberString);
+    void moveMaxPriorityOperation(char identifier, char myOperator, Side operationSide, std::string_view numberString);
+    void eraseAdjecentOperatorToIdentifier(char identifier, Side operationSide);
   public:
     Equation(const Equation&) = delete;
     Equation& operator=(const Equation&) = delete; 
@@ -86,21 +87,20 @@ template <typename T> void Math::Equation<T>::addValueFor(char identifier, T val
 }
 
 template <typename T> void Math::Equation<T>::moveSingleOperation(char identifier) {
-  //it's getting reworked!
-  //it won't work as expected yet
   //assuming there's no parenthesis on the identifier's side
   nonVariableFormula->addParentheses();
   const Side operatorSide { (variableFormula->isTrueOperator(variableFormula->find(identifier) - 1)) ? Side::left : Side::right };
   const char myOperator { getOperatorFromIdentifier(identifier, operatorSide) };
+  const std::string numberString { cutNumberStringFromIdentifier(identifier, operatorSide) };
   switch (Operators::getPriority(myOperator)) {
     case Operators::Constants::minOperatorPriority:
-      moveMinPriorityOperation(identifier, myOperator, operatorSide);
+      moveMinPriorityOperation(identifier, myOperator, operatorSide, numberString);
       break;
     case Operators::Constants::midOperatorPriority:
-      moveMidPriorityOperation(identifier, myOperator, operatorSide);
+      moveMidPriorityOperation(identifier, myOperator, operatorSide, numberString);
       break;
     case Operators::Constants::maxOperatorPriority:
-      moveMaxPriorityOperation(identifier, myOperator, operatorSide);
+      moveMaxPriorityOperation(identifier, myOperator, operatorSide, numberString);
       break;
   }
 }
@@ -115,48 +115,41 @@ template <typename T> std::string Math::Equation<T>::cutNumberStringFromIdentifi
   return (Side == Side::left) ? variableFormula->cutPreviousNumberString(identifierIndex - 1) : variableFormula->cutNextNumberString(identifierIndex + 1);
 }
 
-template <typename T> void Math::Equation<T>::moveMinPriorityOperation(char identifier, char myOperator, Side operationSide) {
-  const std::string numberString { cutNumberStringFromIdentifier(identifier, operationSide) };
-  if (operationSide == Side::right) {
-    nonVariableFormula->append(Operators::getOpposite(myOperator));
-    variableFormula->erase(variableFormula->find(identifier) + 1, 1);
+template <typename T> void Math::Equation<T>::moveMinPriorityOperation(char identifier, char myOperator, Side operationSide, std::string_view numberString) {
+  if (operationSide == Side::left && variableFormula->find(identifier) == 1) {   //if there are no more left-sided operations
+    nonVariableFormula->append('-');                                              //this will always change the numberString signedness
+    if (variableFormula->at(0) == '+') variableFormula->erase(0, 1);
   } else {
-    if (variableFormula->find(identifier) == 1) { //if there's no more left-sided operations
-      nonVariableFormula->append('-'); //this will always change the numberString signedness
-      if ((*variableFormula)[0] == '+') {
-        variableFormula->erase(variableFormula->find(identifier) - 1, 1);
-      }
-    } else {
+    if (operationSide == Side::left) {
       myOperator = variableFormula->cut(variableFormula->find(identifier) - 2);
-      nonVariableFormula->append(Operators::getOpposite(myOperator));
+    } else {
+      eraseAdjecentOperatorToIdentifier(identifier, operationSide);
     }
+    nonVariableFormula->append(Operators::getOpposite(myOperator));
   }
   nonVariableFormula->append(numberString);
 }
 
-template <typename T> void Math::Equation<T>::moveMidPriorityOperation(char identifier, char myOperator, Side operationSide) {
-  const std::string numberString { cutNumberStringFromIdentifier(identifier, operationSide) };
-  if (myOperator == '*') {
-    nonVariableFormula->append('/');
-    nonVariableFormula->append(numberString);
+template <typename T> void Math::Equation<T>::moveMidPriorityOperation(char identifier, char myOperator, Side operationSide, std::string_view numberString) {
+  if (operationSide == Side::left && myOperator == '/') {
+    nonVariableFormula->prepend('/');
+    nonVariableFormula->prepend(numberString);
   } else {
-    if (operationSide == Side::right) {
-      nonVariableFormula->append('*');
-      nonVariableFormula->append(numberString);
-    } else {
-      nonVariableFormula->prepend('/');
-      nonVariableFormula->prepend(numberString);
-    }
+    nonVariableFormula->append(Operators::getOpposite(myOperator));
+    nonVariableFormula->append(numberString);
   }
-  const size_t identifierIndex { variableFormula->find(identifier) };
-  (operationSide == Side::right) ? variableFormula->erase(identifierIndex + 1, 1) : variableFormula->erase(identifierIndex - 1, 1);
+  eraseAdjecentOperatorToIdentifier(identifier, operationSide);
 }
 
-template <typename T> void Math::Equation<T>::moveMaxPriorityOperation(char identifier, char myOperator, Side operationSide) {
+template <typename T> void Math::Equation<T>::moveMaxPriorityOperation(char identifier, char myOperator, Side operationSide, std::string_view numberString) {
   assertWithMessage(operationSide != Side::left, "CAN'T SOLVE EQUATION FOR AN INDEX");
-  const std::string numberString { cutNumberStringFromIdentifier(identifier, operationSide) };
   nonVariableFormula->append(Operators::getOpposite(myOperator));
   nonVariableFormula->append(numberString);
-  variableFormula->erase(variableFormula->find(identifier) + 1, 1);
+  eraseAdjecentOperatorToIdentifier(identifier, operationSide);
+}
+
+template <typename T> void Math::Equation<T>::eraseAdjecentOperatorToIdentifier(char identifier, Side operationSide) {
+  const size_t identifierIndex { variableFormula->find(identifier) };
+  (operationSide == Side::right) ? variableFormula->erase(identifierIndex + 1, 1) : variableFormula->erase(identifierIndex - 1, 1);
 }
 
