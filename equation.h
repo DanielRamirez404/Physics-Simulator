@@ -96,10 +96,10 @@ template <typename T> void Math::Equation<T>::moveSingleOperation(char identifie
     case Operators::Constants::minOperatorPriority:
       moveMinPriorityOperation(identifier, myOperator, operatorSide);
       break;
-#if 0
     case Operators::Constants::midOperatorPriority:
       moveMidPriorityOperation(identifier, myOperator, operatorSide);
       break;
+#if 0
     case Operators::Constants::maxOperatorPriority:
       moveMaxPriorityOperation(identifier, myOperator, operatorSide);
       break;
@@ -137,7 +137,21 @@ template <typename T> void Math::Equation<T>::moveMinPriorityOperation(char iden
 }
 
 template <typename T> void Math::Equation<T>::moveMidPriorityOperation(char identifier, char myOperator, Side operationSide) {
-
+  const std::string numberString { cutNumberStringFromIdentifier(identifier, operationSide) };
+  if (myOperator == '*') {
+    nonVariableFormula->append('/');
+    nonVariableFormula->append(numberString);
+  } else {
+    if (operationSide == Side::right) {
+      nonVariableFormula->append('*');
+      nonVariableFormula->append(numberString);
+    } else {
+      nonVariableFormula->prepend('/');
+      nonVariableFormula->prepend(numberString);
+    }
+  }
+  const size_t identifierIndex { variableFormula->find(identifier) };
+  (operationSide == Side::right) ? variableFormula->erase(identifierIndex + 1, 1) : variableFormula->erase(identifierIndex - 1, 1);
 }
 
 template <typename T> void Math::Equation<T>::moveMaxPriorityOperation(char identifier, char myOperator, Side operationSide) {

@@ -15,6 +15,10 @@ void String::add(char charToAdd, size_t index) {
     string.insert(index, 1, charToAdd);
 }
 
+void String::prepend(std::string_view myString) {
+  string.insert(0, myString);
+}
+
 void String::prepend(char myChar) {
   string.insert(0, 1, myChar);
 }
