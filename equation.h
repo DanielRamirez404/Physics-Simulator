@@ -75,9 +75,12 @@ template <typename T> bool Math::Equation<T>::areVariablesValid() {
 template <typename T> T Math::Equation<T>::solveFor(char identifier) {
   assert((variables.size() == 1) && "THERE CANNOT BE MORE THAN ONE UNKNOWN VARIABLE IN THE FORMULA");
   identifyBothFormulasFor(identifier);
-  while (variableFormula->size() > 1) moveSingleOperation(identifier);
-  Operation<T> result { nonVariableFormula->get() };
-  return result.solve();
+  T result{};
+  while (variableFormula->size() > 2) moveSingleOperation(identifier);
+  Operation<T> myOperation{ nonVariableFormula->get() };
+  if (variableFormula->size() == 1) result = myOperation.solve();
+  if (variableFormula->size() == 2 && variableFormula->at(0) == '-') result = -myOperation.solve();
+  return result;
 }
 
 template <typename T> void Math::Equation<T>::addValueFor(char identifier, T value) {
