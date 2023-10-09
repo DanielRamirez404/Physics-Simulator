@@ -162,7 +162,7 @@ std::string Math::Formula::getNextNumberString(size_t index) {
 
 std::string Math::Formula::getPreviousNumberString(size_t index) {
   const size_t firstNonDigit { index };
-  while (isPartOfNumber(index - 1)) --index;
+  while (isPartOfNumber(index - 1) && index > 0) --index;
   const size_t firstDigit { index };
   const size_t totalDigits { firstNonDigit - firstDigit };
   return string.substr(firstDigit, totalDigits);
