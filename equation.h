@@ -126,38 +126,35 @@ template <typename T> std::string Math::Equation<T>::getNumberStringFromIdentifi
 
 template <typename T> std::string Math::Equation<T>::cutParenthesesNumberFromIdentifier(char identifier, Side operatorSide) {
   const size_t identifierIndex{ variableFormula->find(identifier) };
-  std::string numberString{};
-  int parenthesisDeepness{};
+  size_t firstIndex{ (operatorSide == Side::right) ? identifierIndex + 2 : 0 };
+  size_t lastIndex{ (operatorSide == Side::left) ? identifierIndex - 2 : 0 };
+  size_t& openingIndex { (operatorSide == Side::right) ? firstIndex : lastIndex };
+  size_t& closingIndex{ (operatorSide == Side::left) ? firstIndex : lastIndex };
+  const char closingChar { (operatorSide == Side::right) ? ')' : '('};
+  int parenthesisDeepness{0};
   if (operatorSide == Side::left) {
-    size_t lastIndex {identifierIndex - 2};
-    size_t firstIndex{0};
-    for (size_t i{lastIndex}; i > 0; --i) {
+    for (size_t i{openingIndex}; i > 0; --i) {
       if (isParenthesis(variableFormula->at(i))) {
-        (variableFormula->at(i) == '(') ? --parenthesisDeepness : ++parenthesisDeepness;
+        (variableFormula->at(i) == closingChar) ? --parenthesisDeepness : ++parenthesisDeepness;
         if (parenthesisDeepness == 0) {
-          firstIndex = i;
+          closingIndex = i;
           break;
         }
       }
     }
-    size_t totalSize {lastIndex - firstIndex}; 
-    numberString = variableFormula->cut(firstIndex, totalSize + 1);
   } else {
-    size_t firstIndex {identifierIndex + 2};
-    size_t lastIndex{};
-    for (size_t i{firstIndex}; i < variableFormula->size(); ++i) {
+    for (size_t i{openingIndex}; i < variableFormula->size(); ++i) {
       if (isParenthesis(variableFormula->at(i))) {
-        (variableFormula->at(i) == ')') ? --parenthesisDeepness : ++parenthesisDeepness;
+        (variableFormula->at(i) == closingChar) ? --parenthesisDeepness : ++parenthesisDeepness;
         if (parenthesisDeepness == 0) {
-          lastIndex = i;
+          closingIndex = i;
           break;
         }
       }
     }
-    size_t totalSize {lastIndex - firstIndex}; 
-    numberString = variableFormula->cut(firstIndex, totalSize + 1);
   }
-  return numberString;
+  size_t totalSize {lastIndex - firstIndex}; 
+  return variableFormula->cut(firstIndex, totalSize + 1);
 }
 
 template <typename T> std::string Math::Equation<T>::cutNumberStringFromIdentifier(char identifier, Side Side) {
