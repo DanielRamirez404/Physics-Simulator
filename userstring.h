@@ -17,6 +17,7 @@ public:
   void prepend(char myChar);
   void append(std::string_view myString);
   void append(char myChar);
+  void erase(size_t index);
   void erase(size_t index, size_t numberOfPositions);
   void eraseWhitespaces();
   bool contains(char myChar);

@@ -10,7 +10,7 @@ void String::add(std::string_view myString, size_t index) {
 
 void String::add(char charToAdd, size_t index) {
   if (index >= string.size())
-    string += charToAdd;
+    string.push_back(charToAdd);
   else
     string.insert(index, 1, charToAdd);
 }
@@ -28,7 +28,11 @@ void String::append(std::string_view myString) {
 }
 
 void String::append(char myChar) {
-  string += myChar;
+  string.push_back(myChar);
+}
+
+void String::erase(size_t index) {
+  string.erase(index, 1);
 }
 
 void String::erase(size_t index, size_t numberOfPositions) {
