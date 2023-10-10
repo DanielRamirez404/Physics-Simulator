@@ -33,7 +33,7 @@ namespace Math {
     char getOperatorFromIdentifier(char identifier, Side operatorSide);
     std::string getNumberStringFromIdentifier(char identifier, Side operatorSide);
     std::string cutParenthesesNumberFromIdentifier(char identifier, Side operatorSide);
-    std::string cutNumberStringFromIdentifier(char identifier, Side Side);
+    std::string cutNumberStringFromIdentifier(char identifier, Side operatorSide);
     void moveSingleOperation(char identifier);
     void moveMinPriorityOperation(char identifier, char myOperator, Side operationSide, std::string_view numberString);
     void moveMidPriorityOperation(char identifier, char myOperator, Side operationSide, std::string_view numberString);
@@ -118,15 +118,47 @@ template <typename T> char Math::Equation<T>::getOperatorFromIdentifier(char ide
 template <typename T> std::string Math::Equation<T>::getNumberStringFromIdentifier(char identifier, Side operatorSide) {
   const size_t identifierIndex{ variableFormula->find(identifier) };
   const size_t afterOperatorIndex{ (operatorSide == Side::right) ? identifierIndex + 2 : identifierIndex - 2 };
-  if ( isOperator(afterOperatorIndex) ) {
-    //return cutParenthesesNumberFromIdentifier(identifier, operatorSide);
+  if (isParenthesis(variableFormula->at(afterOperatorIndex))) {
+    return cutParenthesesNumberFromIdentifier(identifier, operatorSide);
   }
   return cutNumberStringFromIdentifier(identifier, operatorSide);
 }
 
-//template <typename T> std::string Math::Equation<T>::cutParenthesesNumberFromIdentifier(char identifier, Side Side) {
-  //todo
-//}
+template <typename T> std::string Math::Equation<T>::cutParenthesesNumberFromIdentifier(char identifier, Side operatorSide) {
+  const size_t identifierIndex{ variableFormula->find(identifier) };
+  std::string numberString{};
+  int parenthesisDeepness{};
+  if (operatorSide == Side::left) {
+    size_t lastIndex {identifierIndex - 2};
+    size_t firstIndex{0};
+    for (size_t i{lastIndex}; i > 0; --i) {
+      if (isParenthesis(variableFormula->at(i))) {
+        (variableFormula->at(i) == '(') ? --parenthesisDeepness : ++parenthesisDeepness;
+        if (parenthesisDeepness == 0) {
+          firstIndex = i;
+          break;
+        }
+      }
+    }
+    size_t totalSize {lastIndex - firstIndex}; 
+    numberString = variableFormula->cut(firstIndex, totalSize + 1);
+  } else {
+    size_t firstIndex {identifierIndex + 2};
+    size_t lastIndex{};
+    for (size_t i{firstIndex}; i < variableFormula->size(); ++i) {
+      if (isParenthesis(variableFormula->at(i))) {
+        (variableFormula->at(i) == ')') ? --parenthesisDeepness : ++parenthesisDeepness;
+        if (parenthesisDeepness == 0) {
+          lastIndex = i;
+          break;
+        }
+      }
+    }
+    size_t totalSize {lastIndex - firstIndex}; 
+    numberString = variableFormula->cut(firstIndex, totalSize + 1);
+  }
+  return numberString;
+}
 
 template <typename T> std::string Math::Equation<T>::cutNumberStringFromIdentifier(char identifier, Side Side) {
   const size_t identifierIndex{ variableFormula->find(identifier) };
