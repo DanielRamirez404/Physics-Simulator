@@ -132,24 +132,25 @@ template <typename T> std::string Math::Equation<T>::cutParenthesesNumberFromIde
   size_t& closingIndex{ (operatorSide == Side::left) ? firstIndex : lastIndex };
   const char closingChar { (operatorSide == Side::right) ? ')' : '('};
   int parenthesisDeepness{0};
+  auto isClosingParenthesis = [&](char myChar) {
+    if (isParenthesis(myChar)) {
+      (myChar == closingChar) ? --parenthesisDeepness : ++parenthesisDeepness;
+      if (parenthesisDeepness == 0) {
+        return true;
+      }
+    }
+    return false;
+  };
   if (operatorSide == Side::left) {
-    for (size_t i{openingIndex}; i > 0; --i) {
-      if (isParenthesis(variableFormula->at(i))) {
-        (variableFormula->at(i) == closingChar) ? --parenthesisDeepness : ++parenthesisDeepness;
-        if (parenthesisDeepness == 0) {
-          closingIndex = i;
-          break;
-        }
+    for (size_t i {openingIndex}; i > 0; --i) {
+      if (isClosingParenthesis(variableFormula->at(i))) {
+        closingIndex = i;
       }
     }
   } else {
-    for (size_t i{openingIndex}; i < variableFormula->size(); ++i) {
-      if (isParenthesis(variableFormula->at(i))) {
-        (variableFormula->at(i) == closingChar) ? --parenthesisDeepness : ++parenthesisDeepness;
-        if (parenthesisDeepness == 0) {
-          closingIndex = i;
-          break;
-        }
+    for (size_t i {openingIndex}; i < variableFormula->size(); ++i) {
+      if (isClosingParenthesis(variableFormula->at(i))) {
+        closingIndex = i;
       }
     }
   }
