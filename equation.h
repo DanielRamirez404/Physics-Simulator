@@ -7,6 +7,7 @@
 #include <string>
 #include <string_view>
 #include <vector>
+#include <iterator>
 #include <algorithm>
 
 namespace Math {
@@ -142,17 +143,11 @@ template <typename T> std::string Math::Equation<T>::cutParenthesesNumberFromIde
     return false;
   };
   if (operatorSide == Side::left) {
-    for (size_t i {openingIndex}; i > 0; --i) {
-      if (isClosingParenthesis(variableFormula->at(i))) {
-        closingIndex = i;
-      }
-    }
+    auto closingIterator { std::find_if(variableFormula->begin() + static_cast<int>(openingIndex), variableFormula->begin(), isClosingParenthesis) };
+    closingIndex = static_cast<size_t>(std::distance(variableFormula->begin(), closingIterator));
   } else {
-    for (size_t i {openingIndex}; i < variableFormula->size(); ++i) {
-      if (isClosingParenthesis(variableFormula->at(i))) {
-        closingIndex = i;
-      }
-    }
+    auto closingIterator { std::find_if(variableFormula->begin() + static_cast<int>(openingIndex), variableFormula->end(), isClosingParenthesis) };
+    closingIndex = static_cast<size_t>(std::distance(variableFormula->begin(), closingIterator));
   }
   size_t totalSize {lastIndex - firstIndex}; 
   return variableFormula->cut(firstIndex, totalSize + 1);
