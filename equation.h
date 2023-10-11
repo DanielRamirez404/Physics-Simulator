@@ -133,22 +133,13 @@ template <typename T> std::string Math::Equation<T>::cutParenthesesNumberFromIde
   size_t& closingIndex{ (operatorSide == Side::left) ? firstIndex : lastIndex };
   const char closingChar { (operatorSide == Side::right) ? ')' : '('};
   int parenthesisDeepness{0};
-  auto isClosingParenthesis = [&](char myChar) {
-    if (isParenthesis(myChar)) {
-      (myChar == closingChar) ? --parenthesisDeepness : ++parenthesisDeepness;
-      if (parenthesisDeepness == 0) {
-        return true;
-      }
-    }
-    return false;
-  };
-  if (operatorSide == Side::left) {
-    auto closingIterator { std::find_if(variableFormula->begin() + static_cast<int>(openingIndex), variableFormula->begin(), isClosingParenthesis) };
-    closingIndex = static_cast<size_t>(std::distance(variableFormula->begin(), closingIterator));
-  } else {
-    auto closingIterator { std::find_if(variableFormula->begin() + static_cast<int>(openingIndex), variableFormula->end(), isClosingParenthesis) };
-    closingIndex = static_cast<size_t>(std::distance(variableFormula->begin(), closingIterator));
-  }
+  auto iteratorLimit { (operatorSide == Side::left) ? variableFormula->begin() : variableFormula->end() };
+  auto closingIterator { std::find_if(variableFormula->begin() + static_cast<int>(openingIndex), iteratorLimit, [&](char myChar) {
+    if (!isParenthesis(myChar)) return false;
+    (myChar == closingChar) ? --parenthesisDeepness : ++parenthesisDeepness;
+    return (parenthesisDeepness == 0);
+  } ) };
+  closingIndex = static_cast<size_t>(std::distance(variableFormula->begin(), closingIterator));
   size_t totalSize {lastIndex - firstIndex}; 
   return variableFormula->cut(firstIndex, totalSize + 1);
 }
