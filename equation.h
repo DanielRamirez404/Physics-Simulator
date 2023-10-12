@@ -32,7 +32,8 @@ namespace Math {
     void identifyBothFormulasFor(char identifier);
     bool areVariablesValid();
     size_t getVariableRelatedIndex(char identifier, Side indexSide);
-    char getOperatorFromIdentifier(char identifier, Side operatorSide);
+    Side getOperatorSide(char identifier);
+    size_t getOperatorIndex(char identifier, Side operatorSide);
     void simplifyVariableFormulaParentheses();
     std::string getNumberStringFromIdentifier(char identifier, Side operatorSide);
     std::string cutParenthesesNumberFromIdentifier(char identifier, Side operatorSide);
@@ -105,10 +106,9 @@ template <typename T> void Math::Equation<T>::addValueFor(char identifier, T val
 template <typename T> void Math::Equation<T>::moveSingleOperation(char identifier) {
   nonVariableFormula->addParentheses();
   simplifyVariableFormulaParentheses();
-  //assuming there's the identifier does not belong to any parenthesis
-  const Side operatorSide { (variableFormula->isTrueOperator(variableFormula->find(identifier) - 1)) ? Side::left : Side::right };
+  const Side operatorSide { getOperatorSide(identifier) };
   const std::string numberString { getNumberStringFromIdentifier(identifier, operatorSide) };
-  const char myOperator { getOperatorFromIdentifier(identifier, operatorSide) };
+  const char myOperator { variableFormula->at(getOperatorIndex(identifier, operatorSide)) };
   switch (Operators::getPriority(myOperator)) {
     case Operators::Constants::minOperatorPriority:
       moveMinPriorityOperation(identifier, myOperator, operatorSide, numberString);
@@ -122,9 +122,9 @@ template <typename T> void Math::Equation<T>::moveSingleOperation(char identifie
   }
 }
 
-template <typename T> char Math::Equation<T>::getOperatorFromIdentifier(char identifier, Side operatorSide) {
-  size_t index { (operatorSide == Side::right) ? variableFormula->find(identifier) + 1 : variableFormula->find(identifier) - 1};
-  return variableFormula->at(index);
+template <typename T> size_t Math::Equation<T>::getOperatorIndex(char identifier, Side operatorSide) {
+  const size_t outermostVariableIndex { getVariableRelatedIndex(identifier, operatorSide) };
+  return (operatorSide == Side::right) ? outermostVariableIndex + 1 : outermostVariableIndex - 1 ;
 }
 
 template <typename T> void Math::Equation<T>::simplifyVariableFormulaParentheses() {
@@ -134,9 +134,14 @@ template <typename T> void Math::Equation<T>::simplifyVariableFormulaParentheses
   }
 }
 
+template <typename T> Math::Side Math::Equation<T>::getOperatorSide(char identifier) {
+  const size_t outermostVariableIndex { getVariableRelatedIndex(identifier, Side::right) };
+  return (outermostVariableIndex == variableFormula->size() - 1) ? Side::left : Side::right;
+}
+
 template <typename T> std::string Math::Equation<T>::getNumberStringFromIdentifier(char identifier, Side operatorSide) {
-  const size_t identifierIndex{ variableFormula->find(identifier) };
-  const size_t afterOperatorIndex{ (operatorSide == Side::right) ? identifierIndex + 2 : identifierIndex - 2 };
+  const size_t operatorIndex{ getOperatorIndex(identifier, operatorSide) };
+  const size_t afterOperatorIndex{ (operatorSide == Side::right) ? operatorIndex + 1 : operatorIndex - 1 };
   if (isParenthesis(variableFormula->at(afterOperatorIndex))) {
     return cutParenthesesNumberFromIdentifier(identifier, operatorSide);
   }
@@ -144,9 +149,9 @@ template <typename T> std::string Math::Equation<T>::getNumberStringFromIdentifi
 }
 
 template <typename T> std::string Math::Equation<T>::cutParenthesesNumberFromIdentifier(char identifier, Side operatorSide) {
-  const size_t identifierIndex{ variableFormula->find(identifier) };
-  size_t firstIndex{ (operatorSide == Side::right) ? identifierIndex + 2 : 0 };
-  size_t lastIndex{ (operatorSide == Side::left) ? identifierIndex - 2 : 0 };
+  const size_t operatorIndex{ getOperatorIndex(identifier, operatorSide) };
+  size_t firstIndex{ (operatorSide == Side::right) ? operatorIndex + 1 : 0 };
+  size_t lastIndex{ (operatorSide == Side::left) ? operatorIndex - 1 : 0 };
   size_t& openingIndex { (operatorSide == Side::right) ? firstIndex : lastIndex };
   size_t& closingIndex{ (operatorSide == Side::left) ? firstIndex : lastIndex };
   const char closingChar { (operatorSide == Side::right) ? ')' : '('};
