@@ -32,6 +32,7 @@ namespace Math {
     void identifyBothFormulasFor(char identifier);
     bool areVariablesValid();
     char getOperatorFromIdentifier(char identifier, Side operatorSide);
+    void simplifyVariableFormulaParentheses();
     std::string getNumberStringFromIdentifier(char identifier, Side operatorSide);
     std::string cutParenthesesNumberFromIdentifier(char identifier, Side operatorSide);
     std::string cutNumberStringFromIdentifier(char identifier, Side operatorSide);
@@ -95,6 +96,7 @@ template <typename T> void Math::Equation<T>::addValueFor(char identifier, T val
 template <typename T> void Math::Equation<T>::moveSingleOperation(char identifier) {
   //assuming there's the identifier does not belong to any parenthesis
   nonVariableFormula->addParentheses();
+  simplifyVariableFormulaParentheses();
   const Side operatorSide { (variableFormula->isTrueOperator(variableFormula->find(identifier) - 1)) ? Side::left : Side::right };
   const std::string numberString { getNumberStringFromIdentifier(identifier, operatorSide) };
   const char myOperator { getOperatorFromIdentifier(identifier, operatorSide) };
@@ -114,6 +116,13 @@ template <typename T> void Math::Equation<T>::moveSingleOperation(char identifie
 template <typename T> char Math::Equation<T>::getOperatorFromIdentifier(char identifier, Side operatorSide) {
   size_t index { (operatorSide == Side::right) ? variableFormula->find(identifier) + 1 : variableFormula->find(identifier) - 1};
   return variableFormula->at(index);
+}
+
+template <typename T> void Math::Equation<T>::simplifyVariableFormulaParentheses() {
+  if ( variableFormula->isWrappedUpByParentheses() ) {
+    variableFormula->erase(0);
+    variableFormula->erase(variableFormula->size() - 1);
+  }
 }
 
 template <typename T> std::string Math::Equation<T>::getNumberStringFromIdentifier(char identifier, Side operatorSide) {

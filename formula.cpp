@@ -85,6 +85,10 @@ bool Math::Formula::isPartOfNumber(size_t index) {
   return isNumeric(string[index]) || isMinusSign(index) || Vector::doesElementExist(variables, string[index]);
 }
 
+bool Math::Formula::isWrappedUpByParentheses() {
+  return (getFirstParenthesisOpeningIndex() == 0 && getFirstParenthesisClosingIndex() == size() - 1);
+}
+
 size_t Math::Formula::findAnyOperator() {
   for (size_t i{0}; i < string.size(); ++i) {
     if (isTrueOperator(i)) return i;
