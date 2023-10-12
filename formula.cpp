@@ -85,6 +85,16 @@ bool Math::Formula::isPartOfNumber(size_t index) {
   return isNumeric(string[index]) || isMinusSign(index) || Vector::doesElementExist(variables, string[index]);
 }
 
+bool Math::Formula::isWrappedUpByParentheses(size_t index) {
+  int parenthesisDeepness{1};
+  for (size_t i{index}; i < string.size(); ++i) {
+    if (!isParenthesis(string[i])) continue;
+    (string[i] == '(') ? ++parenthesisDeepness : --parenthesisDeepness;
+    if (string[i] == ')' && parenthesisDeepness == 0) return true;
+  }
+  return false;
+}
+
 bool Math::Formula::isWrappedUpByParentheses() {
   return (getFirstParenthesisOpeningIndex() == 0 && getFirstParenthesisClosingIndex() == size() - 1);
 }

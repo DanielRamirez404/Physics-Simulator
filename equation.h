@@ -31,6 +31,7 @@ namespace Math {
     void assignBothSidesFormulas(std::string_view formula, const std::vector<char>& myVariableNames);
     void identifyBothFormulasFor(char identifier);
     bool areVariablesValid();
+    size_t getVariableRelatedIndex(char identifier);
     char getOperatorFromIdentifier(char identifier, Side operatorSide);
     void simplifyVariableFormulaParentheses();
     std::string getNumberStringFromIdentifier(char identifier, Side operatorSide);
@@ -76,6 +77,14 @@ template <typename T> bool Math::Equation<T>::areVariablesValid() {
   } );
 }
 
+template <typename T> size_t Math::Equation<T>::getVariableRelatedIndex(char identifier) {
+  size_t index { variableFormula->find(identifier) };
+  if (variableFormula->isWrappedUpByParentheses(index)) {
+    //index = search index
+  }
+  return index;
+}
+
 template <typename T> T Math::Equation<T>::solveFor(char identifier) {
   assert((variables.size() == 1) && "THERE CANNOT BE MORE THAN ONE UNKNOWN VARIABLE IN THE FORMULA");
   identifyBothFormulasFor(identifier);
@@ -94,9 +103,9 @@ template <typename T> void Math::Equation<T>::addValueFor(char identifier, T val
 }
 
 template <typename T> void Math::Equation<T>::moveSingleOperation(char identifier) {
-  //assuming there's the identifier does not belong to any parenthesis
   nonVariableFormula->addParentheses();
   simplifyVariableFormulaParentheses();
+  //assuming there's the identifier does not belong to any parenthesis
   const Side operatorSide { (variableFormula->isTrueOperator(variableFormula->find(identifier) - 1)) ? Side::left : Side::right };
   const std::string numberString { getNumberStringFromIdentifier(identifier, operatorSide) };
   const char myOperator { getOperatorFromIdentifier(identifier, operatorSide) };

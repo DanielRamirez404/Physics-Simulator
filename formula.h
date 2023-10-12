@@ -34,6 +34,7 @@ namespace Math {
     bool isMinusSign(size_t index);             // instead of substraction operator
     bool isTrueOperator(size_t index);          // does not include minus signs
     bool isPartOfNumber(size_t index);          // includes minus signs
+    bool isWrappedUpByParentheses(size_t index);
     bool isWrappedUpByParentheses();
     size_t getFirstParenthesisOpeningIndex();   // returns 0 if there's no parenthesis
     size_t getFirstParenthesisClosingIndex();   // returns 0 if there's no parenthesis
