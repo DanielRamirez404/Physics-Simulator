@@ -15,9 +15,9 @@ namespace Math {
     Error syntaxError{};
     void format();
     void simplifyConsecutiveMinusSigns();
+    void addParenthesesAroundOperator(size_t operatorIndex);
     bool areCharactersValid();
     bool areParenthesesNumbersEqual();
-    void addParenthesesAroundOperator(size_t operatorIndex);
     bool isThereAnyBadlyPlacedOperator();
     bool areThereMinPriorityOperator();
     size_t findAnyOperator();
@@ -25,9 +25,14 @@ namespace Math {
     Formula() : String() {};
     Formula(std::string_view myFormula) : String(myFormula) { format(); };
     Formula(std::string_view myFormula, const std::vector<char>& myVariables) : String(myFormula), variables(myVariables) { format(); };
+    void setFormula(std::string_view myFormula);
+    void setFormula(std::string_view myFormula, const std::vector<char>& myVariables);
+    void addValueFor(char identifier, std::string_view value);
     void assertIsValid();
     void assertRightCharacterUsage();
     void assertRightCharacterArrangement();
+    void writeParenthesesAtMaxPriority();
+    void addParentheses();
     bool comesBeforeNumber(size_t index);
     bool comesAfterNumber(size_t index);
     bool isConsecutiveMinusSign(size_t index);
@@ -36,21 +41,9 @@ namespace Math {
     bool isPartOfNumber(size_t index);          // includes minus signs
     bool isWrappedUpByParentheses(size_t index);
     bool isWrappedUpByParentheses();
+    int getMaxOperatorPriority();
     size_t getFirstParenthesisOpeningIndex();   // returns 0 if there's no parenthesis
     size_t getFirstParenthesisClosingIndex();   // returns 0 if there's no parenthesis
-    int getMaxOperatorPriority();
-    void writeParenthesesAtMaxPriority();
-    void addParentheses();
-    void setFormula(std::string_view myFormula) { 
-      string = myFormula;
-      format(); 
-    };
-    void setFormula(std::string_view myFormula, const std::vector<char>& myVariables) { 
-      string = myFormula;
-      variables = myVariables;
-      format();
-    };
-    void addValueFor(char identifier, std::string_view value);
     std::string getNextNumberString(size_t index);
     std::string getPreviousNumberString(size_t index);
     std::string cutNextNumberString(size_t index);

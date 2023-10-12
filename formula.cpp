@@ -10,6 +10,17 @@ bool Math::isNumberDecimal(std::string_view numberString) {
   return numberString.find('.') != std::string::npos;
 }
 
+void Math::Formula::setFormula(std::string_view myFormula) {
+  string = myFormula;
+  format(); 
+}
+
+void Math::Formula::setFormula(std::string_view myFormula, const std::vector<char>& myVariables) {
+  string = myFormula;
+  variables = myVariables;
+  format();
+}
+
 void Math::Formula::format() {
   eraseWhitespaces();
   simplifyConsecutiveMinusSigns();

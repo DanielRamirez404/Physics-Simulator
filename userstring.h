@@ -24,10 +24,10 @@ public:
   void eraseWhitespaces();
   bool contains(char myChar);
   int count(char myChar);
-  size_t find(char myChar);
-  size_t size();
-  std::string substr(size_t startingIndex, size_t subStringSize);
   char cut(size_t index);
   std::string cut(size_t startingIndex, size_t subStringSize);
+  std::string substr(size_t startingIndex, size_t subStringSize);
   std::string_view get();
+  size_t find(char myChar);
+  size_t size();
 };
