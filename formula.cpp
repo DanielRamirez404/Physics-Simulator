@@ -138,6 +138,26 @@ size_t Math::Formula::getFirstParenthesisClosingIndex() {
   return 0; //if there's no closing parentheses
 }
 
+size_t Math::Formula::getFirstWrappingParenthesisOpeningIndex(size_t index) {
+  int parenthesisDeepness{1};
+  for (size_t i{index}; i > 0; --i) {
+    if (!isParenthesis(string[i])) continue;
+    (string[i] == ')') ? ++parenthesisDeepness : --parenthesisDeepness;
+    if (string[i] == '(' && parenthesisDeepness == 0) return i;
+  }
+  return 0;
+}
+
+size_t Math::Formula::getFirstWrappingParenthesisClosingIndex(size_t index) {
+  int parenthesisDeepness{1};
+  for (size_t i{index}; i < string.size(); ++i) {
+    if (!isParenthesis(string[i])) continue;
+    (string[i] == '(') ? ++parenthesisDeepness : --parenthesisDeepness;
+    if (string[i] == ')' && parenthesisDeepness == 0) return i;
+  }
+  return 0;
+}
+
 int Math::Formula::getMaxOperatorPriority() {
   using namespace Operators;
   if (std::any_of(string.begin(), string.end(), isMaxPriority)) return Constants::maxOperatorPriority;

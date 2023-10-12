@@ -31,7 +31,7 @@ namespace Math {
     void assignBothSidesFormulas(std::string_view formula, const std::vector<char>& myVariableNames);
     void identifyBothFormulasFor(char identifier);
     bool areVariablesValid();
-    size_t getVariableRelatedIndex(char identifier);
+    size_t getVariableRelatedIndex(char identifier, Side indexSide);
     char getOperatorFromIdentifier(char identifier, Side operatorSide);
     void simplifyVariableFormulaParentheses();
     std::string getNumberStringFromIdentifier(char identifier, Side operatorSide);
@@ -77,10 +77,10 @@ template <typename T> bool Math::Equation<T>::areVariablesValid() {
   } );
 }
 
-template <typename T> size_t Math::Equation<T>::getVariableRelatedIndex(char identifier) {
+template <typename T> size_t Math::Equation<T>::getVariableRelatedIndex(char identifier, Side indexSide) {
   size_t index { variableFormula->find(identifier) };
   if (variableFormula->isWrappedUpByParentheses(index)) {
-    //index = search index
+    index = (indexSide == Side::left) ? variableFormula->getFirstWrappingParenthesisOpeningIndex(index) : variableFormula->getFirstWrappingParenthesisClosingIndex(index);
   }
   return index;
 }
