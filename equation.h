@@ -168,19 +168,19 @@ template <typename T> std::string Math::Equation<T>::cutParenthesesNumberFromIde
 }
 
 template <typename T> std::string Math::Equation<T>::cutNumberStringFromIdentifier(char identifier, Side Side) {
-  const size_t identifierIndex{ variableFormula->find(identifier) };
-  return (Side == Side::left) ? variableFormula->cutPreviousNumberString(identifierIndex - 1) : variableFormula->cutNextNumberString(identifierIndex + 1);
+  const size_t operatorIndex{ getOperatorIndex(identifier, Side) };
+  return (Side == Side::left) ? variableFormula->cutPreviousNumberString(operatorIndex) : variableFormula->cutNextNumberString(operatorIndex);
 }
 
 template <typename T> void Math::Equation<T>::moveMinPriorityOperation(char identifier, char myOperator, Side operationSide, std::string_view numberString) {
-  if (operationSide == Side::left && variableFormula->find(identifier) == 1) {   //if there are no more left-sided operations
-    nonVariableFormula->append('-');                                              //this will always change the numberString signedness
+  if (operationSide == Side::left && getOperatorIndex(identifier, operationSide) == 0) {    //if there are no more left-sided operations
+    nonVariableFormula->append('-');                                                        //this will always change the numberString signedness
     if (variableFormula->at(0) == '+') variableFormula->erase(0);
   } else {
     if (operationSide == Side::left) {
-      myOperator = variableFormula->cut(variableFormula->find(identifier) - 2);
+      myOperator = variableFormula->cut(getOperatorIndex(identifier, operationSide) - 1);
     } else {
-      eraseAdjecentOperatorToIdentifier(identifier, operationSide);
+      variableFormula->erase(getOperatorIndex(identifier, operationSide));
     }
     nonVariableFormula->append(Operators::getOpposite(myOperator));
   }
@@ -195,18 +195,13 @@ template <typename T> void Math::Equation<T>::moveMidPriorityOperation(char iden
     nonVariableFormula->append(Operators::getOpposite(myOperator));
     nonVariableFormula->append(numberString);
   }
-  eraseAdjecentOperatorToIdentifier(identifier, operationSide);
+  variableFormula->erase(getOperatorIndex(identifier, operationSide));
 }
 
 template <typename T> void Math::Equation<T>::moveMaxPriorityOperation(char identifier, char myOperator, Side operationSide, std::string_view numberString) {
   assertWithMessage(operationSide != Side::left, "CAN'T SOLVE EQUATION FOR AN INDEX");
   nonVariableFormula->append(Operators::getOpposite(myOperator));
   nonVariableFormula->append(numberString);
-  eraseAdjecentOperatorToIdentifier(identifier, operationSide);
-}
-
-template <typename T> void Math::Equation<T>::eraseAdjecentOperatorToIdentifier(char identifier, Side operationSide) {
-  const size_t identifierIndex { variableFormula->find(identifier) };
-  (operationSide == Side::right) ? variableFormula->erase(identifierIndex + 1) : variableFormula->erase(identifierIndex - 1);
+  variableFormula->erase(getOperatorIndex(identifier, operationSide));
 }
 
