@@ -160,9 +160,22 @@ size_t Math::Formula::getFirstWrappingParenthesisClosingIndex(size_t index) {
 
 int Math::Formula::getMaxOperatorPriority() {
   using namespace Operators;
-  if (std::any_of(string.begin(), string.end(), isMaxPriority)) return Constants::maxOperatorPriority;
-  if (std::any_of(string.begin(), string.end(), isMidPriority)) return Constants::midOperatorPriority;
-  return (areThereMinPriorityOperator()) ? Constants::minOperatorPriority : Constants::noOperatorPriority;
+  if (std::none_of(string.begin(), string.end(), isParenthesis)) {
+    if (std::any_of(string.begin(), string.end(), isMaxPriority)) return Constants::maxOperatorPriority;
+    if (std::any_of(string.begin(), string.end(), isMidPriority)) return Constants::midOperatorPriority;
+    return (areThereMinPriorityOperator()) ? Constants::minOperatorPriority : Constants::noOperatorPriority;
+  }
+  int maxNonParenthesisOperatorPriority{ Constants::noOperatorPriority };
+  for (size_t i{0}; i < string.size(); ++i) {
+    if (!isTrueOperator(i)) continue;
+    if (isWrappedUpByParentheses(i)) {
+      i = getFirstWrappingParenthesisClosingIndex(i);
+      continue;
+    }
+    if (isMaxPriority(string[i])) return Constants::maxOperatorPriority;
+    maxNonParenthesisOperatorPriority  = (isMidPriority(string[i])) ? Constants::midOperatorPriority : Constants::minOperatorPriority;
+  }
+  return maxNonParenthesisOperatorPriority;
 }
 
 bool Math::Formula::areThereMinPriorityOperator() {
