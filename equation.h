@@ -89,11 +89,15 @@ template <typename T> size_t Math::Equation<T>::findOutermost(char identifier, S
 template <typename T> T Math::Equation<T>::solveFor(char identifier) {
   assert((variables.size() == 1) && "THERE CANNOT BE MORE THAN ONE UNKNOWN VARIABLE IN THE FORMULA");
   identifyFormulasFor(identifier);
+  simplifyVariableFormulaParentheses();
   T result{};
   while (getNumberOfNonParenthesisOperations() > 1 && variableFormula->getMaxOperatorPriority() > Operators::Constants::minOperatorPriority) {
     writeParenthesesAtMaxPriority(variableFormula->getMaxOperatorPriority());
   }
-  while (variableFormula->size() > 2) moveSingleOperation(identifier);
+  while (variableFormula->size() > 2) {
+    moveSingleOperation(identifier);
+    return solveFor(identifier); 
+  } 
   Operation<T> myOperation{ nonVariableFormula->get() };
   if (variableFormula->size() == 1) result = myOperation.solve();
   if (variableFormula->size() == 2 && variableFormula->at(0) == '-') result = -myOperation.solve();
@@ -152,7 +156,6 @@ template <typename T> void Math::Equation<T>::addValueFor(char identifier, T val
 
 template <typename T> void Math::Equation<T>::moveSingleOperation(char identifier) {
   nonVariableFormula->addParentheses();
-  simplifyVariableFormulaParentheses();
   const Side operatorSide { getOperatorSide(identifier) };
   const std::string numberString { cutNumberString(operatorSide, findOperator(identifier, operatorSide)) };
   const size_t operatorIndex{ findOperator(identifier, operatorSide) };
