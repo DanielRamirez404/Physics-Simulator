@@ -1,5 +1,4 @@
 #pragma once
-#include "error.h"
 #include "userstring.h"
 #include <cstddef>
 #include <string>
@@ -12,12 +11,10 @@ namespace Math {
   class Formula : public String {
   protected:
     std::vector<char> variables{};
-    Error syntaxError{};
     void format();
     void simplifyConsecutiveMinusSigns();
     void addParenthesesAroundOperator(size_t operatorIndex);
     bool areCharactersValid();
-    bool areParenthesesNumbersEqual();
     bool isThereAnyBadlyPlacedOperator();
     bool areThereMinPriorityOperator();
     size_t findAnyOperator();
@@ -29,8 +26,6 @@ namespace Math {
     void setFormula(std::string_view myFormula, const std::vector<char>& myVariables);
     void addValueFor(char identifier, std::string_view value);
     void assertIsValid();
-    void assertRightCharacterUsage();
-    void assertRightCharacterArrangement();
     void writeParenthesesAtMaxPriority();
     void addParentheses();
     bool comesBeforeNumber(size_t index);

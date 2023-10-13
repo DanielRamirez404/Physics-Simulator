@@ -9,7 +9,7 @@ private:
   bool hasBeenFound{ false };
 public:
   void add(std::string_view errorMessage);
-  void assert();
+  void assertNoFoundErrors();
   bool exists() { return hasBeenFound; };
   std::string_view getMessage() { return message; };
 };

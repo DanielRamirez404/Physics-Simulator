@@ -2,6 +2,7 @@
 #include "math characters.h"
 #include "userstring.h"
 #include "uservector.h"
+#include "error.h"
 #include <cstddef>
 #include <string_view>
 #include <algorithm>
@@ -21,53 +22,45 @@ void Math::Formula::setFormula(std::string_view myFormula, const std::vector<cha
   format();
 }
 
+void Math::Formula::addValueFor(char identifier, std::string_view value) {
+  string.replace(string.find(identifier), 1, value);
+}
+
 void Math::Formula::format() {
   eraseWhitespaces();
   simplifyConsecutiveMinusSigns();
 }
 
 void Math::Formula::simplifyConsecutiveMinusSigns() {
-  for (size_t i{0}; i < string.size(); ++i) {
+  for (size_t i{1}; i < string.size(); ++i) {
     while (isConsecutiveMinusSign(i)) {
       string.erase(i - 1, 2);
-      i = (i == 1) ? 0 : i - 2;
-      if (isPartOfNumber(i) && isPartOfNumber(i + 1))
-        add('+', i);
+      i = (i < 2) ? 0 : i - 2;
+      if ((isPartOfNumber(i) || string[i] == ')') && (isPartOfNumber(i + 1) || string[i + 1] == '('))
+        add('+', i + 1);
     } 
   }
 }
 
 void Math::Formula::assertIsValid() {
-  assertRightCharacterUsage();
-  assertRightCharacterArrangement();
-}
-
-void Math::Formula::assertRightCharacterUsage() {
+  Error syntaxError{};
   if (string.empty())
     syntaxError.add("FORMULA CAN\'T BE EMPTY");
   else if (!areCharactersValid())
     syntaxError.add("SEEMS LIKE THERE IS A NON-VALID CHARACTER");
-  else if (!areParenthesesNumbersEqual())
+  else if (std::count(string.begin(), string.end(), '(') != std::count(string.begin(), string.end(), ')'))
     syntaxError.add("NUMBER OF OPEN AND CLOSE PARENTHESES MUST MATCH");
-  syntaxError.assert();
-}
-
-void Math::Formula::assertRightCharacterArrangement() {
-  if (isTrueOperator(0) || isTrueOperator(string.size() - 1))
+  else if (isTrueOperator(0) || isTrueOperator(string.size() - 1))
     syntaxError.add("OPERATORS CAN'T EITHER START NOR END FORMULAS");
   else if (isThereAnyBadlyPlacedOperator())
     syntaxError.add("THERE IS A BADLY PLACED OPERATOR");
-  syntaxError.assert();
+  syntaxError.assertNoFoundErrors();
 }
 
 bool Math::Formula::areCharactersValid() {
   return std::all_of(string.begin(), string.end(), [&](char myChar) { 
     return isMathRelated(myChar) || Vector::doesElementExist(variables, myChar); 
   });
-}
-
-bool Math::Formula::areParenthesesNumbersEqual() {
-  return std::count(string.begin(), string.end(), '(') == std::count(string.begin(), string.end(), ')');
 }
 
 bool Math::Formula::comesBeforeNumber(size_t index) {
@@ -244,8 +237,4 @@ std::string Math::Formula::cutPreviousNumberString(size_t index) {
   std::string numberString { string.substr(firstDigit, totalDigits) };
   string.erase(firstDigit, totalDigits);
   return numberString;
-}
-
-void Math::Formula::addValueFor(char identifier, std::string_view value) {
-  string.replace(string.find(identifier), 1, value);
 }
