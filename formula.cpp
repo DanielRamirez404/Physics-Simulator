@@ -146,6 +146,19 @@ size_t Math::Formula::getFirstWrappingParenthesisClosingIndex(size_t index) {
   return 0;
 }
 
+int Math::Formula::getNumberofOperations() {
+  int numberOfOperations{};
+  for (size_t i{0}; i < string.size(); ++i) {
+    if (!isTrueOperator(i)) continue;
+    if (isWrappedUpByParentheses(i)) {
+      i = getFirstWrappingParenthesisClosingIndex(i);
+      continue;
+    }
+    ++numberOfOperations;
+  }
+  return numberOfOperations;
+}
+
 int Math::Formula::getMaxOperatorPriority() {
   using namespace Operators;
   if (std::none_of(string.begin(), string.end(), isParenthesis)) {
@@ -176,7 +189,12 @@ bool Math::Formula::areThereMinPriorityOperator() {
 void Math::Formula::writeParenthesesAtMaxPriority() {
   int maxPriority{ getMaxOperatorPriority() };
   for (size_t i{0}; i < string.size(); ++i) {
-    if (isTrueOperator(i) && (Operators::getPriority(string[i]) == maxPriority)) {
+    if (!isTrueOperator(i)) continue;
+    if (isWrappedUpByParentheses(i)) {
+      i = getFirstWrappingParenthesisClosingIndex(i);
+      continue;
+    }
+    if (Operators::getPriority(string[i]) == maxPriority) {
       addParenthesesAroundOperator(i);
       return;
     }
@@ -184,13 +202,22 @@ void Math::Formula::writeParenthesesAtMaxPriority() {
 }
 
 void Math::Formula::addParenthesesAroundOperator(size_t operatorIndex) {
-  size_t leftIterator{operatorIndex - 1};
-  while (isNumeric(string[leftIterator]) && (leftIterator > 0)) --leftIterator;
-  add('(', leftIterator + 1);
-  ++operatorIndex;
-  size_t rightIterator{operatorIndex + 1};
-  while (isNumeric(string[rightIterator]) && (rightIterator < string.size())) ++rightIterator;
-  add(')', rightIterator);
+  size_t rightParenthesisIndex{};
+  size_t leftParenthesisIndex{};
+  if ( operatorIndex + 1  == '(') {
+    rightParenthesisIndex = getFirstWrappingParenthesisClosingIndex(operatorIndex + 2);
+  } else {
+    rightParenthesisIndex = operatorIndex + 1;
+    while ((isPartOfNumber(rightParenthesisIndex))) ++rightParenthesisIndex;
+  }
+  if ( operatorIndex - 1  == ')') {
+    leftParenthesisIndex = getFirstWrappingParenthesisOpeningIndex(operatorIndex - 2);
+  } else {
+    leftParenthesisIndex = operatorIndex - 1;
+    while (leftParenthesisIndex > 0 && (isPartOfNumber(leftParenthesisIndex - 1))) --leftParenthesisIndex;
+  }
+  add(')', rightParenthesisIndex);
+  add('(', leftParenthesisIndex);
 }
 
 void Math::Formula::addParentheses() {

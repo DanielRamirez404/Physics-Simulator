@@ -37,6 +37,7 @@ namespace Math {
     bool isPartOfNumber(size_t index);          // includes minus signs
     bool isWrappedUpByParentheses(size_t index);
     bool isWrappedUpByParentheses();
+    int getNumberofOperations();
     int getMaxOperatorPriority();
     int getParenthesisDeepness(size_t index);
     size_t getFirstParenthesisOpeningIndex();   // returns 0 if there's no parenthesis

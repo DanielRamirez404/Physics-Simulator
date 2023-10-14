@@ -13,7 +13,6 @@ namespace Math {
   template <typename T> class Operation : public Formula {
   private:
     void solveFirstParenthesis();
-    int getNumberofOperations();
     T solveForOneOperator();
     T solveByPriorities(int numberOfOperations);
     T getNumberFromString(const std::string& numberString);
@@ -67,14 +66,6 @@ template <typename T> T Math::Operation<T>::solveForOneOperator() {
   T firstValue{ getNumberFromString(getAdjacentNumberString(operatorIndex, Side::left)) };
   T secondValue{ getNumberFromString(getAdjacentNumberString(operatorIndex, Side::right)) };
   return doOperation<T>(firstValue, operation, secondValue);
-}
-
-template <typename T> int Math::Operation<T>::getNumberofOperations() {
-  int operatorCounter{0};
-  for (size_t i{0}; i < string.size(); ++i) {
-    if (isTrueOperator(i)) ++operatorCounter;
-  }
-  return operatorCounter;
 }
 
 template <typename T> T Math::Operation<T>::getNumberFromString(const std::string& numberString) {

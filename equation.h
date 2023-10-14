@@ -22,8 +22,6 @@ namespace Math {
     void assignFormulas(std::string_view formula, const std::vector<char>& myVariableNames);
     void identifyFormulasFor(char identifier);
     bool areVariablesValid();
-    void writeParenthesesAtMaxPriority(int maxPriority);
-    int getNumberOfNonParenthesisOperations();
     Side getOperatorSide(char identifier);
     size_t findOutermost(char identifier, Side indexSide);
     size_t findOperator(char identifier, Side operatorSide);
@@ -80,8 +78,8 @@ template <typename T> T Math::Equation<T>::solveFor(char identifier) {
   identifyFormulasFor(identifier);
   simplifyVariableFormulaParentheses();
   T result{};
-  while (getNumberOfNonParenthesisOperations() > 1 && variableFormula->getMaxOperatorPriority() > Operators::Constants::minOperatorPriority) {
-    writeParenthesesAtMaxPriority(variableFormula->getMaxOperatorPriority());
+  while (variableFormula->getNumberofOperations() > 1 && variableFormula->getMaxOperatorPriority() > Operators::Constants::minOperatorPriority) {
+    variableFormula->writeParenthesesAtMaxPriority();
   }
   while (variableFormula->size() > 2) {
     moveSingleOperation(identifier);
@@ -91,50 +89,6 @@ template <typename T> T Math::Equation<T>::solveFor(char identifier) {
   if (variableFormula->size() == 1) result = myOperation.solve();
   if (variableFormula->size() == 2 && variableFormula->at(0) == '-') result = -myOperation.solve();
   return result;
-}
-
-template <typename T> int Math::Equation<T>::getNumberOfNonParenthesisOperations() {
-  int numberOfOperations{};
-  for (size_t i{0}; i < variableFormula->size(); ++i) {
-    if (!variableFormula->isTrueOperator(i)) continue;
-    if (variableFormula->isWrappedUpByParentheses(i)) {
-      i = variableFormula->getFirstWrappingParenthesisClosingIndex(i);
-      continue;
-    }
-    ++numberOfOperations;
-  }
-  return numberOfOperations;
-}
-
-template <typename T> void Math::Equation<T>::writeParenthesesAtMaxPriority(int maxPriority) {
-  size_t operatorIndex{};
-  for (size_t i{0}; i < variableFormula->size(); ++i) {
-    if (!variableFormula->isTrueOperator(i)) continue;
-    if (variableFormula->isWrappedUpByParentheses(i)) {
-      i = variableFormula->getFirstWrappingParenthesisClosingIndex(i);
-      continue;
-    }
-    if (Operators::getPriority(variableFormula->at(i)) == maxPriority) {
-      operatorIndex = i;
-      break;
-    }
-  }
-  size_t rightParenthesisIndex{};
-  size_t leftParenthesisIndex{};
-  if ( operatorIndex + 1  == '(') {
-    rightParenthesisIndex = variableFormula->getFirstWrappingParenthesisClosingIndex(operatorIndex + 2);
-  } else {
-    rightParenthesisIndex = operatorIndex + 1;
-    while ((variableFormula->isPartOfNumber(rightParenthesisIndex))) ++rightParenthesisIndex;
-  }
-  if ( operatorIndex - 1  == ')') {
-    leftParenthesisIndex = variableFormula->getFirstWrappingParenthesisOpeningIndex(operatorIndex - 2);
-  } else {
-    leftParenthesisIndex = operatorIndex - 1;
-    while (leftParenthesisIndex > 0 && (variableFormula->isPartOfNumber(leftParenthesisIndex - 1))) --leftParenthesisIndex;
-  }
-  variableFormula->add(')', rightParenthesisIndex);
-  variableFormula->add('(', leftParenthesisIndex);
 }
 
 template <typename T> void Math::Equation<T>::addValueFor(char identifier, T value) {
