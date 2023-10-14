@@ -37,6 +37,7 @@ namespace Math {
     bool isWrappedUpByParentheses(size_t index);
     bool isWrappedUpByParentheses();
     int getMaxOperatorPriority();
+    int getParenthesisDeepness(size_t index);
     size_t getFirstParenthesisOpeningIndex();   // returns 0 if there's no parenthesis
     size_t getFirstParenthesisClosingIndex();   // returns 0 if there's no parenthesis
     size_t getFirstWrappingParenthesisOpeningIndex(size_t index);

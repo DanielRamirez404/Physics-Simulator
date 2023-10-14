@@ -89,14 +89,17 @@ bool Math::Formula::isPartOfNumber(size_t index) {
   return isNumeric(string[index]) || isMinusSign(index) || Vector::doesElementExist(variables, string[index]);
 }
 
-bool Math::Formula::isWrappedUpByParentheses(size_t index) {
-  int parenthesisDeepness{1};
-  for (size_t i{index}; i < string.size(); ++i) {
+int  Math::Formula::getParenthesisDeepness(size_t index) {
+  int deepness{};
+  for (size_t i{0}; i <= index; ++i) {
     if (!isParenthesis(string[i])) continue;
-    (string[i] == '(') ? ++parenthesisDeepness : --parenthesisDeepness;
-    if (string[i] == ')' && parenthesisDeepness == 0) return true;
+    (string[i] == '(') ? ++deepness : --deepness;
   }
-  return false;
+  return deepness;
+}
+
+bool Math::Formula::isWrappedUpByParentheses(size_t index) {
+  return getParenthesisDeepness(index) > 0;
 }
 
 bool Math::Formula::isWrappedUpByParentheses() {
@@ -122,31 +125,22 @@ size_t Math::Formula::getFirstParenthesisOpeningIndex() {
 }
 
 size_t Math::Formula::getFirstParenthesisClosingIndex() {
-  size_t parenthesisDeepness{};
   for (size_t i{0}; i < string.size(); ++i) {
-    if (!isParenthesis(string[i])) continue;
-    (string[i] == '(') ? ++parenthesisDeepness : --parenthesisDeepness;
-    if (string[i] == ')' && parenthesisDeepness == 0) return i;
+    if (string[i] == ')' && getParenthesisDeepness(i) == 0) return i;
   }
-  return 0; //if there's no closing parentheses
+  return 0;
 }
 
 size_t Math::Formula::getFirstWrappingParenthesisOpeningIndex(size_t index) {
-  int parenthesisDeepness{1};
   for (size_t i{index}; i > 0; --i) {
-    if (!isParenthesis(string[i])) continue;
-    (string[i] == ')') ? ++parenthesisDeepness : --parenthesisDeepness;
-    if (string[i] == '(' && parenthesisDeepness == 0) return i;
+    if (string[i] == '(' && getParenthesisDeepness(i) == 1) return i;
   }
   return 0;
 }
 
 size_t Math::Formula::getFirstWrappingParenthesisClosingIndex(size_t index) {
-  int parenthesisDeepness{1};
   for (size_t i{index}; i < string.size(); ++i) {
-    if (!isParenthesis(string[i])) continue;
-    (string[i] == '(') ? ++parenthesisDeepness : --parenthesisDeepness;
-    if (string[i] == ')' && parenthesisDeepness == 0) return i;
+    if (string[i] == ')' && getParenthesisDeepness(i) == 0) return i;
   }
   return 0;
 }
