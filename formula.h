@@ -1,5 +1,6 @@
 #pragma once
 #include "userstring.h"
+#include "side.h"
 #include <cstddef>
 #include <string>
 #include <string_view>
@@ -42,9 +43,7 @@ namespace Math {
     size_t getFirstParenthesisClosingIndex();   // returns 0 if there's no parenthesis
     size_t getFirstWrappingParenthesisOpeningIndex(size_t index);
     size_t getFirstWrappingParenthesisClosingIndex(size_t index);
-    std::string getNextNumberString(size_t index);
-    std::string getPreviousNumberString(size_t index);
-    std::string cutNextNumberString(size_t index);
-    std::string cutPreviousNumberString(size_t index);
+    std::string getAdjacentNumberString(size_t index, Side numberSide);
+    std::string cutAdjacentNumberString(size_t index, Side numberSide);
   };
 }

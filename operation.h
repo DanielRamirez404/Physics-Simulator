@@ -3,6 +3,7 @@
 #include "userstring.h"
 #include "usermath.h"
 #include "math characters.h"
+#include "side.h"
 #include <cstddef>
 #include <string>
 #include <string_view>
@@ -63,8 +64,8 @@ template <typename T> T Math::Operation<T>::solveByPriorities(int numberOfOperat
 template <typename T> T Math::Operation<T>::solveForOneOperator() {
   size_t operatorIndex { findAnyOperator() };
   char operation{ string[operatorIndex] };
-  T firstValue{ getNumberFromString(getPreviousNumberString(operatorIndex)) };
-  T secondValue{ getNumberFromString(getNextNumberString(operatorIndex)) };
+  T firstValue{ getNumberFromString(getAdjacentNumberString(operatorIndex, Side::left)) };
+  T secondValue{ getNumberFromString(getAdjacentNumberString(operatorIndex, Side::right)) };
   return doOperation<T>(firstValue, operation, secondValue);
 }
 

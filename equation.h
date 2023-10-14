@@ -184,7 +184,7 @@ template <typename T> std::string Math::Equation<T>::cutNumberString(Side operat
   if (isParenthesis(variableFormula->at(afterOperatorIndex))) {
     return cutParenthesesString(operatorSide, operatorIndex);
   }
-  return (operatorSide == Side::left) ? variableFormula->cutPreviousNumberString(operatorIndex) : variableFormula->cutNextNumberString(operatorIndex);
+  return variableFormula->cutAdjacentNumberString(operatorIndex, operatorSide);
 }
 
 template <typename T> std::string Math::Equation<T>::cutParenthesesString(Side operatorSide, size_t operatorIndex) {

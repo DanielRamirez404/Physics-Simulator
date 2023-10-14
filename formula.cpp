@@ -3,6 +3,7 @@
 #include "userstring.h"
 #include "uservector.h"
 #include "error.h"
+#include "side.h"
 #include <cstddef>
 #include <string_view>
 #include <algorithm>
@@ -197,38 +198,22 @@ void Math::Formula::addParentheses() {
   append(')');
 }
 
-std::string Math::Formula::getNextNumberString(size_t index) {
-  const size_t firstDigit { index + 1 };
-  while (isPartOfNumber(index + 1)) ++index;
-  const size_t firstNonDigit { index + 1};
+std::string Math::Formula::getAdjacentNumberString(size_t index, Side numberSide) {
+  size_t iterator { index };
+  while ((numberSide == Side::right) ? isPartOfNumber(iterator + 1) : (iterator > 0 && isPartOfNumber(iterator - 1)))
+    (numberSide == Side::right) ? ++iterator : --iterator;
+  const size_t firstDigit { (numberSide == Side::right) ? index + 1 : iterator };
+  const size_t firstNonDigit { (numberSide == Side::right) ? iterator + 1 : index };
   const size_t totalDigits { firstNonDigit - firstDigit };
   return string.substr(firstDigit, totalDigits);
 }
 
-std::string Math::Formula::getPreviousNumberString(size_t index) {
-  const size_t firstNonDigit { index };
-  while (isPartOfNumber(index - 1) && index > 0) --index;
-  const size_t firstDigit { index };
+std::string Math::Formula::cutAdjacentNumberString(size_t index, Side numberSide) {
+  size_t iterator { index };
+  while ((numberSide == Side::right) ? isPartOfNumber(iterator + 1) : (iterator > 0 && isPartOfNumber(iterator - 1)))
+    (numberSide == Side::right) ? ++iterator : --iterator;
+  const size_t firstDigit { (numberSide == Side::right) ? index + 1 : iterator };
+  const size_t firstNonDigit { (numberSide == Side::right) ? iterator + 1 : index };
   const size_t totalDigits { firstNonDigit - firstDigit };
-  return string.substr(firstDigit, totalDigits);
-}
-
-std::string Math::Formula::cutNextNumberString(size_t index) {
-  const size_t firstDigit { index + 1 };
-  while (isPartOfNumber(index + 1)) ++index;
-  const size_t firstNonDigit { index + 1};
-  const size_t totalDigits { firstNonDigit - firstDigit };
-  std::string numberString { string.substr(firstDigit, totalDigits) };
-  string.erase(firstDigit, totalDigits);
-  return numberString;
-}
-
-std::string Math::Formula::cutPreviousNumberString(size_t index) {
-  const size_t firstNonDigit { index };
-  while (isPartOfNumber(index - 1) && index > 0) --index;
-  const size_t firstDigit { index };
-  const size_t totalDigits { firstNonDigit - firstDigit };
-  std::string numberString { string.substr(firstDigit, totalDigits) };
-  string.erase(firstDigit, totalDigits);
-  return numberString;
+  return cut(firstDigit, totalDigits);
 }
