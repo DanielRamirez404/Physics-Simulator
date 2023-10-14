@@ -3,6 +3,7 @@
 #include "formula.h"
 #include "math characters.h"
 #include "error.h"
+#include "side.h"
 #include <cstddef>
 #include <string>
 #include <string_view>
@@ -11,16 +12,6 @@
 #include <algorithm>
 
 namespace Math {
-
-  enum class Side {
-    left,
-    right,
-  };
-
-  Side getOppositeSide(Side side) {
-    return (side == Side::left) ? Side::right : Side::left;
-  }
-
   template <typename T> class Equation {
   private:
     Formula leftSideFormula{};
@@ -46,11 +37,7 @@ namespace Math {
   public:
     Equation(const Equation&) = delete;
     Equation& operator=(const Equation&) = delete; 
-    Equation(std::string_view formula, const std::vector<char>& myVariableNames) : variables(myVariableNames) {
-      assertWithMessage(std::count(formula.begin(), formula.end(), '=') == 1, "THERE MUST BE ONE (AND ONLY ONE) EQUALS SIGN IN THE FORMULA");
-      assignFormulas(formula, myVariableNames);
-      assertWithMessage(areVariablesValid(), "THE VARIABLES IN THE FORMULA ARE NOT VALID. REMEMBER THEY MUST BE USED ONCE (AND ONLY ONCE)");
-    };
+    Equation(std::string_view formula, const std::vector<char>& myVariableNames) : variables(myVariableNames) { assignFormulas(formula, myVariableNames); };
     T solveFor(char identifier);
     void addValueFor(char identifier, T value);
   };
@@ -58,11 +45,13 @@ namespace Math {
 }
 
 template <typename T> void Math::Equation<T>::assignFormulas(std::string_view formula, const std::vector<char>& myVariableNames) {
+  assertWithMessage(std::count(formula.begin(), formula.end(), '=') == 1, "THERE MUST BE ONE (AND ONLY ONE) EQUALS SIGN IN THE FORMULA");
   const size_t equalsSignIndex { formula.find('=') };
   leftSideFormula.setFormula(formula.substr(0, equalsSignIndex), myVariableNames);
   rightSideFormula.setFormula(formula.substr(equalsSignIndex + 1, formula.size() - equalsSignIndex), myVariableNames);
   leftSideFormula.assertIsValid();
   rightSideFormula.assertIsValid();
+  assertWithMessage(areVariablesValid(), "THE VARIABLES IN THE FORMULA ARE NOT VALID. REMEMBER THEY MUST BE USED ONCE (AND ONLY ONCE)");
 }
 
 template <typename T> void Math::Equation<T>::identifyFormulasFor(char identifier) {
@@ -185,7 +174,7 @@ template <typename T> void Math::Equation<T>::simplifyVariableFormulaParentheses
   }
 }
 
-template <typename T> Math::Side Math::Equation<T>::getOperatorSide(char identifier) {
+template <typename T> Side Math::Equation<T>::getOperatorSide(char identifier) {
   const size_t outermostVariableIndex { findOutermost(identifier, Side::right) };
   return (outermostVariableIndex == variableFormula->size() - 1) ? Side::left : Side::right;
 }
