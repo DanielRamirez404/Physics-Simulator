@@ -8,19 +8,19 @@
 
 void Motion::determineRemainingVariables() {
   assert(canDetermineRemainingVariables() && "CAN\'T DETERMINE REMAINING VALUES");
-  if (!acceleration.hasBeenSet) {
+  if (!acceleration.isSet()) {
     determineAcceleration();
     if (areAllVariablesSet()) return;
   }
-  if (!velocity.hasBeenSet) {
+  if (!velocity.isSet()) {
     determineVelocity();
     if (areAllVariablesSet()) return;
   }
-  if (!distance.hasBeenSet) {
+  if (!distance.isSet()) {
     determineDistance();
     if (areAllVariablesSet()) return;
   }
-  if (!time.hasBeenSet) {
+  if (!time.isSet()) {
     determineTime();
     if (areAllVariablesSet()) return;
   }
@@ -28,63 +28,59 @@ void Motion::determineRemainingVariables() {
 
 void Motion::determineAcceleration() {
   if (setVariables == 3) {
-    acceleration.value = (-2 * (distance.value - (velocity.value * time.value))) / Math::exponentiation(time.value, 2); 
-  } else if (!velocity.hasBeenSet) {
-    acceleration.value = (2 * distance.value) / Math::exponentiation(time.value, 2);
-  } else if (!distance.hasBeenSet) {
-    acceleration.value = velocity.value / time.value;
+    acceleration.set((-2 * (distance.get() - (velocity.get() * time.get()))) / Math::exponentiation(time.get(), 2)); 
+  } else if (!velocity.isSet()) {
+    acceleration.set((2 * distance.get()) / Math::exponentiation(time.get(), 2));
+  } else if (!distance.isSet()) {
+    acceleration.set(velocity.get() / time.get());
   } else {
-    acceleration.value = pow(velocity.value, 2) / (2 * distance.value);
+    acceleration.set(pow(velocity.get(), 2) / (2 * distance.get()));
   }
-  acceleration.hasBeenSet = true;
   ++setVariables;
 }
 
 void Motion::determineVelocity() {
   if (setVariables == 3) {
-    velocity.value = (distance.value + ((acceleration.value * Math::exponentiation(time.value, 2)) / 2)) / time.value;
-  } else if (!acceleration.hasBeenSet) {
-    velocity.value = (2 * distance.value) / time.value;
-  } else if (!distance.hasBeenSet) {
-    velocity.value = acceleration.value * time.value;
+    velocity.set((distance.get() + ((acceleration.get() * Math::exponentiation(time.get(), 2)) / 2)) / time.get());
+  } else if (!acceleration.isSet()) {
+    velocity.set((2 * distance.get()) / time.get());
+  } else if (!distance.isSet()) {
+    velocity.set(acceleration.get() * time.get());
   } else {
-    velocity.value = sqrt(2 * acceleration.value * distance.value);
+    velocity.set(sqrt(2 * acceleration.get() * distance.get()));
   }
-  velocity.hasBeenSet = true;
   ++setVariables;
 }
 
 void Motion::determineDistance() {
   if (setVariables == 3) {
-    distance.value = (velocity.value * time.value) - ((acceleration.value * Math::exponentiation(time.value, 2)) / 2);
-  } else if (!acceleration.hasBeenSet) {
-    distance.value = (velocity.value * time.value) / 2;
-  } else if (!velocity.hasBeenSet) {
-    distance.value = (acceleration.value * Math::exponentiation(time.value, 2)) / 2;
+    distance.set((velocity.get() * time.get()) - ((acceleration.get() * Math::exponentiation(time.get(), 2)) / 2));
+  } else if (!acceleration.isSet()) {
+    distance.set((velocity.get() * time.get()) / 2);
+  } else if (!velocity.isSet()) {
+    distance.set((acceleration.get() * Math::exponentiation(time.get(), 2)) / 2);
   } else {
-    distance.value = pow(velocity.value, 2) /  (2 * acceleration.value);
+    distance.set(pow(velocity.get(), 2) /  (2 * acceleration.get()));
   }
-  distance.hasBeenSet = true;
   ++setVariables;
 }
 
 void Motion::determineTime() {
   if (setVariables == 3) {
-    time.value = sqrt(-acceleration.value * ((distance.value - (velocity.value * time.value)) / 2));
-  } else if (!acceleration.hasBeenSet) {
-    time.value = (2 * distance.value) / velocity.value;
-  } else if (!velocity.hasBeenSet) {
-    time.value = sqrt((2 * distance.value) / acceleration.value);
+    time.set(sqrt(-acceleration.get() * ((distance.get() - (velocity.get() * time.get())) / 2)));
+  } else if (!acceleration.isSet()) {
+    time.set((2 * distance.get()) / velocity.get());
+  } else if (!velocity.isSet()) {
+    time.set(sqrt((2 * distance.get()) / acceleration.get()));
   } else {
-    time.value = velocity.value / acceleration.value;
+    time.set(velocity.get() / acceleration.get());
   }
-  time.hasBeenSet = true;
   ++setVariables;
 }
 
 void Motion::printCurrentState(float currentTime) {
   float currentDistance { getCurrentDistance(currentTime) };
-  int relativeDistance { Math::percentage(currentDistance, distance.value) };
+  int relativeDistance { Math::percentage(currentDistance, distance.get()) };
   constexpr int maxPrintableWidth { 100 };
   for (int i{0}; i < maxPrintableWidth - 1; ++i) {
     if (relativeDistance == i) {
@@ -97,36 +93,32 @@ void Motion::printCurrentState(float currentTime) {
 }
 
 float Motion::getCurrentDistance(float currentTime) {
-  return ((velocity.value * currentTime) / 2);   //this needs rework
+  return ((velocity.get() * currentTime) / 2);   //this needs rework
 }
 
 void Motion::simulate() {
   std::function<void(float)> printFunction { std::bind(&Motion::printCurrentState, this, std::placeholders::_1) };
-  TimeUsableFunction simulation{time.value, printFunction};
+  TimeUsableFunction simulation{time.get(), printFunction};
   simulation.setIsTimePrinted(true);
   simulation.run();
 }
 
 void Motion::setAcceleration(float myAcceleration) {
-  acceleration.value = myAcceleration;
-  acceleration.hasBeenSet = true;
+  acceleration.set(myAcceleration);
   ++setVariables;
 }
 
 void Motion::setVelocity(float myVelocity) {
-  velocity.value = myVelocity;
-  velocity.hasBeenSet = true;
+  velocity.set(myVelocity);
   ++setVariables;
 }
 
 void Motion::setDistance(float myDistance) {
-  distance.value = myDistance;
-  distance.hasBeenSet = true;
+  distance.set(myDistance);
   ++setVariables;
 }
 
 void Motion::setTime(float myTime) {
-  time.value = myTime;
-  time.hasBeenSet = true;
+  time.set(myTime);
   ++setVariables;
 }
