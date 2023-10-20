@@ -12,3 +12,7 @@ float Variable::get() {
 bool Variable::isSet() {
   return hasBeenSet;
 }
+
+char Variable::getIdentifier() {
+  return identifier;
+}

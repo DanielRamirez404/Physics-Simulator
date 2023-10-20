@@ -11,4 +11,5 @@ public:
   void set(float myValue);
   float get();
   bool isSet();
+  char getIdentifier();
 };

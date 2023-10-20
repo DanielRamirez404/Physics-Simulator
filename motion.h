@@ -1,8 +1,10 @@
 #pragma once
 #include "variable.h"
+#include <array>
 
 class Motion {
 private:
+  Variable& getVariable(char identifier);
   void printCurrentState(float time);
   float getCurrentDistance(float currentTime);
   void determineAcceleration();
@@ -12,25 +14,13 @@ private:
 protected:
   const int totalVariables{4};
   int setVariables{0};
-  Variable acceleration{'a'}; 
-  Variable velocity{'V'};
-  Variable distance{'d'};
-  Variable time{'t'};
+  std::array<Variable, 4>  motionVariables {{ 'a', 'V', 'd', 't' }};
 public:
   bool areAllVariablesSet() { return setVariables == totalVariables; }
   bool canDetermineRemainingVariables() { return (setVariables >= 2) && !areAllVariablesSet(); };
   void determineRemainingVariables();
   void simulate();
-  void setAcceleration(float myAcceleration);
-  void setVelocity(float myVelocity);
-  void setDistance(float myDistance);
-  void setTime(float myTime);
-  bool hasAccelerationBeenSet() { return acceleration.isSet(); };
-  bool hasVelocityBeenSet() { return velocity.isSet(); };
-  bool hasDistanceBeenSet() { return distance.isSet(); };
-  bool hasTimeBeenSet() { return time.isSet(); };
-  float getAcceleration() { return acceleration.get(); };
-  float getVelocity() { return velocity.get(); };
-  float getDistance() { return distance.get(); };
-  float getTime() { return time.get(); };
+  void setVariable(char identifier, float value);
+  bool isVariableSet(char identifier);
+  float getVariableValue(char identifier);
 };

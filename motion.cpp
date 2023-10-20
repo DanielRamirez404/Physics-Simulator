@@ -1,26 +1,32 @@
 #include "motion.h"
+#include "variable.h"
 #include "timed functions.h"
 #include "userinput.h"
 #include "usermath.h"
 #include <functional>
+#include <algorithm>
 #include <cassert>
 #include <iostream>
 
+Variable& Motion::getVariable(char identifier) {
+  return *std::find_if(motionVariables.begin(), motionVariables.end(), [&](Variable& variable) { return variable.getIdentifier() == identifier; });
+}
+
 void Motion::determineRemainingVariables() {
   assert(canDetermineRemainingVariables() && "CAN\'T DETERMINE REMAINING VALUES");
-  if (!acceleration.isSet()) {
+  if (!getVariable('a').isSet()) {
     determineAcceleration();
     if (areAllVariablesSet()) return;
   }
-  if (!velocity.isSet()) {
+  if (!getVariable('V').isSet()) {
     determineVelocity();
     if (areAllVariablesSet()) return;
   }
-  if (!distance.isSet()) {
+  if (!getVariable('d').isSet()) {
     determineDistance();
     if (areAllVariablesSet()) return;
   }
-  if (!time.isSet()) {
+  if (!getVariable('t').isSet()) {
     determineTime();
     if (areAllVariablesSet()) return;
   }
@@ -28,59 +34,59 @@ void Motion::determineRemainingVariables() {
 
 void Motion::determineAcceleration() {
   if (setVariables == 3) {
-    acceleration.set((-2 * (distance.get() - (velocity.get() * time.get()))) / Math::exponentiation(time.get(), 2)); 
-  } else if (!velocity.isSet()) {
-    acceleration.set((2 * distance.get()) / Math::exponentiation(time.get(), 2));
-  } else if (!distance.isSet()) {
-    acceleration.set(velocity.get() / time.get());
+    getVariable('a').set((-2 * (getVariable('d').get() - (getVariable('V').get() * getVariable('t').get()))) / Math::exponentiation(getVariable('t').get(), 2)); 
+  } else if (!getVariable('V').isSet()) {
+    getVariable('a').set((2 * getVariable('d').get()) / Math::exponentiation(getVariable('t').get(), 2));
+  } else if (!getVariable('d').isSet()) {
+    getVariable('a').set(getVariable('V').get() / getVariable('t').get());
   } else {
-    acceleration.set(pow(velocity.get(), 2) / (2 * distance.get()));
+    getVariable('a').set(pow(getVariable('V').get(), 2) / (2 * getVariable('d').get()));
   }
   ++setVariables;
 }
 
 void Motion::determineVelocity() {
   if (setVariables == 3) {
-    velocity.set((distance.get() + ((acceleration.get() * Math::exponentiation(time.get(), 2)) / 2)) / time.get());
-  } else if (!acceleration.isSet()) {
-    velocity.set((2 * distance.get()) / time.get());
-  } else if (!distance.isSet()) {
-    velocity.set(acceleration.get() * time.get());
+    getVariable('V').set((getVariable('d').get() + ((getVariable('a').get() * Math::exponentiation(getVariable('t').get(), 2)) / 2)) / getVariable('t').get());
+  } else if (!getVariable('a').isSet()) {
+    getVariable('V').set((2 * getVariable('d').get()) / getVariable('t').get());
+  } else if (!getVariable('d').isSet()) {
+    getVariable('V').set(getVariable('a').get() * getVariable('t').get());
   } else {
-    velocity.set(sqrt(2 * acceleration.get() * distance.get()));
+    getVariable('V').set(sqrt(2 * getVariable('a').get() * getVariable('d').get()));
   }
   ++setVariables;
 }
 
 void Motion::determineDistance() {
   if (setVariables == 3) {
-    distance.set((velocity.get() * time.get()) - ((acceleration.get() * Math::exponentiation(time.get(), 2)) / 2));
-  } else if (!acceleration.isSet()) {
-    distance.set((velocity.get() * time.get()) / 2);
-  } else if (!velocity.isSet()) {
-    distance.set((acceleration.get() * Math::exponentiation(time.get(), 2)) / 2);
+    getVariable('d').set((getVariable('V').get() * getVariable('t').get()) - ((getVariable('a').get() * Math::exponentiation(getVariable('t').get(), 2)) / 2));
+  } else if (!getVariable('a').isSet()) {
+    getVariable('d').set((getVariable('V').get() * getVariable('t').get()) / 2);
+  } else if (!getVariable('V').isSet()) {
+    getVariable('d').set((getVariable('a').get() * Math::exponentiation(getVariable('t').get(), 2)) / 2);
   } else {
-    distance.set(pow(velocity.get(), 2) /  (2 * acceleration.get()));
+    getVariable('d').set(pow(getVariable('V').get(), 2) /  (2 * getVariable('a').get()));
   }
   ++setVariables;
 }
 
 void Motion::determineTime() {
   if (setVariables == 3) {
-    time.set(sqrt(-acceleration.get() * ((distance.get() - (velocity.get() * time.get())) / 2)));
-  } else if (!acceleration.isSet()) {
-    time.set((2 * distance.get()) / velocity.get());
-  } else if (!velocity.isSet()) {
-    time.set(sqrt((2 * distance.get()) / acceleration.get()));
+    getVariable('t').set(sqrt(-getVariable('a').get() * ((getVariable('d').get() - (getVariable('V').get() * getVariable('t').get())) / 2)));
+  } else if (!getVariable('a').isSet()) {
+    getVariable('t').set((2 * getVariable('d').get()) / getVariable('V').get());
+  } else if (!getVariable('V').isSet()) {
+    getVariable('t').set(sqrt((2 * getVariable('d').get()) / getVariable('a').get()));
   } else {
-    time.set(velocity.get() / acceleration.get());
+    getVariable('t').set(getVariable('V').get() / getVariable('a').get());
   }
   ++setVariables;
 }
 
 void Motion::printCurrentState(float currentTime) {
   float currentDistance { getCurrentDistance(currentTime) };
-  int relativeDistance { Math::percentage(currentDistance, distance.get()) };
+  int relativeDistance { Math::percentage(currentDistance, getVariable('d').get()) };
   constexpr int maxPrintableWidth { 100 };
   for (int i{0}; i < maxPrintableWidth - 1; ++i) {
     if (relativeDistance == i) {
@@ -93,32 +99,24 @@ void Motion::printCurrentState(float currentTime) {
 }
 
 float Motion::getCurrentDistance(float currentTime) {
-  return ((velocity.get() * currentTime) / 2);   //this needs rework
+  return ((getVariable('d').get() * currentTime) / 2);   //this needs rework
 }
 
 void Motion::simulate() {
   std::function<void(float)> printFunction { std::bind(&Motion::printCurrentState, this, std::placeholders::_1) };
-  TimeUsableFunction simulation{time.get(), printFunction};
+  TimeUsableFunction simulation{getVariable('t').get(), printFunction};
   simulation.setIsTimePrinted(true);
   simulation.run();
 }
 
-void Motion::setAcceleration(float myAcceleration) {
-  acceleration.set(myAcceleration);
-  ++setVariables;
+void Motion::setVariable(char identifier, float value) {
+  getVariable(identifier).set(value);
 }
 
-void Motion::setVelocity(float myVelocity) {
-  velocity.set(myVelocity);
-  ++setVariables;
+bool Motion::isVariableSet(char identifier) {
+  return getVariable(identifier).isSet();
 }
 
-void Motion::setDistance(float myDistance) {
-  distance.set(myDistance);
-  ++setVariables;
-}
-
-void Motion::setTime(float myTime) {
-  time.set(myTime);
-  ++setVariables;
+float Motion::getVariableValue(char identifier) {
+  return getVariable(identifier).get();
 }

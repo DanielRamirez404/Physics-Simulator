@@ -35,35 +35,35 @@ void chooseHorizontalMotion() {
 }
 
 void printValues(Motion& myMotion) { //testing function
-  std::cout << "a:" << myMotion.getAcceleration() << '\n';
-  std::cout << "V:" << myMotion.getVelocity() << '\n';
-  std::cout << "x:" << myMotion.getDistance() << '\n';
-  std::cout << "t:" << myMotion.getTime() << '\n';
+  std::cout << "a:" << myMotion.getVariableValue('a') << '\n';
+  std::cout << "V:" << myMotion.getVariableValue('V') << '\n';
+  std::cout << "d:" << myMotion.getVariableValue('d') << '\n';
+  std::cout << "t:" << myMotion.getVariableValue('t') << '\n';
 }
 
 void doUniformLinearMotion() {
   Motion uniformLinearMotion{};
-  uniformLinearMotion.setAcceleration(0.0f);
+  uniformLinearMotion.setVariable('a', 0.0f);
   while (true) {
-    if (!uniformLinearMotion.hasVelocityBeenSet()) {
+    if (!uniformLinearMotion.isVariableSet('V')) {
       std::cout << "DO YOU HAVE THE VELOCITY VALUE? (y/n)\n";
       if (ynInput()) {
         std::cout << "ENTER THE VELOCITY VALUE\n";
-        uniformLinearMotion.setVelocity( getPositiveNumberInput<float>() );
+        uniformLinearMotion.setVariable( 'V', getPositiveNumberInput<float>() );
       }
     }
-    if (!uniformLinearMotion.hasDistanceBeenSet()) {
+    if (!uniformLinearMotion.isVariableSet('d')) {
       std::cout << "DO YOU HAVE THE DISTANCE VALUE? (y/n)\n";
       if (ynInput()) {
         std::cout << "ENTER THE DISTANCE VALUE\n";
-        uniformLinearMotion.setDistance( getPositiveNumberInput<float>() );
+        uniformLinearMotion.setVariable( 'd', getPositiveNumberInput<float>() );
       }
     }
-    if (!uniformLinearMotion.hasTimeBeenSet()) {
+    if (!uniformLinearMotion.isVariableSet('t')) {
       std::cout << "DO YOU HAVE THE TIME VALUE? (y/n)\n";
       if (ynInput()) {
         std::cout << "ENTER THE TIME VALUE\n";
-        uniformLinearMotion.setTime( getPositiveNumberInput<float>() );
+        uniformLinearMotion.setVariable( 't', getPositiveNumberInput<float>() );
       }
     }
     if (uniformLinearMotion.areAllVariablesSet()) {
