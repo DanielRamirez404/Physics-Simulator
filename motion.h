@@ -12,12 +12,11 @@ private:
   void determineDistance();
   void determineTime();
 protected:
-  const int totalVariables{4};
-  int setVariables{0};
-  std::array<Variable, 4>  motionVariables {{ 'a', 'V', 'd', 't' }};
+  std::array<Variable, 4>  variables {{ 'a', 'V', 'd', 't' }};
 public:
-  bool areAllVariablesSet() { return setVariables == totalVariables; }
-  bool canDetermineRemainingVariables() { return (setVariables >= 2) && !areAllVariablesSet(); };
+  int countSetVariables();
+  bool areAllVariablesSet();
+  bool canDetermineRemainingVariables();
   void determineRemainingVariables();
   void simulate();
   void setVariable(char identifier, float value);

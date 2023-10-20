@@ -9,7 +9,19 @@
 #include <iostream>
 
 Variable& Motion::getVariable(char identifier) {
-  return *std::find_if(motionVariables.begin(), motionVariables.end(), [&](Variable& variable) { return variable.getIdentifier() == identifier; });
+  return *std::find_if(variables.begin(), variables.end(), [&](Variable& variable) { return variable.getIdentifier() == identifier; });
+}
+
+int Motion::countSetVariables() {
+  return std::count_if(variables.begin(), variables.end(), [&](Variable& variable) { return variable.isSet(); });
+}
+
+bool Motion::areAllVariablesSet() {
+  return countSetVariables() == static_cast<int>(variables.size());
+}
+
+bool Motion::canDetermineRemainingVariables() {
+  return (countSetVariables() >= static_cast<int>(variables.size()) - 2) && !areAllVariablesSet();
 }
 
 void Motion::determineRemainingVariables() {
@@ -33,7 +45,7 @@ void Motion::determineRemainingVariables() {
 }
 
 void Motion::determineAcceleration() {
-  if (setVariables == 3) {
+  if (countSetVariables() == 3) {
     getVariable('a').set((-2 * (getVariable('d').get() - (getVariable('V').get() * getVariable('t').get()))) / Math::exponentiation(getVariable('t').get(), 2)); 
   } else if (!getVariable('V').isSet()) {
     getVariable('a').set((2 * getVariable('d').get()) / Math::exponentiation(getVariable('t').get(), 2));
@@ -42,11 +54,10 @@ void Motion::determineAcceleration() {
   } else {
     getVariable('a').set(pow(getVariable('V').get(), 2) / (2 * getVariable('d').get()));
   }
-  ++setVariables;
 }
 
 void Motion::determineVelocity() {
-  if (setVariables == 3) {
+  if (countSetVariables() == 3) {
     getVariable('V').set((getVariable('d').get() + ((getVariable('a').get() * Math::exponentiation(getVariable('t').get(), 2)) / 2)) / getVariable('t').get());
   } else if (!getVariable('a').isSet()) {
     getVariable('V').set((2 * getVariable('d').get()) / getVariable('t').get());
@@ -55,11 +66,10 @@ void Motion::determineVelocity() {
   } else {
     getVariable('V').set(sqrt(2 * getVariable('a').get() * getVariable('d').get()));
   }
-  ++setVariables;
 }
 
 void Motion::determineDistance() {
-  if (setVariables == 3) {
+  if (countSetVariables() == 3) {
     getVariable('d').set((getVariable('V').get() * getVariable('t').get()) - ((getVariable('a').get() * Math::exponentiation(getVariable('t').get(), 2)) / 2));
   } else if (!getVariable('a').isSet()) {
     getVariable('d').set((getVariable('V').get() * getVariable('t').get()) / 2);
@@ -68,11 +78,10 @@ void Motion::determineDistance() {
   } else {
     getVariable('d').set(pow(getVariable('V').get(), 2) /  (2 * getVariable('a').get()));
   }
-  ++setVariables;
 }
 
 void Motion::determineTime() {
-  if (setVariables == 3) {
+  if (countSetVariables() == 3) {
     getVariable('t').set(sqrt(-getVariable('a').get() * ((getVariable('d').get() - (getVariable('V').get() * getVariable('t').get())) / 2)));
   } else if (!getVariable('a').isSet()) {
     getVariable('t').set((2 * getVariable('d').get()) / getVariable('V').get());
@@ -81,7 +90,6 @@ void Motion::determineTime() {
   } else {
     getVariable('t').set(getVariable('V').get() / getVariable('a').get());
   }
-  ++setVariables;
 }
 
 void Motion::printCurrentState(float currentTime) {
