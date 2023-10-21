@@ -1,18 +1,19 @@
 #pragma once
 #include "variable.h"
+#include <string_view>
 #include <array>
+#include <vector>
 
 class Motion {
 private:
+  std::array<Variable, 4>  variables {{ 'a', 'V', 'd', 't' }};
   Variable& getVariable(char identifier);
+  std::string_view getFormulaFor(char identifier);
+  std::vector<char> getVariablesFor(char identifier);
+  int countUnknownVariables(std::string_view formula);
   void printCurrentState(float time);
   float getCurrentDistance(float currentTime);
-  void determineAcceleration();
-  void determineVelocity();
-  void determineDistance();
-  void determineTime();
-protected:
-  std::array<Variable, 4>  variables {{ 'a', 'V', 'd', 't' }};
+  void determineVariable(char identifier);
 public:
   int countSetVariables();
   bool areAllVariablesSet();
