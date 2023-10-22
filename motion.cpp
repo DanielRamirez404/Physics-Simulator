@@ -5,6 +5,7 @@
 #include "equation.h"
 #include "usermath.h"
 #include "math characters.h"
+#include "uservector.h"
 #include <functional>
 #include <string>
 #include <array>
@@ -18,11 +19,12 @@ Variable& Motion::getVariable(char identifier) {
 }
 
 std::string_view Motion::getFormulaFor(char identifier) {
-  constexpr std::array<std::string_view, 4> motionFormulas { 
-    "a = V / t",
-    "d = (a * t ^ 2) / 2",
-    "V ^ 2 = 2 * d * a",
-    "d = V * t / 2"
+  constexpr std::array<std::string_view, 5> motionFormulas { 
+    "V = o + a * t",
+    "d = o * t + (a * t ^ 2) / 2",
+    "V ^ 2 = o ^ 2 + (2 * d * a)",
+    "d = (o + V) * t / 2",
+    "d = V * t - (a * t ^ 2) / 2"
   };
   return *std::find_if(motionFormulas.begin(), motionFormulas.end(), [&](std::string_view formula) {
     return formula.find(identifier) != std::string::npos && countUnknownVariables(formula) == 1;
@@ -33,7 +35,7 @@ std::vector<char> Motion::getVariablesFor(char identifier) {
   std::string_view formula { getFormulaFor(identifier) };
   std::vector<char> formulaVariables{};
   std::for_each(formula.begin(), formula.end(), [&](char myChar) {
-    if (!(myChar == ' ' || myChar == '=' || Math::isMathRelated(myChar)))
+    if (!(myChar == ' ' || myChar == '=' || Math::isMathRelated(myChar)) && !Vector::doesElementExist<char>(formulaVariables, myChar))
       formulaVariables.push_back(myChar);
   });
   return formulaVariables;

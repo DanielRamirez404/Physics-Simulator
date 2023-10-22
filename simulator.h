@@ -7,4 +7,6 @@ void printNotEnoughVariablesMesssage();
 void countdown();
 void chooseHorizontalMotion();
 void doUniformLinearMotion();
+void doUniformilyAcceleratedLinearMotion();
+void doUniformilyDeceleratedLinearMotion();
 void chooseVerticalMotion();

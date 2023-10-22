@@ -6,7 +6,7 @@
 
 class Motion {
 private:
-  std::array<Variable, 4>  variables {{ 'a', 'V', 'd', 't' }};
+  std::array<Variable, 5>  variables {{ 'a', 'o', 'V', 'd', 't' }};
   Variable& getVariable(char identifier);
   std::string_view getFormulaFor(char identifier);
   std::vector<char> getVariablesFor(char identifier);
