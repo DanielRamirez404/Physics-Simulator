@@ -18,7 +18,12 @@ Variable& Motion::getVariable(char identifier) {
 }
 
 std::string_view Motion::getFormulaFor(char identifier) {
-  constexpr std::array<std::string_view, 4> motionFormulas { "a = V / t", "d = (a * t ^ 2) / 2", "V ^ 2 = 2 * d * a", "d = V * t / 2"  };
+  constexpr std::array<std::string_view, 4> motionFormulas { 
+    "a = V / t",
+    "d = (a * t ^ 2) / 2",
+    "V ^ 2 = 2 * d * a",
+    "d = V * t / 2"
+  };
   return *std::find_if(motionFormulas.begin(), motionFormulas.end(), [&](std::string_view formula) {
     return formula.find(identifier) != std::string::npos && countUnknownVariables(formula) == 1;
   });
@@ -64,23 +69,10 @@ void Motion::determineVariable(char identifier) {
 }
 
 void Motion::determineRemainingVariables() {
-  assert(canDetermineRemainingVariables() && "CAN\'T DETERMINE REMAINING VALUES");
-  if (!getVariable('a').isSet()) {
-    determineVariable('a');
-    if (areAllVariablesSet()) return;
-  }
-  if (!getVariable('V').isSet()) {
-    determineVariable('V');
-    if (areAllVariablesSet()) return;
-  }
-  if (!getVariable('d').isSet()) {
-    determineVariable('d');
-    if (areAllVariablesSet()) return;
-  }
-  if (!getVariable('t').isSet()) {
-    determineVariable('t');
-    if (areAllVariablesSet()) return;
-  }
+  std::for_each(variables.begin(), variables.end(), [&](Variable& variable) { 
+    if (!variable.isSet()) 
+      determineVariable(variable.getIdentifier());
+  });
 }
 
 void Motion::printCurrentState(float currentTime) {
