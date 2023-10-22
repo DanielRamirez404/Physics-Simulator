@@ -21,7 +21,7 @@ namespace Math {
     std::vector<char> variables{};
     void assignFormulas(std::string_view formula, const std::vector<char>& myVariableNames);
     void identifyFormulasFor(char identifier);
-    bool areVariablesValid();
+    bool isIdentifierResolvable(char identifier);
     Side getOperatorSide(char identifier);
     size_t findOutermost(char identifier, Side indexSide);
     size_t findOperator(char identifier, Side operatorSide);
@@ -49,7 +49,6 @@ template <typename T> void Math::Equation<T>::assignFormulas(std::string_view fo
   rightSideFormula.setFormula(formula.substr(equalsSignIndex + 1, formula.size() - equalsSignIndex), myVariableNames);
   leftSideFormula.assertIsValid();
   rightSideFormula.assertIsValid();
-  assertWithMessage(areVariablesValid(), "THE VARIABLES IN THE FORMULA ARE NOT VALID. REMEMBER THEY MUST BE USED ONCE (AND ONLY ONCE)");
 }
 
 template <typename T> void Math::Equation<T>::identifyFormulasFor(char identifier) {
@@ -58,11 +57,8 @@ template <typename T> void Math::Equation<T>::identifyFormulasFor(char identifie
   nonVariableFormula = (identifierSide == Side::right) ? &leftSideFormula : &rightSideFormula;
 }
 
-template <typename T> bool Math::Equation<T>::areVariablesValid() {
-  return std::all_of(variables.begin(), variables.end(), [&](char identifier) { 
-    identifyFormulasFor(identifier);
-    return (variableFormula->count(identifier) == 1) && !nonVariableFormula->contains(identifier);
-  } );
+template <typename T> bool Math::Equation<T>::isIdentifierResolvable(char identifier) {
+  return (variables.size() == 1) && (variableFormula->count(identifier) == 1) && !nonVariableFormula->contains(identifier);
 }
 
 template <typename T> size_t Math::Equation<T>::findOutermost(char identifier, Side indexSide) {
@@ -74,8 +70,8 @@ template <typename T> size_t Math::Equation<T>::findOutermost(char identifier, S
 }
 
 template <typename T> T Math::Equation<T>::solveFor(char identifier) {
-  assert((variables.size() == 1) && "THERE CANNOT BE MORE THAN ONE UNKNOWN VARIABLE IN THE FORMULA");
   identifyFormulasFor(identifier);
+  assertWithMessage(isIdentifierResolvable(identifier), "THERE CANNOT BE MORE THAN ONE UNKNOWN VARIABLE IN THE FORMULA");
   simplifyVariableFormulaParentheses();
   T result{};
   while (variableFormula->getNumberofOperations() > 1 && variableFormula->getMaxOperatorPriority() > Operators::Constants::minOperatorPriority) {

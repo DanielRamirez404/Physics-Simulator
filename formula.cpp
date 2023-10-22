@@ -24,7 +24,7 @@ void Math::Formula::setFormula(std::string_view myFormula, const std::vector<cha
 }
 
 void Math::Formula::addValueFor(char identifier, std::string_view value) {
-  string.replace(string.find(identifier), 1, value);
+  while (contains(identifier)) string.replace(string.find(identifier), 1, value);
 }
 
 void Math::Formula::format() {
