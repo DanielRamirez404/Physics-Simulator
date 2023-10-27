@@ -84,38 +84,16 @@ void doUniformilyAcceleratedLinearMotion() {
   Motion acceleratedMotion{};
   std::cout << "PLEASE, ENTER THE TIME VALUE (REQUIRED)\n";
   acceleratedMotion.setVariable( 't', getPositiveNumberInput<float>() );
-  while (!acceleratedMotion.areAllVariablesSet()) {
-    if (!acceleratedMotion.isVariableSet('a')) {
-      std::cout << "DO YOU HAVE THE ACCELERATION VALUE? (y/n)\n";
-      if (ynInput()) {
-        std::cout << "ENTER THE ACCELERATION VALUE\n";
-        acceleratedMotion.setVariable( 'a', getPositiveNumberInput<float>() );
-      }
+  for (auto it{ MotionVariables::list.begin() }; acceleratedMotion.countSetVariables() < 3; it++) {
+    if (it == MotionVariables::list.end()) it = MotionVariables::list.begin();
+    if (acceleratedMotion.isVariableSet(*it)) continue;
+    std::cout << "DO YOU HAVE THE VALUE FOR " << *it << "? (y/n)\n";
+    if (ynInput()) {
+      std::cout << "ENTER ITS VALUE\n";
+      acceleratedMotion.setVariable(*it, getPositiveNumberInput<float>());
     }
-    if (!acceleratedMotion.isVariableSet('o')) {
-      std::cout << "DO YOU HAVE THE INITIAL VELOCITY VALUE? (y/n)\n";
-      if (ynInput()) {
-        std::cout << "ENTER THE INITIAL VELOCITY VALUE\n";
-        acceleratedMotion.setVariable( 'o', getPositiveNumberInput<float>() );
-      }
-    }
-    if (!acceleratedMotion.isVariableSet('V')) {
-      std::cout << "DO YOU HAVE THE FINAL VELOCITY VALUE? (y/n)\n";
-      if (ynInput()) {
-        std::cout << "ENTER THE FINAL VELOCITY VALUE\n";
-        acceleratedMotion.setVariable( 'V', getPositiveNumberInput<float>() );
-      }
-    }
-    if (!acceleratedMotion.isVariableSet('d')) {
-      std::cout << "DO YOU HAVE THE DISTANCE VALUE? (y/n)\n";
-      if (ynInput()) {
-        std::cout << "ENTER THE DISTANCE VALUE\n";
-        acceleratedMotion.setVariable( 'd', getPositiveNumberInput<float>() );
-      }
-    }
-    if (acceleratedMotion.canDetermineRemainingVariables()) acceleratedMotion.determineRemainingVariables();
   }
-  countdown();
+  acceleratedMotion.determineRemainingVariables();
   printValues(acceleratedMotion);   //testing
   pressAnyToContinue();             //testing
   acceleratedMotion.simulate();

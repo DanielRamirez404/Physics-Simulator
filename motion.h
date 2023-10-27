@@ -4,6 +4,10 @@
 #include <array>
 #include <vector>
 
+namespace MotionVariables {
+  inline constexpr std::array<char, 5> list { 'a', 'o', 'V', 'd', 't' };
+}
+
 class Motion {
 private:
   std::array<Variable, 5>  variables {{ 'a', 'o', 'V', 'd', 't' }};

@@ -81,7 +81,7 @@ void Motion::printCurrentState(float currentTime) {
   float currentDistance { getCurrentDistance(currentTime) };
   int relativeDistance { Math::percentage(currentDistance, getVariable('d').get()) };
   constexpr int maxPrintableWidth { 100 };
-  for (int i{0}; i < maxPrintableWidth - 1; ++i) {
+  for (int i{0}; i <= maxPrintableWidth; ++i) {
     if (relativeDistance == i) {
       std::cout << '*';
       break;
@@ -91,8 +91,8 @@ void Motion::printCurrentState(float currentTime) {
   clearConsole();
 }
 
-float Motion::getCurrentDistance(float currentTime) {
-  return ((getVariable('d').get() * currentTime) / 2);   //this needs rework
+float Motion::getCurrentDistance(float currentTime) { // d = o * t + (a * t ^ 2) / 2
+  return getVariable('o').get() * currentTime + (getVariable('a').get() * Math::exponentiation<float>(currentTime, 2)) / 2;
 }
 
 void Motion::simulate() {
