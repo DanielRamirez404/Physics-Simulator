@@ -27,9 +27,8 @@ void countdown() {
 
 void chooseHorizontalMotion() {
   std::vector<MenuFunction> horizontalFunctions{};
-  //horizontalFunctions.push_back( { "UNIFORM LINEAR MOTION", &doUniformLinearMotion } );
-  horizontalFunctions.push_back( { "UNIFORMILY ACCELERATED LINEAR MOTION", &doUniformilyAcceleratedLinearMotion} );
-  //horizontalFunctions.push_back( { "UNIFORMILY DECELERATED LINEAR MOTION", } );
+  horizontalFunctions.push_back( { "UNIFORM LINEAR MOTION", &doUniformLinearMotion } );
+  horizontalFunctions.push_back( { "UNIFORMILY VARIED LINEAR MOTION", &doUniformilyVariedLinearMotion} );
   RunOnceMenu horizontalMenu("HORIZONTAL MOTION", horizontalFunctions);
   horizontalMenu.run();
 }
@@ -44,34 +43,16 @@ void printValues(Motion& myMotion) { //testing function
 void doUniformLinearMotion() {
   Motion uniformLinearMotion{};
   uniformLinearMotion.setVariable('a', 0.0f);
-  while (true) {
-    if (!uniformLinearMotion.isVariableSet('V')) {
-      std::cout << "DO YOU HAVE THE VELOCITY VALUE? (y/n)\n";
-      if (ynInput()) {
-        std::cout << "ENTER THE VELOCITY VALUE\n";
-        uniformLinearMotion.setVariable( 'V', getPositiveNumberInput<float>() );
-      }
-    }
-    if (!uniformLinearMotion.isVariableSet('d')) {
-      std::cout << "DO YOU HAVE THE DISTANCE VALUE? (y/n)\n";
-      if (ynInput()) {
-        std::cout << "ENTER THE DISTANCE VALUE\n";
-        uniformLinearMotion.setVariable( 'd', getPositiveNumberInput<float>() );
-      }
-    }
-    if (!uniformLinearMotion.isVariableSet('t')) {
-      std::cout << "DO YOU HAVE THE TIME VALUE? (y/n)\n";
-      if (ynInput()) {
-        std::cout << "ENTER THE TIME VALUE\n";
-        uniformLinearMotion.setVariable( 't', getPositiveNumberInput<float>() );
-      }
-    }
-    if (uniformLinearMotion.areAllVariablesSet()) {
-      break;
-    } else {
-      if (uniformLinearMotion.canDetermineRemainingVariables()) {
-        uniformLinearMotion.determineRemainingVariables();
-      }
+  std::cout << "PLEASE, ENTER THE TIME VALUE (REQUIRED)\n";
+  uniformLinearMotion.setVariable( 't', getPositiveNumberInput<float>() );
+  for (auto it{ MotionVariables::list.begin() }; uniformLinearMotion.countSetVariables() < 3; it++) {
+    if (it == MotionVariables::list.end()) it = MotionVariables::list.begin();
+    if (uniformLinearMotion.isVariableSet(*it) || *it == 'o') continue;
+    std::cout << "DO YOU HAVE THE VALUE FOR " << *it << "? (y/n)\n";
+    if (ynInput()) {
+      std::cout << "ENTER ITS VALUE\n";
+      uniformLinearMotion.setVariable(*it, getPositiveNumberInput<float>());
+      if (*it == 'V') uniformLinearMotion.setVariable('o', uniformLinearMotion.getVariableValue('V'));
     }
   }
   countdown();
@@ -80,7 +61,7 @@ void doUniformLinearMotion() {
   uniformLinearMotion.simulate();
 }
 
-void doUniformilyAcceleratedLinearMotion() {
+void doUniformilyVariedLinearMotion() {
   Motion acceleratedMotion{};
   std::cout << "PLEASE, ENTER THE TIME VALUE (REQUIRED)\n";
   acceleratedMotion.setVariable( 't', getPositiveNumberInput<float>() );
