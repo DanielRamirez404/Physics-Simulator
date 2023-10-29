@@ -39,7 +39,7 @@ namespace Math {
     return static_cast<T>(sqrt(number));
   }
 
-  template <typename T> int percentage(T relativeValue, T maxValue) {
+  template <typename T> T percentage(T relativeValue, T maxValue) {
     return ((relativeValue / maxValue) * 100);
   }
 
@@ -68,5 +68,9 @@ namespace Math {
         assert(false && "OPERATOR DOES NOT EXIST");
     }
     return result;
+  }
+  
+  int round(float number) {
+    return static_cast<int>(std::round(number));
   }
 }

@@ -78,35 +78,44 @@ void Motion::determineRemainingVariables() {
 }
 
 void Motion::printCurrentState(float currentTime) {
-  using distance = unsigned int;
-  const distance relativeDistance { static_cast<distance>(Math::percentage(getCurrentDistance(currentTime), getVariable('d').get())) };
-  constexpr distance maxPrintableWidth { 100 };
-  auto printlWithRelativeDistance { [&](std::string_view str) {
-    if (str.size() > relativeDistance) {
-      str.remove_prefix(str.size() - relativeDistance);
-      std::cout << str << '\n';
-      return;
-    }
-    const distance distanceToPrint(relativeDistance - str.size());
-    if (distanceToPrint > maxPrintableWidth) str.remove_suffix(distanceToPrint - maxPrintableWidth);
-    for (distance i{0}; i <= maxPrintableWidth; ++i) {
-      if (i == distanceToPrint) {
-        std::cout << str << '\n';
-        break;
-      }
-      std::cout << ' ';
-    }
-  } };
-  printlWithRelativeDistance("                    :|||\"\"\"`.`.                  ");  //art found in https://ascii.co.uk/art/car
-  printlWithRelativeDistance("                    :|||     7.`.                ");
-  printlWithRelativeDistance("  .===+===+===+===+===||`----L7'-`7`---.._          ");
-  printlWithRelativeDistance("  []                  || ==       |       \"\"\"-.  ");
-  printlWithRelativeDistance("  []...._____.........||........../ _____ ____|  ");
-  printlWithRelativeDistance("c\\____/,---.\\_       ||_________/ /,---.\\_  _/   ");
-  printlWithRelativeDistance("    /_,-/ ,-. \\ `._____|__________||/ ,-. \\ \\_[  ");
-  printlWithRelativeDistance("      /\\ `-' /                    /\\ `-' /       ");
-  printlWithRelativeDistance("        `---'                       `---'        ");
+  using Distance = unsigned int;
+  const auto currentDistance { (getCurrentDistance(currentTime)) };
+  const Distance relativeDistance { static_cast<Distance>(Math::percentage(currentDistance, getVariable('d').get())) };
+  //art found in https://ascii.co.uk/art/car
   clearConsole();
+  std::cout << "----------------------------------------------\n";
+  std::cout << "ELAPSED TIME: " << Math::round(currentTime) << " SECONDS\n";
+  std::cout << "TRAVELED DISTANCE: " << Math::round(currentDistance) << " METERS\n";
+  std::cout << "----------------------------------------------\n";
+  printlInDistance("                     .------.                    "   , relativeDistance);
+  printlInDistance("                    :|||\"\"\"`.`.                  ", relativeDistance);
+  printlInDistance("                    :|||     7.`.                "   , relativeDistance);
+  printlInDistance("  .===+===+===+===+===||`----L7'-`7`---.._       "   , relativeDistance);
+  printlInDistance("  []                  || ==       |       \"\"\"-.  ", relativeDistance);
+  printlInDistance("  []...._____.........||........../ _____ ____|  "   , relativeDistance);
+  printlInDistance(" c\\____/,---.\\_       ||_________/ /,---.\\_  _/  ", relativeDistance);
+  printlInDistance("   /_,-/ ,-. \\ `._____|__________||/ ,-. \\ \\_[   ", relativeDistance);
+  printlInDistance("      /\\ `-' /                    /\\ `-' /       " , relativeDistance);
+  printlInDistance("        `---'                       `---'        "   , relativeDistance);
+}
+
+void Motion::printlInDistance(std::string_view string, unsigned int distance) {
+  using Distance = unsigned int;
+  constexpr Distance maxPrintableWidth { 100 };
+  if (string.size() > distance) {
+    string.remove_prefix(string.size() - distance);
+    std::cout << string << '\n';
+    return;
+  }
+  const Distance distanceToPrint(distance - string.size());
+  if (distanceToPrint > maxPrintableWidth) string.remove_suffix(distanceToPrint - maxPrintableWidth);
+  for (Distance i{0}; i <= maxPrintableWidth; ++i) {
+    if (i == distanceToPrint) {
+      std::cout << string << '\n';
+      break;
+    }
+    std::cout << ' ';
+  }
 }
 
 float Motion::getCurrentDistance(float currentTime) { // d = o * t + (a * t ^ 2) / 2
@@ -116,7 +125,6 @@ float Motion::getCurrentDistance(float currentTime) { // d = o * t + (a * t ^ 2)
 void Motion::simulate() {
   std::function<void(float)> printFunction { std::bind(&Motion::printCurrentState, this, std::placeholders::_1) };
   TimeUsableFunction simulation{getVariable('t').get(), printFunction};
-  simulation.setIsTimePrinted(true);
   simulation.run();
 }
 

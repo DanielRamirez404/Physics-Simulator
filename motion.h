@@ -16,6 +16,7 @@ private:
   std::vector<char> getVariablesFor(char identifier);
   int countUnknownVariables(std::string_view formula);
   void printCurrentState(float time);
+  void printlInDistance(std::string_view string, unsigned int distance);
   float getCurrentDistance(float currentTime);
   void determineVariable(char identifier);
 public:
