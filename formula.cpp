@@ -1,5 +1,6 @@
 #include "formula.h"
 #include "math characters.h"
+#include "operator priorities.h"
 #include "userstring.h"
 #include "uservector.h"
 #include "error.h"
@@ -159,22 +160,22 @@ int Math::Formula::getNumberofOperations() {
   return numberOfOperations;
 }
 
-int Math::Formula::getMaxOperatorPriority() {
+Math::Operators::Priority Math::Formula::getMaxOperatorPriority() {
   using namespace Operators;
   if (std::none_of(string.begin(), string.end(), isParenthesis)) {
-    if (std::any_of(string.begin(), string.end(), isMaxPriority)) return Constants::maxOperatorPriority;
-    if (std::any_of(string.begin(), string.end(), isMidPriority)) return Constants::midOperatorPriority;
-    return (areThereMinPriorityOperator()) ? Constants::minOperatorPriority : Constants::noOperatorPriority;
+    if (std::any_of(string.begin(), string.end(), isMaxPriority)) return Priority::max;
+    if (std::any_of(string.begin(), string.end(), isMidPriority)) return Priority::mid;
+    return (areThereMinPriorityOperator()) ? Priority::low : Priority::none;
   }
-  int maxNonParenthesisOperatorPriority{ Constants::noOperatorPriority };
+  Priority maxNonParenthesisOperatorPriority{ Priority::none };
   for (size_t i{0}; i < string.size(); ++i) {
     if (!isTrueOperator(i)) continue;
     if (isWrappedUpByParentheses(i)) {
       i = getFirstWrappingParenthesisClosingIndex(i);
       continue;
     }
-    if (isMaxPriority(string[i])) return Constants::maxOperatorPriority;
-    maxNonParenthesisOperatorPriority  = (isMidPriority(string[i])) ? Constants::midOperatorPriority : Constants::minOperatorPriority;
+    if (isMaxPriority(string[i])) return Priority::max;
+    maxNonParenthesisOperatorPriority  = (isMidPriority(string[i])) ? Priority::mid : Priority::low;
   }
   return maxNonParenthesisOperatorPriority;
 }
@@ -187,7 +188,7 @@ bool Math::Formula::areThereMinPriorityOperator() {
 }
 
 void Math::Formula::writeParenthesesAtMaxPriority() {
-  int maxPriority{ getMaxOperatorPriority() };
+  Operators::Priority maxPriority{ getMaxOperatorPriority() };
   for (size_t i{0}; i < string.size(); ++i) {
     if (!isTrueOperator(i)) continue;
     if (isWrappedUpByParentheses(i)) {

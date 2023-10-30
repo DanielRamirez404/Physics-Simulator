@@ -1,4 +1,5 @@
 #pragma once
+#include "operator priorities.h"
 #include "userstring.h"
 #include "side.h"
 #include <cstddef>
@@ -38,7 +39,7 @@ namespace Math {
     bool isWrappedUpByParentheses(size_t index);
     bool isWrappedUpByParentheses();
     int getNumberofOperations();
-    int getMaxOperatorPriority();
+    Operators::Priority getMaxOperatorPriority();
     int getParenthesisDeepness(size_t index);
     size_t getFirstParenthesisOpeningIndex();   // returns 0 if there's no parenthesis
     size_t getFirstParenthesisClosingIndex();   // returns 0 if there's no parenthesis

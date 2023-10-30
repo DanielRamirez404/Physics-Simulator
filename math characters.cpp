@@ -1,4 +1,5 @@
 #include "math characters.h"
+#include "operator priorities.h"
 
 bool Math::isNumber(char myChar) {
   switch (myChar) {
@@ -46,19 +47,19 @@ bool Math::isMathRelated(char myChar) {
   return (isMathSymbol(myChar) || isNumber(myChar));
 }
 
-int Math::Operators::getPriority(char myOperator) {
+Math::Operators::Priority Math::Operators::getPriority(char myOperator) {
   switch (myOperator) {
     case '+':
     case '-':
-      return Constants::minOperatorPriority;
+      return Priority::low;
     case '*':
     case '/':
-      return Constants::midOperatorPriority;
+      return Priority::mid;
     case '^':
     case 'v':
-      return Constants::maxOperatorPriority;
+      return Priority::max;
   }
-  return Constants::noOperatorPriority;
+  return Priority::none;
 }
 
 char Math::Operators::getOpposite(char myOperator) {
@@ -80,13 +81,13 @@ char Math::Operators::getOpposite(char myOperator) {
 }
 
 bool Math::Operators::isMinPriority(char myChar) {
-  return getPriority(myChar) == Constants::minOperatorPriority;
+  return getPriority(myChar) == Priority::low;
 }
 
 bool Math::Operators::isMidPriority(char myChar) {
-  return getPriority(myChar) == Constants::midOperatorPriority;
+  return getPriority(myChar) == Priority::mid;
 }
 
 bool Math::Operators::isMaxPriority(char myChar) {
-  return getPriority(myChar) == Constants::maxOperatorPriority;
+  return getPriority(myChar) == Priority::max;
 }

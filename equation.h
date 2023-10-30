@@ -2,6 +2,7 @@
 #include "operation.h"
 #include "formula.h"
 #include "math characters.h"
+#include "operator priorities.h"
 #include "error.h"
 #include "side.h"
 #include <cstddef>
@@ -74,7 +75,7 @@ template <typename T> T Math::Equation<T>::solveFor(char identifier) {
   assertWithMessage(isIdentifierResolvable(identifier), "THERE CANNOT BE MORE THAN ONE UNKNOWN VARIABLE IN THE FORMULA");
   simplifyVariableFormulaParentheses();
   T result{};
-  while (variableFormula->getNumberofOperations() > 1 && variableFormula->getMaxOperatorPriority() > Operators::Constants::minOperatorPriority) {
+  while (variableFormula->getNumberofOperations() > 1 && variableFormula->getMaxOperatorPriority() > Operators::Priority::low) {
     variableFormula->writeParenthesesAtMaxPriority();
   }
   while (variableFormula->size() > 2) {
@@ -100,15 +101,17 @@ template <typename T> void Math::Equation<T>::moveSingleOperation(char identifie
   const size_t operatorIndex{ findOperator(identifier, operatorSide) };
   const char myOperator { variableFormula->at(operatorIndex) };
   switch (Operators::getPriority(myOperator)) {
-    case Operators::Constants::minOperatorPriority:
+    case Operators::Priority::low:
       moveMinPriorityOperator(myOperator, operatorSide, operatorIndex, numberString);
       break;
-    case Operators::Constants::midOperatorPriority:
+    case Operators::Priority::mid:
       moveMidPriorityOperator(myOperator, operatorSide, operatorIndex, numberString);
       break;
-    case Operators::Constants::maxOperatorPriority:
+    case Operators::Priority::max:
       moveMaxPriorityOperator(myOperator, operatorSide, operatorIndex, numberString);
       break;
+    case Operators::Priority::none:
+      assertWithMessage(false, "AN UNEXPECTED ERROR HAS OCURRED");
   }
 }
 

@@ -1,4 +1,5 @@
 #pragma once
+#include "operator priorities.h"
 
 namespace Math {
   bool isNumber(char myChar);
@@ -10,16 +11,9 @@ namespace Math {
 }
 
 namespace Math::Operators {
-  int getPriority(char myOperator);
+  Priority getPriority(char myOperator);
   char getOpposite(char myOperator);
   bool isMinPriority(char myChar);
   bool isMidPriority(char myChar);
   bool isMaxPriority(char myChar);
-}
-
-namespace Math::Operators::Constants {
-  inline constexpr int noOperatorPriority{0};
-  inline constexpr int minOperatorPriority{1};
-  inline constexpr int midOperatorPriority{2};
-  inline constexpr int maxOperatorPriority{3};
 }
