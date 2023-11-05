@@ -4,21 +4,18 @@
 #include <array>
 #include <vector>
 
-namespace MotionVariables::identifiers {
+namespace MotionIdentifiers {
   constexpr char acceleration {'a'};
   constexpr char initialVelocity {'o'};
   constexpr char finalVelocity {'V'};
   constexpr char distance {'d'};
   constexpr char time {'t'};
-}
-
-namespace MotionVariables {
-  inline constexpr std::array<char, 5> list { identifiers::acceleration, identifiers::initialVelocity, identifiers::finalVelocity, identifiers::distance, identifiers::time };
+  inline constexpr std::array<char, 5> identifiersList { acceleration, initialVelocity, finalVelocity, distance, time };
 }
 
 class Motion {
 private:
-  std::array<Variable, 5>  variables {{ MotionVariables::identifiers::acceleration, MotionVariables::identifiers::initialVelocity, MotionVariables::identifiers::finalVelocity, MotionVariables::identifiers::distance, MotionVariables::identifiers::time }};
+  std::array<Variable, 5>  variables {{ MotionIdentifiers::acceleration, MotionIdentifiers::initialVelocity, MotionIdentifiers::finalVelocity, MotionIdentifiers::distance, MotionIdentifiers::time }};
   Variable& getVariable(char identifier);
   std::string_view getFormulaFor(char identifier);
   std::vector<char> getVariablesFor(char identifier);

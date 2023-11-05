@@ -4,6 +4,7 @@
 #include "userinput.h"
 #include "menu.h"
 #include <iostream>
+#include <cstddef>
 #include <vector>
 
 const std::vector<MenuFunction>& getSimulatorFunctions() {
@@ -24,18 +25,18 @@ void chooseHorizontalMotion() {
 }
 
 void doUniformLinearMotion() {
+  using namespace MotionIdentifiers;
   Motion uniformLinearMotion{};
-  uniformLinearMotion.setVariable(MotionVariables::identifiers::acceleration, 0);
-  std::cout << "PLEASE, ENTER THE TIME VALUE (REQUIRED)\n";
-  uniformLinearMotion.setVariable(MotionVariables::identifiers::time, getPositiveNumberInput<float>());
-  for (auto it{ MotionVariables::list.begin() }; !uniformLinearMotion.canDetermineRemainingVariables(); it++) {
-    if (it == MotionVariables::list.end()) it = MotionVariables::list.begin();
-    if (uniformLinearMotion.isVariableSet(*it) || *it == MotionVariables::identifiers::initialVelocity) continue;
-    std::cout << "DO YOU HAVE THE VALUE FOR " << *it << "? (y/n)\n";
-    if (ynInput()) {
-      std::cout << "ENTER ITS VALUE\n";
-      uniformLinearMotion.setVariable(*it, getPositiveNumberInput<float>());
-      if (*it == MotionVariables::identifiers::finalVelocity) uniformLinearMotion.setVariable(MotionVariables::identifiers::initialVelocity, uniformLinearMotion.getVariableValue(MotionVariables::identifiers::finalVelocity));
+  setTimeFromUser(uniformLinearMotion);
+  uniformLinearMotion.setVariable(acceleration, 0);
+  for (size_t i{ 0 }; !uniformLinearMotion.canDetermineRemainingVariables(); i++) {
+    const char identifier { identifiersList[i % identifiersList.size()] };
+    if (uniformLinearMotion.isVariableSet(identifier) || identifier == initialVelocity)
+      continue;
+    if (doesUserHaveValueFor(identifier)) {
+      setVariableFromUser(uniformLinearMotion, identifier);
+      if (identifier == finalVelocity)
+        uniformLinearMotion.setVariable(initialVelocity, uniformLinearMotion.getVariableValue(finalVelocity));
     }
   }
   uniformLinearMotion.determineRemainingVariables();
@@ -43,17 +44,15 @@ void doUniformLinearMotion() {
 }
 
 void doUniformilyVariedLinearMotion() {
+  using namespace MotionIdentifiers;
   Motion acceleratedMotion{};
-  std::cout << "PLEASE, ENTER THE TIME VALUE (REQUIRED)\n";
-  acceleratedMotion.setVariable(MotionVariables::identifiers::time, getPositiveNumberInput<float>());
-  for (auto it{ MotionVariables::list.begin() }; !acceleratedMotion.canDetermineRemainingVariables(); it++) {
-    if (it == MotionVariables::list.end()) it = MotionVariables::list.begin();
-    if (acceleratedMotion.isVariableSet(*it)) continue;
-    std::cout << "DO YOU HAVE THE VALUE FOR " << *it << "? (y/n)\n";
-    if (ynInput()) {
-      std::cout << "ENTER ITS VALUE\n";
-      acceleratedMotion.setVariable(*it, getPositiveNumberInput<float>());
-    }
+  setTimeFromUser(acceleratedMotion);
+  for (size_t i{ 0 }; !acceleratedMotion.canDetermineRemainingVariables(); i++) {
+    const char identifier { identifiersList[i % identifiersList.size()] };
+    if (acceleratedMotion.isVariableSet(identifier)) 
+      continue;
+    if (doesUserHaveValueFor(identifier)) 
+      setVariableFromUser(acceleratedMotion, identifier);
   }
   acceleratedMotion.determineRemainingVariables();
   acceleratedMotion.simulate();
@@ -62,4 +61,19 @@ void doUniformilyVariedLinearMotion() {
 void chooseVerticalMotion() {
   Motion myMotion{};
   myMotion.simulate();
+}
+
+void setTimeFromUser(Motion& motion) {
+  std::cout << "PLEASE, ENTER THE TIME VALUE (REQUIRED)\n";
+  motion.setVariable(MotionIdentifiers::time, getPositiveNumberInput<float>());
+}
+
+bool doesUserHaveValueFor(char identifier) {
+  std::cout << "DO YOU HAVE THE VALUE FOR " << identifier << "? (y/n)\n";
+  return ynInput();
+}
+
+void setVariableFromUser(Motion& motion, char identifier) {
+  std::cout << "ENTER THE VALUE FOR " << identifier << '\n';
+  motion.setVariable(identifier, getPositiveNumberInput<float>());
 }

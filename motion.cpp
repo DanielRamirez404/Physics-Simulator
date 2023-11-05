@@ -119,12 +119,12 @@ void Motion::printlInDistance(std::string_view string, unsigned int distance) {
 }
 
 float Motion::getCurrentDistance(float currentTime) { // d = o * t + (a * t ^ 2) / 2
-  return getVariable(MotionVariables::identifiers::initialVelocity).get() * currentTime + (getVariable(MotionVariables::identifiers::acceleration).get() * Math::exponentiation<float>(currentTime, 2)) / 2;
+  return getVariable(MotionIdentifiers::initialVelocity).get() * currentTime + (getVariable(MotionIdentifiers::acceleration).get() * Math::exponentiation<float>(currentTime, 2)) / 2;
 }
 
 void Motion::simulate() {
   std::function<void(float)> printFunction { std::bind(&Motion::printCurrentState, this, std::placeholders::_1) };
-  TimeUsableFunction simulation{getVariable(MotionVariables::identifiers::time).get(), printFunction};
+  TimeUsableFunction simulation{getVariable(MotionIdentifiers::time).get(), printFunction};
   simulation.run();
 }
 
