@@ -6,6 +6,7 @@
 #include <iostream>
 #include <cstddef>
 #include <vector>
+#include <cmath>
 
 const std::vector<MenuFunction>& getSimulatorFunctions() {
   static const std::vector<MenuFunction> functions{
@@ -69,11 +70,29 @@ void setTimeFromUser(Motion& motion) {
 }
 
 bool doesUserHaveValueFor(char identifier) {
-  std::cout << "DO YOU HAVE THE VALUE FOR " << identifier << "? (y/n)\n";
+  std::cout << "DO YOU HAVE THE VALUE OF THE " << getIdentifierName(identifier) << "? (y/n)\n";
   return ynInput();
 }
 
 void setVariableFromUser(Motion& motion, char identifier) {
-  std::cout << "ENTER THE VALUE FOR " << identifier << '\n';
-  motion.setVariable(identifier, getPositiveNumberInput<float>());
+  std::cout << "ENTER THE VALUE OF THE " << getIdentifierName(identifier) << '\n';
+  (identifier == MotionIdentifiers::distance || identifier == MotionIdentifiers::time)
+    ? motion.setVariable(identifier, getPositiveNumberInput<float>())
+    : motion.setVariable(identifier, getUserInput<float>());
+}
+
+std::string_view getIdentifierName(char identifier) {
+  switch (identifier) {
+    case MotionIdentifiers::acceleration:
+      return "ACCELERATION";
+    case MotionIdentifiers::initialVelocity:
+      return "INITIAL VELOCITY";
+    case MotionIdentifiers::finalVelocity:
+      return "FINAL VELOCITY";
+    case MotionIdentifiers::distance:
+      return "DISTANCE";
+    case MotionIdentifiers::time:
+      return "TIME";
+  }
+  return "";
 }
