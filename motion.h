@@ -4,6 +4,12 @@
 #include <array>
 #include <vector>
 
+struct DistancesToPrint {
+  float first{};
+  float current{};
+  float last{};
+};
+
 namespace MotionIdentifiers {
   constexpr char acceleration {'a'};
   constexpr char initialVelocity {'o'};
@@ -15,16 +21,19 @@ namespace MotionIdentifiers {
 
 class Motion {
 private:
-  std::array<Variable, 5>  variables {{ MotionIdentifiers::acceleration, MotionIdentifiers::initialVelocity, MotionIdentifiers::finalVelocity, MotionIdentifiers::distance, MotionIdentifiers::time }};
+  std::array<Variable, 5> variables {{ MotionIdentifiers::acceleration, MotionIdentifiers::initialVelocity, MotionIdentifiers::finalVelocity, MotionIdentifiers::distance, MotionIdentifiers::time }};
   Variable& getVariable(char identifier);
   std::string_view getFormulaFor(char identifier);
   std::vector<char> getVariablesFor(char identifier);
   int countUnknownVariables(std::string_view formula);
   void printCurrentState(float time);
-  void printlInDistance(std::string_view string, unsigned int distance);
+  void printlInDistance(std::string_view string, const DistancesToPrint& distances);
   float getCurrentDistance(float currentTime);
   void determineVariable(char identifier);
 public:
+  Motion() {
+    getVariable(MotionIdentifiers::time).setSignedness(false);
+  };
   int countSetVariables();
   bool areAllVariablesSet();
   bool canDetermineRemainingVariables();
