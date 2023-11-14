@@ -3,6 +3,7 @@
 #include "timed functions.h"
 #include "userinput.h"
 #include "equation.h"
+#include "distances.h"
 #include "usermath.h"
 #include "math characters.h"
 #include "uservector.h"
@@ -11,7 +12,6 @@
 #include <array>
 #include <string_view>
 #include <algorithm>
-#include <cassert>
 #include <iostream>
 
 Variable& Motion::getVariable(char identifier) {
@@ -79,13 +79,17 @@ void Motion::determineRemainingVariables() {
 
 void Motion::printCurrentState(float currentTime) {
   using Distance = unsigned int;
-  const auto currentDistance { (getCurrentDistance(currentTime)) };
-  const Distance relativeDistance { static_cast<Distance>(Math::percentage(currentDistance, getVariable('d').get())) };
+  const DistancesToPrint distances{
+    getCurrentDistance(0),
+    (getCurrentDistance(currentTime)),
+    getVariable(MotionIdentifiers::distance).get()
+  };
+  const Distance relativeDistance { distances.getRelativeDistance() };
   //art found in https://ascii.co.uk/art/car
   clearConsole();
   std::cout << "----------------------------------------------\n";
   std::cout << "ELAPSED TIME: " << Math::round(currentTime) << " SECONDS\n";
-  std::cout << "TRAVELED DISTANCE: " << Math::round(currentDistance) << " METERS\n";
+  std::cout << "TRAVELED DISTANCE: " << Math::round(distances.getCurrent()) << " METERS\n";
   std::cout << "----------------------------------------------\n";
   printlInDistance("                     .------.                    "   , relativeDistance);
   printlInDistance("                    :|||\"\"\"`.`.                  ", relativeDistance);

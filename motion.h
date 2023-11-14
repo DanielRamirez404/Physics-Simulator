@@ -4,18 +4,12 @@
 #include <array>
 #include <vector>
 
-struct DistancesToPrint {
-  float first{};
-  float current{};
-  float last{};
-};
-
 namespace MotionIdentifiers {
-  constexpr char acceleration {'a'};
-  constexpr char initialVelocity {'o'};
-  constexpr char finalVelocity {'V'};
-  constexpr char distance {'d'};
-  constexpr char time {'t'};
+  inline constexpr char acceleration {'a'};
+  inline constexpr char initialVelocity {'o'};
+  inline constexpr char finalVelocity {'V'};
+  inline constexpr char distance {'d'};
+  inline constexpr char time {'t'};
   inline constexpr std::array<char, 5> identifiersList { acceleration, initialVelocity, finalVelocity, distance, time };
 }
 
@@ -27,7 +21,7 @@ private:
   std::vector<char> getVariablesFor(char identifier);
   int countUnknownVariables(std::string_view formula);
   void printCurrentState(float time);
-  void printlInDistance(std::string_view string, const DistancesToPrint& distances);
+  void printlInDistance(std::string_view string, unsigned int distance);
   float getCurrentDistance(float currentTime);
   void determineVariable(char identifier);
 public:
