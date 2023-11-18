@@ -1,13 +1,12 @@
 #include "menu.h"
 #include "userinput.h"
-
 #include <cassert>
 #include <cstddef>
 #include <iostream>
 #include <functional>
 #include <vector>
 
-void Menu::run() {
+void Menu::run() const {
   while (true) {
     clearConsole();
     print();
@@ -26,12 +25,12 @@ void Menu::run() {
   }
 }
 
-bool Menu::isQuittingConfirmed() {
+bool Menu::isQuittingConfirmed() const {
   std::cout << "ARE YOU SURE YOU WANT TO " << exitMessage << "? (y/n)\n";
   return ynInput();
 }
 
-void Menu::print() {
+void Menu::print() const {
   printTitle();
   for (size_t i{0}; i < totalOptions; ++i) {
     std::cout << i + 1 << ") " << functions[i].name << '\n';
@@ -39,7 +38,7 @@ void Menu::print() {
   std::cout << totalOptions + 1 << ") " << exitMessage << '\n';
 }
 
-void Menu::printTitle() {
+void Menu::printTitle() const {
   constexpr int menuWidth{46};
   constexpr int halfWidth{menuWidth / 2};
   const int titleSize { static_cast<int>(title.size()) };
@@ -53,7 +52,7 @@ void Menu::printTitle() {
   std::cout << "----------------------------------------------\n";
 }
 
-void RunOnceMenu::run() {
+void RunOnceMenu::run() const {
   clearConsole();
   print();
   size_t selectedOption{ getUserInput<size_t>() };

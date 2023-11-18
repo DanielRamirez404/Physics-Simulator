@@ -22,10 +22,10 @@ namespace Math {
     std::vector<char> variables{};
     void assignFormulas(std::string_view formula, const std::vector<char>& myVariableNames);
     void identifyFormulasFor(char identifier);
-    bool isIdentifierResolvable(char identifier);
-    Side getOperatorSide(char identifier);
-    size_t findOutermost(char identifier, Side indexSide);
-    size_t findOperator(char identifier, Side operatorSide);
+    bool isIdentifierResolvable(char identifier) const;
+    Side getOperatorSide(char identifier) const;
+    size_t findOutermost(char identifier, Side indexSide) const;
+    size_t findOperator(char identifier, Side operatorSide) const;
     void simplifyVariableFormulaParentheses();
     std::string cutNumberString(Side operatorSide, size_t operatorIndex);
     std::string cutParenthesesString(Side operatorSide, size_t operatorIndex);
@@ -36,7 +36,7 @@ namespace Math {
   public:
     Equation(const Equation&) = delete;
     Equation& operator=(const Equation&) = delete; 
-    Equation(std::string_view formula, const std::vector<char>& myVariableNames) : variables(myVariableNames) { assignFormulas(formula, myVariableNames); };
+    Equation(std::string_view formula, const std::vector<char>& myVariableNames) : variables{myVariableNames} { assignFormulas(formula, myVariableNames); };
     T solveFor(char identifier);
     void addValueFor(char identifier, T value);
   };
@@ -58,11 +58,11 @@ template <typename T> void Math::Equation<T>::identifyFormulasFor(char identifie
   nonVariableFormula = (identifierSide == Side::right) ? &leftSideFormula : &rightSideFormula;
 }
 
-template <typename T> bool Math::Equation<T>::isIdentifierResolvable(char identifier) {
+template <typename T> bool Math::Equation<T>::isIdentifierResolvable(char identifier) const {
   return (variables.size() == 1) && (variableFormula->count(identifier) == 1) && !nonVariableFormula->contains(identifier);
 }
 
-template <typename T> size_t Math::Equation<T>::findOutermost(char identifier, Side indexSide) {
+template <typename T> size_t Math::Equation<T>::findOutermost(char identifier, Side indexSide) const {
   size_t index { variableFormula->find(identifier) };
   if (variableFormula->isWrappedUpByParentheses(index)) {
     index = (indexSide == Side::left) ? variableFormula->getFirstWrappingParenthesisOpeningIndex(index) : variableFormula->getFirstWrappingParenthesisClosingIndex(index);
@@ -115,7 +115,7 @@ template <typename T> void Math::Equation<T>::moveSingleOperation(char identifie
   }
 }
 
-template <typename T> size_t Math::Equation<T>::findOperator(char identifier, Side operatorSide) {
+template <typename T> size_t Math::Equation<T>::findOperator(char identifier, Side operatorSide) const {
   const size_t outermostVariableIndex { findOutermost(identifier, operatorSide) };
   return (operatorSide == Side::right) ? outermostVariableIndex + 1 : outermostVariableIndex - 1 ;
 }
@@ -127,7 +127,7 @@ template <typename T> void Math::Equation<T>::simplifyVariableFormulaParentheses
   }
 }
 
-template <typename T> Side Math::Equation<T>::getOperatorSide(char identifier) {
+template <typename T> Side Math::Equation<T>::getOperatorSide(char identifier) const {
   const size_t outermostVariableIndex { findOutermost(identifier, Side::right) };
   return (outermostVariableIndex == variableFormula->size() - 1) ? Side::left : Side::right;
 }

@@ -14,6 +14,6 @@ void Error::add(std::string_view errorMessage) {
   hasBeenFound = true;
 }
 
-void Error::assertNoFoundErrors() {
+void Error::assertNoFoundErrors() const {
   assertWithMessage(!hasBeenFound, message);
 }

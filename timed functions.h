@@ -1,16 +1,14 @@
 #pragma once
 #include <functional>
 
-void doNothing();
-
 class Timer {
 protected:
   float seconds{};
   bool isTimePrinted{false};
-  void printTime(float remainingTime);
+  void printTime(float remainingTime) const;
 public:
   Timer(float mySeconds) : seconds(mySeconds) {};
-  void run();
+  void run() const;
   void setIsTimePrinted(bool option) { isTimePrinted = option; };
 };
 
@@ -19,7 +17,7 @@ protected:
   std::function<void()> function{};
 public:
   TimedFunction(float mySeconds, std::function<void()> myFunction) : Timer(mySeconds), function(myFunction) {};
-  void run();
+  void run() const;
 };
 
 class TimeUsableFunction : public Timer {
@@ -28,5 +26,5 @@ private:
   std::function<void(float)> function{};
 public:
   TimeUsableFunction(float mySeconds, std::function<void(float)> myFunction) : Timer(mySeconds), function(myFunction) {};
-  void run();
+  void run() const;
 };

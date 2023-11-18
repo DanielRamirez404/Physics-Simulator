@@ -15,7 +15,12 @@ namespace MotionIdentifiers {
 
 class Motion {
 private:
-  std::array<Variable, 5> variables {{ MotionIdentifiers::acceleration, MotionIdentifiers::initialVelocity, MotionIdentifiers::finalVelocity, MotionIdentifiers::distance, MotionIdentifiers::time }};
+  std::array<Variable, 5> variables {{ 
+    Variable {MotionIdentifiers::acceleration}, 
+    Variable {MotionIdentifiers::initialVelocity},
+    Variable {MotionIdentifiers::finalVelocity},
+    Variable {MotionIdentifiers::distance},
+    Variable {MotionIdentifiers::time} }};
   Variable& getVariable(char identifier);
   std::string_view getFormulaFor(char identifier);
   std::vector<char> getVariablesFor(char identifier);

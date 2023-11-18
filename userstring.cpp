@@ -47,19 +47,19 @@ void String::eraseWhitespaces() {
   }
 }
 
-bool String::contains(char myChar) {
+bool String::contains(char myChar) const {
   return string.find(myChar) != std::string::npos;
 }
 
-int String::count(char myChar) {
+int String::count(char myChar) const {
   return std::count(string.begin(), string.end(), myChar);
 }
 
-size_t String::find(char myChar) {
+size_t String::find(char myChar) const {
   return string.find(myChar);
 }
 
-size_t String::size() {
+size_t String::size() const {
   return string.size();
 }
 
@@ -79,6 +79,6 @@ char String::cut(size_t index) {
   return cutChar;
 }
 
-std::string_view String::get() {
+std::string_view String::get() const {
   return string;
 }

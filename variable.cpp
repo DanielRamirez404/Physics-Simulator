@@ -12,14 +12,14 @@ void Variable::setSignedness(bool myBool) {
     value = abs(value);
 }
 
-float Variable::get() {
+float Variable::get() const {
   return value;
 }
 
-bool Variable::isSet() {
+bool Variable::isSet() const {
   return hasBeenSet;
 }
 
-char Variable::getIdentifier() {
+char Variable::getIdentifier() const {
   return identifier;
 }

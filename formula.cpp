@@ -44,7 +44,7 @@ void Math::Formula::simplifyConsecutiveMinusSigns() {
   }
 }
 
-void Math::Formula::assertIsValid() {
+void Math::Formula::assertIsValid() const {
   Error syntaxError{};
   if (string.empty())
     syntaxError.add("FORMULA CAN\'T BE EMPTY");
@@ -59,39 +59,39 @@ void Math::Formula::assertIsValid() {
   syntaxError.assertNoFoundErrors();
 }
 
-bool Math::Formula::areCharactersValid() {
+bool Math::Formula::areCharactersValid() const {
   return std::all_of(string.begin(), string.end(), [&](char myChar) { 
     return isMathRelated(myChar) || Vector::doesElementExist(variables, myChar); 
   });
 }
 
-bool Math::Formula::comesBeforeNumber(size_t index) {
+bool Math::Formula::comesBeforeNumber(size_t index) const {
   return (index < string.size() - 1) && (isPartOfNumber(index + 1) || string[index + 1] == '(');
 }
 
-bool Math::Formula::comesAfterNumber(size_t index) {
+bool Math::Formula::comesAfterNumber(size_t index) const {
   return (index > 0) && (isPartOfNumber(index - 1) || string[index - 1] == ')');
 }
 
-bool Math::Formula::isConsecutiveMinusSign(size_t index) {
+bool Math::Formula::isConsecutiveMinusSign(size_t index) const {
   if (index == 0) return false;
   bool existConsecutiveMinusChars{ string[index] == '-' && string[index - 1] == '-' };
   return existConsecutiveMinusChars && isNumber(string[index + 1]) && (index == 1 || !isNumber(string[index - 2]));
 }
 
-bool Math::Formula::isMinusSign(size_t index) {
+bool Math::Formula::isMinusSign(size_t index) const {
   return (string[index] == '-') && !comesAfterNumber(index) && comesBeforeNumber(index);
 }
 
-bool Math::Formula::isTrueOperator(size_t index) {
+bool Math::Formula::isTrueOperator(size_t index) const {
   return isOperator(string[index]) && !isMinusSign(index);
 }
 
-bool Math::Formula::isPartOfNumber(size_t index) {
+bool Math::Formula::isPartOfNumber(size_t index) const {
   return isNumeric(string[index]) || isMinusSign(index) || Vector::doesElementExist(variables, string[index]);
 }
 
-int  Math::Formula::getParenthesisDeepness(size_t index) {
+int  Math::Formula::getParenthesisDeepness(size_t index) const {
   int deepness{};
   for (size_t i{0}; i <= index; ++i) {
     if (!isParenthesis(string[i])) continue;
@@ -100,54 +100,54 @@ int  Math::Formula::getParenthesisDeepness(size_t index) {
   return deepness;
 }
 
-bool Math::Formula::isWrappedUpByParentheses(size_t index) {
+bool Math::Formula::isWrappedUpByParentheses(size_t index) const {
   return getParenthesisDeepness(index) > 0;
 }
 
-bool Math::Formula::isWrappedUpByParentheses() {
+bool Math::Formula::isWrappedUpByParentheses() const {
   return (getFirstParenthesisOpeningIndex() == 0 && getFirstParenthesisClosingIndex() == size() - 1);
 }
 
-size_t Math::Formula::findAnyOperator() {
+size_t Math::Formula::findAnyOperator() const {
   for (size_t i{0}; i < string.size(); ++i) {
     if (isTrueOperator(i)) return i;
   }
   return 0;
 }
 
-bool Math::Formula::isThereAnyBadlyPlacedOperator() {
+bool Math::Formula::isThereAnyBadlyPlacedOperator() const {
   for (size_t i{0}; i < string.size(); ++i) {
     if (isTrueOperator(i) && !(comesAfterNumber(i) && comesBeforeNumber(i))) return true;
   }
   return false;
 }
 
-size_t Math::Formula::getFirstParenthesisOpeningIndex() {
+size_t Math::Formula::getFirstParenthesisOpeningIndex() const {
   return find('(');
 }
 
-size_t Math::Formula::getFirstParenthesisClosingIndex() {
+size_t Math::Formula::getFirstParenthesisClosingIndex() const {
   for (size_t i{0}; i < string.size(); ++i) {
     if (string[i] == ')' && getParenthesisDeepness(i) == 0) return i;
   }
   return 0;
 }
 
-size_t Math::Formula::getFirstWrappingParenthesisOpeningIndex(size_t index) {
+size_t Math::Formula::getFirstWrappingParenthesisOpeningIndex(size_t index) const {
   for (size_t i{index}; i > 0; --i) {
     if (string[i] == '(' && getParenthesisDeepness(i) == 1) return i;
   }
   return 0;
 }
 
-size_t Math::Formula::getFirstWrappingParenthesisClosingIndex(size_t index) {
+size_t Math::Formula::getFirstWrappingParenthesisClosingIndex(size_t index) const {
   for (size_t i{index}; i < string.size(); ++i) {
     if (string[i] == ')' && getParenthesisDeepness(i) == 0) return i;
   }
   return 0;
 }
 
-int Math::Formula::getNumberofOperations() {
+int Math::Formula::getNumberofOperations() const {
   int numberOfOperations{};
   for (size_t i{0}; i < string.size(); ++i) {
     if (!isTrueOperator(i)) continue;
@@ -160,7 +160,7 @@ int Math::Formula::getNumberofOperations() {
   return numberOfOperations;
 }
 
-Math::Operators::Priority Math::Formula::getMaxOperatorPriority() {
+Math::Operators::Priority Math::Formula::getMaxOperatorPriority() const {
   using namespace Operators;
   if (std::none_of(string.begin(), string.end(), isParenthesis)) {
     if (std::any_of(string.begin(), string.end(), isMaxPriority)) return Priority::max;
@@ -180,7 +180,7 @@ Math::Operators::Priority Math::Formula::getMaxOperatorPriority() {
   return maxNonParenthesisOperatorPriority;
 }
 
-bool Math::Formula::areThereMinPriorityOperator() {
+bool Math::Formula::areThereMinPriorityOperator() const {
   for (size_t i{0}; i < string.size(); ++i) {
     if (Operators::isMinPriority(string[i]) && !isMinusSign(i)) return true;
   }

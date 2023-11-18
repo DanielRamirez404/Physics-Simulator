@@ -4,15 +4,13 @@
 #include <ctime>
 #include <iostream>
 
-void doNothing() { }
-
-void Timer::printTime(float remainingTime) {
+void Timer::printTime(float remainingTime) const {
   std::cout << "----------------------------------------------\n";
   std::cout << "TIME LEFT: " << remainingTime << " SECONDS\n";
   std::cout << "----------------------------------------------\n";
 }
 
-void Timer::run() {
+void Timer::run() const {
   const auto totalTime{seconds * CLOCKS_PER_SEC};
   const auto startingTime { clock() };
   auto elapsedTime { clock() - startingTime };
@@ -26,7 +24,7 @@ void Timer::run() {
   }
 }
 
-void TimedFunction::run() {
+void TimedFunction::run() const {
   const auto totalTime {seconds * CLOCKS_PER_SEC};
   const auto startingTime { clock() };
   auto elapsedTime {clock() - startingTime};
@@ -40,7 +38,7 @@ void TimedFunction::run() {
   }
 }
 
-void TimeUsableFunction::run() {
+void TimeUsableFunction::run() const {
   const auto totalTime {seconds * CLOCKS_PER_SEC};
   const auto startingTime { clock() };
   auto elapsedTime {clock() - startingTime};

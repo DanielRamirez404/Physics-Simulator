@@ -15,7 +15,7 @@ namespace Math {
     void solveFirstParenthesis();
     T solveForOneOperator();
     T solveByPriorities(int numberOfOperations);
-    T getNumberFromString(const std::string& numberString);
+    T getNumberFromString(const std::string& numberString) const;
   public:
     Operation(std::string_view myFormula) : Formula(myFormula) {};
     T solve();
@@ -68,6 +68,6 @@ template <typename T> T Math::Operation<T>::solveForOneOperator() {
   return doOperation<T>(firstValue, operation, secondValue);
 }
 
-template <typename T> T Math::Operation<T>::getNumberFromString(const std::string& numberString) {
+template <typename T> T Math::Operation<T>::getNumberFromString(const std::string& numberString) const {
   return static_cast<T>( (isNumberDecimal(numberString)) ? std::stod(numberString) : std::stoi(numberString) );
 }

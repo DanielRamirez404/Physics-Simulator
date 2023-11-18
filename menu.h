@@ -15,15 +15,15 @@ protected:
   std::string_view exitMessage{"GO BACK"};
   size_t totalOptions{};
   std::vector<MenuFunction> functions{};
-  bool isUserQuitting(size_t selectedOption) { return (selectedOption == totalOptions + 1); };
-  bool isQuittingConfirmed();
-  void printTitle();
-  void print();
+  bool isUserQuitting(size_t selectedOption) const { return (selectedOption == totalOptions + 1); };
+  bool isQuittingConfirmed() const;
+  void printTitle() const;
+  void print() const;
 public:
   Menu (const Menu&) = delete;
   Menu& operator=(const Menu&) = delete; 
   Menu(const char* menuTitle, std::vector<MenuFunction> menufunctions) : title{menuTitle}, functions{menufunctions} { totalOptions = functions.size(); };
-  void run();
+  void run() const;
 };
 
 class MainMenu : public Menu {
@@ -34,8 +34,8 @@ public:
 class RunOnceMenu : public Menu {
 private:
   bool didUserQuit{false};
-  bool didUserExit() { return didUserQuit; };
+  bool didUserExit() const { return didUserQuit; };
 public:
   using Menu::Menu;
-  void run();
+  void run() const;
 };
