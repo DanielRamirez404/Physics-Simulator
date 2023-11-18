@@ -17,7 +17,7 @@ namespace Math {
     T solveByPriorities(int numberOfOperations);
     T getNumberFromString(const std::string& numberString) const;
   public:
-    Operation(std::string_view myFormula) : Formula(myFormula) {};
+    explicit Operation(std::string_view myFormula) : Formula{myFormula} {};
     T solve();
   };
   Operation(std::string_view) -> Operation<double>;

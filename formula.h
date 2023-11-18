@@ -22,7 +22,7 @@ namespace Math {
     size_t findAnyOperator() const;
   public:
     Formula() = default;
-    explicit Formula(std::string_view myFormula) : String{myFormula} { format(); };
+    explicit Formula(std::string_view myFormula) : Formula{myFormula, {}} {};
     Formula(std::string_view myFormula, const std::vector<char>& myVariables) : String{myFormula}, variables{myVariables} { format(); };
     void setFormula(std::string_view myFormula);
     void setFormula(std::string_view myFormula, const std::vector<char>& myVariables);

@@ -8,7 +8,7 @@ protected:
   std::string string{};
 public:
   String() = default;
-  explicit String(std::string_view myString) : string(myString) {};
+  explicit String(std::string_view myString) : string{myString} {};
   auto operator[](size_t index) const { return string[index]; };
   auto at(size_t index) const { return string[index]; };
   auto begin() const { return string.begin(); };

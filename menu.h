@@ -28,7 +28,7 @@ public:
 
 class MainMenu : public Menu {
 public:
-  MainMenu(const char* title, std::vector<MenuFunction> functions) : Menu (title, functions) { Menu::exitMessage = "EXIT"; };
+  MainMenu(const char* title, std::vector<MenuFunction> functions) : Menu {title, functions} { Menu::exitMessage = "EXIT"; };
 };
 
 class RunOnceMenu : public Menu {
