@@ -48,7 +48,7 @@ void TimeUsableFunction::run() const {
       printTime(remainingTime);
     }
     function( static_cast<float>(elapsedTime) / CLOCKS_PER_SEC );
-    Timer waitingTime{1.0f / fps};
+    Timer waitingTime{1.0f / TimeUsableFunction::fps};
     waitingTime.run();
     elapsedTime = clock() - startingTime;
   }
