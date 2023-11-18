@@ -24,6 +24,7 @@ public:
 
 class TimeUsableFunction : public Timer {
 private:
+  const int fps{60};
   std::function<void(float)> function{};
 public:
   TimeUsableFunction(float mySeconds, std::function<void(float)> myFunction) : Timer(mySeconds), function(myFunction) {};

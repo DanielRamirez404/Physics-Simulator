@@ -50,6 +50,8 @@ void TimeUsableFunction::run() {
       printTime(remainingTime);
     }
     function( static_cast<float>(elapsedTime) / CLOCKS_PER_SEC );
+    Timer waitingTime{1.0f / fps};
+    waitingTime.run();
     elapsedTime = clock() - startingTime;
   }
 }
