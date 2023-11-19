@@ -1,5 +1,6 @@
 #pragma once
 #include "variable.h"
+#include "distances.h"
 #include <string_view>
 #include <array>
 #include <vector>
@@ -15,6 +16,7 @@ namespace MotionIdentifiers {
 
 class Motion {
 private:
+  DistancesToPrint distances{};
   std::array<Variable, 5> variables {{ 
     Variable {MotionIdentifiers::acceleration}, 
     Variable {MotionIdentifiers::initialVelocity},

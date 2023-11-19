@@ -78,18 +78,13 @@ void Motion::determineRemainingVariables() {
 }
 
 void Motion::printCurrentState(float currentTime) {
-  using Distance = unsigned int;
-  const DistancesToPrint distances{
-    getCurrentDistance(0),
-    (getCurrentDistance(currentTime)),
-    getVariable(MotionIdentifiers::distance).get()
-  };
-  const Distance relativeDistance { distances.getRelativeDistance() };
+  distances.setCurrent(getCurrentDistance(currentTime));
+  const unsigned int relativeDistance { distances.getRelativeDistance() };
   //art found in https://ascii.co.uk/art/car
   clearConsole();
   std::cout << "----------------------------------------------\n";
   std::cout << "ELAPSED TIME: " << Math::round(currentTime) << " SECONDS\n";
-  std::cout << "TRAVELED DISTANCE: " << Math::round(distances.getCurrent()) << " METERS\n";
+  std::cout << "CURRENT DISTANCE: " << Math::round(distances.getCurrent()) << " METERS\n";
   std::cout << "----------------------------------------------\n";
   printlInDistance("                     .------.                    "   , relativeDistance);
   printlInDistance("                    :|||\"\"\"`.`.                  ", relativeDistance);
@@ -127,6 +122,7 @@ float Motion::getCurrentDistance(float currentTime) { // d = o * t + (a * t ^ 2)
 }
 
 void Motion::simulate() {
+  distances.setLimits(getCurrentDistance(0), getVariable(MotionIdentifiers::distance).get());
   std::function<void(float)> printFunction { std::bind(&Motion::printCurrentState, this, std::placeholders::_1) };
   TimeUsableFunction simulation{getVariable(MotionIdentifiers::time).get(), printFunction};
   simulation.run();
