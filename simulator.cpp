@@ -21,7 +21,7 @@ void chooseHorizontalMotion() {
     { "UNIFORM LINEAR MOTION", &doUniformLinearMotion },
     { "UNIFORMILY VARIED LINEAR MOTION", &doUniformilyVariedLinearMotion},
   };
-  RunOnceMenu horizontalMenu("HORIZONTAL MOTION", horizontalFunctions);
+  Menu horizontalMenu("HORIZONTAL MOTION", horizontalFunctions);
   horizontalMenu.run();
 }
 
@@ -41,7 +41,12 @@ void doUniformLinearMotion() {
     }
   }
   uniformLinearMotion.determineRemainingVariables();
-  uniformLinearMotion.simulate();
+  if (uniformLinearMotion.canSimulate()) {
+    uniformLinearMotion.simulate();
+  } else {
+    std::cout << "CAN\'T START SIMULATION. TRY AGAIN\n";
+    doUniformLinearMotion();
+  }
 }
 
 void doUniformilyVariedLinearMotion() {
@@ -56,7 +61,12 @@ void doUniformilyVariedLinearMotion() {
       setVariableFromUser(acceleratedMotion, identifier);
   }
   acceleratedMotion.determineRemainingVariables();
-  acceleratedMotion.simulate();
+  if (acceleratedMotion.canSimulate()) {
+    acceleratedMotion.simulate();
+  } else {
+    std::cout << "CAN\'T START SIMULATION. TRY AGAIN\n";
+    doUniformilyVariedLinearMotion();
+  }
 }
 
 void chooseVerticalMotion() {
@@ -95,4 +105,11 @@ std::string_view getIdentifierName(char identifier) {
       return "TIME";
   }
   return "";
+}
+
+void showExitMessage() {
+  std::cout << "THANKS FOR TRYING THE PROGRAM!\n";
+  std::cout << "SEE YOU LATER! :)\n";
+  Timer timer { 1.5f };
+  timer.run();
 }

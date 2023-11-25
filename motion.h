@@ -39,6 +39,7 @@ public:
   bool areAllVariablesSet();
   bool canDetermineRemainingVariables();
   void determineRemainingVariables();
+  bool canSimulate();
   void simulate();
   void setVariable(char identifier, float value);
   bool isVariableSet(char identifier);

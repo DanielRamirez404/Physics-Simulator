@@ -59,6 +59,10 @@ bool Motion::canDetermineRemainingVariables() {
   return (countSetVariables() >= static_cast<int>(variables.size()) - 2) && !areAllVariablesSet();
 }
 
+bool Motion::canSimulate() {
+  return areAllVariablesSet() && getVariableValue(MotionIdentifiers::distance) != 0.0f;
+}
+
 void Motion::determineVariable(char identifier) {
   Variable& unknownVariable { getVariable(identifier) };
   std::vector<char> formulaVariables { getVariablesFor(identifier) };
